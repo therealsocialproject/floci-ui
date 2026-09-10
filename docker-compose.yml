@@ -1,0 +1,24 @@
+version: "3.8"
+
+services:
+  floci:
+    image: floci/floci:latest
+    container_name: floci
+    ports:
+      - "4566:4566"
+    environment:
+      - DOCKER_HOST=unix:///var/run/docker.sock
+    volumes:
+      - "/var/run/docker.sock:/var/run/docker.sock"
+    restart: unless-stopped
+
+  floci-ui:
+    build: .
+    container_name: floci-ui
+    ports:
+      - "3000:3000"
+    environment:
+      - FLOCI_ENDPOINT=http://floci:4566
+    depends_on:
+      - floci
+    restart: unless-stopped
