@@ -4,6 +4,16 @@
 
 ---
 
+## About Floci
+
+[Floci](https://github.com/floci-io/floci) is a lightweight, high-performance open-source cloud emulator built on Quarkus Native and GraalVM. It delivers ultra-fast, credential-free local cloud service emulation across AWS, Google Cloud, Azure, and OCI—serving as an efficient drop-in alternative for local development and CI/CD testing.
+
+**Floci Web UI** (`floci-ui`) provides a unified, visual management console for your Floci instances. It offers dual AWS and Google Cloud console themes, resource explorers, and live management capabilities (create, upload, edit, and delete) across core emulated services.
+
+Learn more about Floci at [floci.io](https://floci.io) or explore the [Floci GitHub organization](https://github.com/floci-io).
+
+---
+
 ## Previews
 
 ### AWS Console View
@@ -87,7 +97,7 @@ Visit [http://localhost:3000](http://localhost:3000).
 ### 2. Setup
 ```bash
 # Clone the repository
-git clone https://github.com/your-org/floci-ui.git
+git clone https://github.com/therealsocialproject/floci-ui.git
 cd floci-ui
 
 # Install dependencies
