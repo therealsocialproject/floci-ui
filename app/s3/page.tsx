@@ -6,19 +6,20 @@ import {
   RefreshCw,
   Folder,
   File,
-  HardDrive,
-  Calendar,
-  Layers,
 } from "lucide-react";
 import { useEndpoint } from "@/components/EndpointProvider";
+import { useCloudTheme } from "@/components/CloudThemeContext";
 
 export default function S3Page() {
   const { endpoint, isConnected } = useEndpoint();
+  const { cloudMode, serviceLabels } = useCloudTheme();
   const [buckets, setBuckets] = useState<any[]>([]);
   const [selectedBucket, setSelectedBucket] = useState<string | null>(null);
   const [objects, setObjects] = useState<any[]>([]);
   const [loadingBuckets, setLoadingBuckets] = useState(true);
   const [loadingObjects, setLoadingObjects] = useState(false);
+
+  const isAws = cloudMode === "aws";
 
   const fetchBuckets = async () => {
     setLoadingBuckets(true);
@@ -83,11 +84,13 @@ export default function S3Page() {
       <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-4">
         <div>
           <h2 className="text-2xl font-bold text-white flex items-center gap-3">
-            <FolderLock className="w-6 h-6 text-emerald-400" />
-            S3 Storage Buckets
+            <FolderLock className={`w-6 h-6 ${isAws ? "text-amber-400" : "text-blue-400"}`} />
+            {isAws ? "S3 Storage Buckets" : "Cloud Storage Buckets"}
           </h2>
           <p className="text-sm text-slate-400 mt-1">
-            Browse buckets and stored objects inside the Floci storage emulator
+            {isAws
+              ? "Browse AWS S3 compatible buckets and objects"
+              : "Browse GCP Cloud Storage buckets and blobs inside the emulator"}
           </p>
         </div>
 
@@ -107,26 +110,30 @@ export default function S3Page() {
         <div className="bg-[#0d1322] border border-slate-800 rounded-2xl p-5 shadow-xl space-y-3">
           <div className="flex items-center justify-between pb-3 border-b border-slate-800">
             <span className="text-xs font-bold text-slate-300 uppercase tracking-wider flex items-center gap-2">
-              <Folder className="w-4 h-4 text-emerald-400" />
-              Buckets ({buckets.length})
+              <Folder className={`w-4 h-4 ${isAws ? "text-amber-400" : "text-blue-400"}`} />
+              {isAws ? "Buckets" : "Storage Buckets"} ({buckets.length})
             </span>
           </div>
 
           {loadingBuckets ? (
-            <div className="py-8 text-center text-xs text-slate-500">Loading buckets...</div>
+            <div className="py-8 text-center text-xs text-slate-500">Loading {serviceLabels.buckets}...</div>
           ) : buckets.length === 0 ? (
-            <div className="py-8 text-center text-xs text-slate-500">No S3 buckets created yet</div>
+            <div className="py-8 text-center text-xs text-slate-500">No buckets created yet</div>
           ) : (
             <div className="space-y-1.5 max-h-[500px] overflow-y-auto pr-1">
               {buckets.map((b) => {
                 const isSelected = selectedBucket === b.name;
+                const activeBorder = isAws
+                  ? "bg-amber-500/10 border-amber-500/40 text-amber-300 font-semibold"
+                  : "bg-blue-500/10 border-blue-500/40 text-blue-300 font-semibold";
+
                 return (
                   <button
                     key={b.name}
                     onClick={() => setSelectedBucket(b.name)}
                     className={`w-full text-left p-3 rounded-xl text-xs font-mono transition-all flex items-center justify-between border ${
                       isSelected
-                        ? "bg-emerald-500/10 border-emerald-500/40 text-emerald-300 font-semibold"
+                        ? activeBorder
                         : "bg-slate-900/60 border-slate-800/80 text-slate-300 hover:border-slate-700"
                     }`}
                   >
@@ -145,7 +152,7 @@ export default function S3Page() {
         <div className="lg:col-span-2 bg-[#0d1322] border border-slate-800 rounded-2xl p-5 shadow-xl space-y-4">
           <div className="flex items-center justify-between pb-3 border-b border-slate-800">
             <span className="text-xs font-bold text-slate-300 uppercase tracking-wider flex items-center gap-2">
-              <File className="w-4 h-4 text-emerald-400" />
+              <File className={`w-4 h-4 ${isAws ? "text-amber-400" : "text-blue-400"}`} />
               {selectedBucket ? `Objects in ${selectedBucket}` : "Select a bucket"}
             </span>
             {selectedBucket && (
@@ -160,7 +167,7 @@ export default function S3Page() {
             </div>
           ) : !selectedBucket ? (
             <div className="py-12 text-center text-xs text-slate-500">
-              Select a bucket from the left panel to inspect its contents.
+              Select a bucket from the left panel to inspect its stored objects.
             </div>
           ) : objects.length === 0 ? (
             <div className="py-12 text-center text-xs text-slate-500">
@@ -171,10 +178,10 @@ export default function S3Page() {
               <table className="w-full text-left text-xs">
                 <thead className="bg-slate-900/80 border-b border-slate-800 text-slate-400 uppercase font-semibold">
                   <tr>
-                    <th className="px-4 py-2.5">Key / Filename</th>
+                    <th className="px-4 py-2.5">Key / Object Path</th>
                     <th className="px-4 py-2.5">Size</th>
                     <th className="px-4 py-2.5">Last Modified</th>
-                    <th className="px-4 py-2.5">Storage Class</th>
+                    <th className="px-4 py-2.5">Storage Tier</th>
                   </tr>
                 </thead>
                 <tbody className="divide-y divide-slate-800/60 font-mono">

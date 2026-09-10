@@ -7,15 +7,16 @@ import {
   KeyRound,
   Shield,
   UserCheck,
-  Layers,
   Search,
 } from "lucide-react";
 import { useEndpoint } from "@/components/EndpointProvider";
+import { useCloudTheme } from "@/components/CloudThemeContext";
 
 type IAMTab = "roles" | "users" | "groups" | "policies";
 
 export default function IAMPage() {
   const { endpoint, isConnected } = useEndpoint();
+  const { cloudMode, serviceLabels } = useCloudTheme();
   const [activeTab, setActiveTab] = useState<IAMTab>("roles");
   const [iamData, setIamData] = useState<{
     roles: any[];
@@ -25,6 +26,8 @@ export default function IAMPage() {
   }>({ roles: [], users: [], groups: [], policies: [] });
   const [loading, setLoading] = useState(true);
   const [search, setSearch] = useState("");
+
+  const isAws = cloudMode === "aws";
 
   const fetchIAM = async () => {
     setLoading(true);
@@ -58,17 +61,23 @@ export default function IAMPage() {
     return text.includes(search.toLowerCase());
   });
 
+  const tabActiveClass = isAws
+    ? "bg-amber-500 text-slate-950 shadow-sm"
+    : "bg-blue-600 text-white shadow-sm";
+
   return (
     <div className="space-y-6 max-w-7xl mx-auto">
       {/* Header */}
       <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-4">
         <div>
           <h2 className="text-2xl font-bold text-white flex items-center gap-3">
-            <Users className="w-6 h-6 text-emerald-400" />
-            IAM Access & Permissions
+            <Users className={`w-6 h-6 ${isAws ? "text-amber-400" : "text-blue-400"}`} />
+            {isAws ? "IAM Access & Permissions" : "IAM & Admin Console"}
           </h2>
           <p className="text-sm text-slate-400 mt-1">
-            Manage simulated IAM Roles, Users, Groups, and Managed Policies in Floci
+            {isAws
+              ? "Manage simulated IAM Roles, Users, Groups, and Managed Policies in Floci"
+              : "Manage Service Accounts, Principals, Roles, and Permissions in Floci"}
           </p>
         </div>
 
@@ -88,31 +97,25 @@ export default function IAMPage() {
           <button
             onClick={() => setActiveTab("roles")}
             className={`flex-1 sm:flex-initial px-4 py-2 rounded-lg font-semibold transition-colors flex items-center justify-center gap-2 ${
-              activeTab === "roles"
-                ? "bg-emerald-500 text-slate-950 shadow-sm"
-                : "text-slate-400 hover:text-slate-200"
+              activeTab === "roles" ? tabActiveClass : "text-slate-400 hover:text-slate-200"
             }`}
           >
             <Shield className="w-3.5 h-3.5" />
-            Roles ({iamData.roles.length})
+            {isAws ? "Roles" : "Roles / Service Accounts"} ({iamData.roles.length})
           </button>
           <button
             onClick={() => setActiveTab("users")}
             className={`flex-1 sm:flex-initial px-4 py-2 rounded-lg font-semibold transition-colors flex items-center justify-center gap-2 ${
-              activeTab === "users"
-                ? "bg-emerald-500 text-slate-950 shadow-sm"
-                : "text-slate-400 hover:text-slate-200"
+              activeTab === "users" ? tabActiveClass : "text-slate-400 hover:text-slate-200"
             }`}
           >
             <UserCheck className="w-3.5 h-3.5" />
-            Users ({iamData.users.length})
+            {isAws ? "Users" : "Principals"} ({iamData.users.length})
           </button>
           <button
             onClick={() => setActiveTab("groups")}
             className={`flex-1 sm:flex-initial px-4 py-2 rounded-lg font-semibold transition-colors flex items-center justify-center gap-2 ${
-              activeTab === "groups"
-                ? "bg-emerald-500 text-slate-950 shadow-sm"
-                : "text-slate-400 hover:text-slate-200"
+              activeTab === "groups" ? tabActiveClass : "text-slate-400 hover:text-slate-200"
             }`}
           >
             <Users className="w-3.5 h-3.5" />
@@ -121,13 +124,11 @@ export default function IAMPage() {
           <button
             onClick={() => setActiveTab("policies")}
             className={`flex-1 sm:flex-initial px-4 py-2 rounded-lg font-semibold transition-colors flex items-center justify-center gap-2 ${
-              activeTab === "policies"
-                ? "bg-emerald-500 text-slate-950 shadow-sm"
-                : "text-slate-400 hover:text-slate-200"
+              activeTab === "policies" ? tabActiveClass : "text-slate-400 hover:text-slate-200"
             }`}
           >
             <KeyRound className="w-3.5 h-3.5" />
-            Policies ({iamData.policies.length})
+            {isAws ? "Policies" : "Permissions"} ({iamData.policies.length})
           </button>
         </div>
 
@@ -138,7 +139,7 @@ export default function IAMPage() {
             placeholder={`Search ${activeTab}...`}
             value={search}
             onChange={(e) => setSearch(e.target.value)}
-            className="w-full bg-slate-900 border border-slate-800 pl-9 pr-4 py-1.5 rounded-xl text-xs text-slate-200 placeholder-slate-500 focus:outline-none focus:border-emerald-500"
+            className="w-full bg-slate-900 border border-slate-800 pl-9 pr-4 py-1.5 rounded-xl text-xs text-slate-200 placeholder-slate-500 focus:outline-none focus:border-slate-600"
           />
         </div>
       </div>
@@ -158,8 +159,8 @@ export default function IAMPage() {
           <table className="w-full text-left text-xs">
             <thead className="bg-slate-900/80 border-b border-slate-800 text-slate-400 uppercase font-semibold">
               <tr>
-                <th className="px-6 py-3.5">Name</th>
-                <th className="px-6 py-3.5">ARN</th>
+                <th className="px-6 py-3.5">{isAws ? "Identity Name" : "Principal / Resource"}</th>
+                <th className="px-6 py-3.5">ARN / Identifier</th>
                 <th className="px-6 py-3.5">Created</th>
                 {activeTab === "policies" && <th className="px-6 py-3.5">Attachments</th>}
               </tr>
@@ -178,7 +179,13 @@ export default function IAMPage() {
                     </td>
                     {activeTab === "policies" && (
                       <td className="px-6 py-3.5 text-slate-300 font-sans">
-                        <span className="px-2 py-0.5 rounded bg-emerald-500/10 text-emerald-400 border border-emerald-500/20 text-[10px] font-semibold">
+                        <span
+                          className={`px-2 py-0.5 rounded text-[10px] font-semibold border ${
+                            isAws
+                              ? "bg-amber-500/10 text-amber-400 border-amber-500/20"
+                              : "bg-blue-500/10 text-blue-400 border-blue-500/20"
+                          }`}
+                        >
                           {item.attachmentCount} attached
                         </span>
                       </td>

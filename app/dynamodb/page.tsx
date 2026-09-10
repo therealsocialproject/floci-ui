@@ -6,19 +6,22 @@ import {
   RefreshCw,
   Table as TableIcon,
   Key,
-  Layers,
   Code2,
 } from "lucide-react";
 import { useEndpoint } from "@/components/EndpointProvider";
+import { useCloudTheme } from "@/components/CloudThemeContext";
 
 export default function DynamoDBPage() {
   const { endpoint, isConnected } = useEndpoint();
+  const { cloudMode, serviceLabels } = useCloudTheme();
   const [tables, setTables] = useState<string[]>([]);
   const [selectedTable, setSelectedTable] = useState<string | null>(null);
   const [tableDetails, setTableDetails] = useState<any>(null);
   const [items, setItems] = useState<any[]>([]);
   const [loadingTables, setLoadingTables] = useState(true);
   const [loadingItems, setLoadingItems] = useState(false);
+
+  const isAws = cloudMode === "aws";
 
   const fetchTables = async () => {
     setLoadingTables(true);
@@ -76,11 +79,13 @@ export default function DynamoDBPage() {
       <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-4">
         <div>
           <h2 className="text-2xl font-bold text-white flex items-center gap-3">
-            <Database className="w-6 h-6 text-emerald-400" />
-            DynamoDB Explorer
+            <Database className={`w-6 h-6 ${isAws ? "text-amber-400" : "text-blue-400"}`} />
+            {isAws ? "DynamoDB NoSQL Explorer" : "Datastore & NoSQL Explorer"}
           </h2>
           <p className="text-sm text-slate-400 mt-1">
-            Browse NoSQL tables, inspect partition keys, and scan records in Floci
+            {isAws
+              ? "Browse DynamoDB tables, inspect composite keys, and scan records"
+              : "Inspect NoSQL entity kinds, partition keys, and documents in Floci"}
           </p>
         </div>
 
@@ -99,31 +104,39 @@ export default function DynamoDBPage() {
         <div className="bg-[#0d1322] border border-slate-800 rounded-2xl p-5 shadow-xl space-y-3">
           <div className="flex items-center justify-between pb-3 border-b border-slate-800">
             <span className="text-xs font-bold text-slate-300 uppercase tracking-wider flex items-center gap-2">
-              <TableIcon className="w-4 h-4 text-emerald-400" />
-              Tables ({tables.length})
+              <TableIcon className={`w-4 h-4 ${isAws ? "text-amber-400" : "text-blue-400"}`} />
+              {isAws ? "Tables" : "Entities"} ({tables.length})
             </span>
           </div>
 
           {loadingTables ? (
-            <div className="py-8 text-center text-xs text-slate-500">Loading tables...</div>
+            <div className="py-8 text-center text-xs text-slate-500">Loading {serviceLabels.tables}...</div>
           ) : tables.length === 0 ? (
-            <div className="py-8 text-center text-xs text-slate-500">No DynamoDB tables found</div>
+            <div className="py-8 text-center text-xs text-slate-500">No tables found</div>
           ) : (
             <div className="space-y-1.5 max-h-[500px] overflow-y-auto pr-1">
               {tables.map((tbl) => {
                 const isSelected = selectedTable === tbl;
+                const activeBorder = isAws
+                  ? "bg-amber-500/10 border-amber-500/40 text-amber-300 font-semibold"
+                  : "bg-blue-500/10 border-blue-500/40 text-blue-300 font-semibold";
+
                 return (
                   <button
                     key={tbl}
                     onClick={() => setSelectedTable(tbl)}
                     className={`w-full text-left p-3 rounded-xl text-xs font-mono transition-all flex items-center justify-between border ${
                       isSelected
-                        ? "bg-emerald-500/10 border-emerald-500/40 text-emerald-300 font-semibold"
+                        ? activeBorder
                         : "bg-slate-900/60 border-slate-800/80 text-slate-300 hover:border-slate-700"
                     }`}
                   >
                     <span className="truncate">{tbl}</span>
-                    <span className="w-2 h-2 rounded-full bg-emerald-400 shrink-0 ml-2" />
+                    <span
+                      className={`w-2 h-2 rounded-full shrink-0 ml-2 ${
+                        isAws ? "bg-amber-400" : "bg-blue-400"
+                      }`}
+                    />
                   </button>
                 );
               })}
@@ -140,7 +153,7 @@ export default function DynamoDBPage() {
             </div>
           ) : !selectedTable ? (
             <div className="py-16 text-center text-xs text-slate-500">
-              Select a table from the left to view schema and items.
+              Select a table from the left to view schema and records.
             </div>
           ) : (
             <>
@@ -158,9 +171,11 @@ export default function DynamoDBPage() {
 
                   <div className="grid grid-cols-2 sm:grid-cols-3 gap-3 text-xs">
                     <div>
-                      <span className="text-slate-500 text-[11px] block">Key Schema</span>
+                      <span className="text-slate-500 text-[11px] block">
+                        {isAws ? "Key Schema" : "Partition & Key"}
+                      </span>
                       <div className="font-mono text-slate-300 mt-0.5 flex items-center gap-1">
-                        <Key className="w-3 h-3 text-amber-400" />
+                        <Key className={`w-3 h-3 ${isAws ? "text-amber-400" : "text-blue-400"}`} />
                         {tableDetails.KeySchema?.map(
                           (k: any) => `${k.AttributeName} (${k.KeyType})`
                         ).join(", ")}
@@ -173,7 +188,7 @@ export default function DynamoDBPage() {
                       </span>
                     </div>
                     <div>
-                      <span className="text-slate-500 text-[11px] block">Billing Mode</span>
+                      <span className="text-slate-500 text-[11px] block">Throughput Mode</span>
                       <span className="text-slate-300 mt-0.5 block">
                         {tableDetails.BillingModeSummary?.BillingMode || "PROVISIONED"}
                       </span>

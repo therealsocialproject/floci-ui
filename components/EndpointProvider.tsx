@@ -2,20 +2,24 @@
 
 import React, { createContext, useContext, useState, useEffect, ReactNode } from "react";
 
-export interface EndpointPreset {
+export interface CloudEnvironment {
+  id: string;
   name: string;
   url: string;
 }
 
-export const ENDPOINT_PRESETS: EndpointPreset[] = [
-  { name: "Localhost", url: "http://localhost:4566" },
-  { name: "VM 2 - AWS Sandbox", url: "http://10.110.110.151:4566" },
-  { name: "VM 1 - GCP Sandbox", url: "http://10.110.110.159:4566" },
+export const DEFAULT_ENVIRONMENTS: CloudEnvironment[] = [
+  { id: "local", name: "Local Floci", url: "http://localhost:4566" },
 ];
 
 interface EndpointContextType {
   endpoint: string;
+  environments: CloudEnvironment[];
+  currentEnvironment: CloudEnvironment | null;
   setEndpoint: (ep: string) => void;
+  selectEnvironment: (id: string) => void;
+  addEnvironment: (name: string, url: string) => void;
+  removeEnvironment: (id: string) => void;
   isConnected: boolean;
   isLoading: boolean;
   health: any;
@@ -25,25 +29,79 @@ interface EndpointContextType {
 const EndpointContext = createContext<EndpointContextType | undefined>(undefined);
 
 export function EndpointProvider({ children }: { children: ReactNode }) {
-  const [endpoint, setEndpointState] = useState<string>("http://10.110.110.151:4566");
+  const [environments, setEnvironments] = useState<CloudEnvironment[]>(DEFAULT_ENVIRONMENTS);
+  const [endpoint, setEndpointState] = useState<string>("http://localhost:4566");
   const [isConnected, setIsConnected] = useState<boolean>(false);
   const [isLoading, setIsLoading] = useState<boolean>(false);
   const [health, setHealth] = useState<any>(null);
 
   useEffect(() => {
-    const saved = localStorage.getItem("floci_endpoint");
-    if (saved) {
-      setEndpointState(saved);
-      checkHealth(saved);
-    } else {
-      checkHealth(endpoint);
+    // Load environments from localStorage
+    const savedEnvs = localStorage.getItem("floci_environments");
+    let initialEnvs = DEFAULT_ENVIRONMENTS;
+    if (savedEnvs) {
+      try {
+        const parsed = JSON.parse(savedEnvs);
+        if (Array.isArray(parsed) && parsed.length > 0) {
+          initialEnvs = parsed;
+          setEnvironments(parsed);
+        }
+      } catch (e) {
+        console.error("Failed to parse saved environments", e);
+      }
     }
+
+    // Load active endpoint
+    const savedEp = localStorage.getItem("floci_endpoint");
+    const activeEp = savedEp || initialEnvs[0]?.url || "http://localhost:4566";
+    setEndpointState(activeEp);
+    checkHealth(activeEp);
   }, []);
 
+  const saveEnvironments = (envs: CloudEnvironment[]) => {
+    setEnvironments(envs);
+    localStorage.setItem("floci_environments", JSON.stringify(envs));
+  };
+
   const setEndpoint = (newEp: string) => {
-    setEndpointState(newEp);
-    localStorage.setItem("floci_endpoint", newEp);
-    checkHealth(newEp);
+    let cleanUrl = newEp.trim();
+    if (!cleanUrl.startsWith("http://") && !cleanUrl.startsWith("https://")) {
+      cleanUrl = `http://${cleanUrl}`;
+    }
+    setEndpointState(cleanUrl);
+    localStorage.setItem("floci_endpoint", cleanUrl);
+    checkHealth(cleanUrl);
+  };
+
+  const selectEnvironment = (id: string) => {
+    const env = environments.find((e) => e.id === id);
+    if (env) {
+      setEndpoint(env.url);
+    }
+  };
+
+  const addEnvironment = (name: string, url: string) => {
+    let cleanUrl = url.trim();
+    if (!cleanUrl.startsWith("http://") && !cleanUrl.startsWith("https://")) {
+      cleanUrl = `http://${cleanUrl}`;
+    }
+    const newEnv: CloudEnvironment = {
+      id: `env-${Date.now()}`,
+      name: name.trim() || cleanUrl,
+      url: cleanUrl,
+    };
+    const updated = [...environments, newEnv];
+    saveEnvironments(updated);
+    setEndpoint(newEnv.url);
+  };
+
+  const removeEnvironment = (id: string) => {
+    if (environments.length <= 1) return;
+    const updated = environments.filter((e) => e.id !== id);
+    saveEnvironments(updated);
+    if (currentEnvironment?.id === id) {
+      setEndpoint(updated[0].url);
+    }
   };
 
   const checkHealth = async (epToCheck?: string) => {
@@ -67,11 +125,23 @@ export function EndpointProvider({ children }: { children: ReactNode }) {
     }
   };
 
+  const currentEnvironment =
+    environments.find((e) => e.url === endpoint) || {
+      id: "custom",
+      name: "Custom Host",
+      url: endpoint,
+    };
+
   return (
     <EndpointContext.Provider
       value={{
         endpoint,
+        environments,
+        currentEnvironment,
         setEndpoint,
+        selectEnvironment,
+        addEnvironment,
+        removeEnvironment,
         isConnected,
         isLoading,
         health,

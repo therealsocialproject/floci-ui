@@ -12,12 +12,13 @@ import {
   Search,
   CheckCircle2,
   ExternalLink,
-  ShieldCheck,
 } from "lucide-react";
 import { useEndpoint } from "@/components/EndpointProvider";
+import { useCloudTheme } from "@/components/CloudThemeContext";
 
 export default function DashboardPage() {
-  const { endpoint, isConnected, isLoading, health } = useEndpoint();
+  const { endpoint, isConnected, health } = useEndpoint();
+  const { cloudMode, serviceLabels, branding } = useCloudTheme();
   const [searchTerm, setSearchTerm] = useState("");
   const [counts, setCounts] = useState({
     ec2: 0,
@@ -26,10 +27,11 @@ export default function DashboardPage() {
     dynamodb: 0,
   });
 
+  const isAws = cloudMode === "aws";
+
   useEffect(() => {
     if (!isConnected) return;
 
-    // Fetch quick summary counts
     const fetchCounts = async () => {
       try {
         const [ec2Res, s3Res, iamRes, ddbRes] = await Promise.allSettled([
@@ -63,21 +65,39 @@ export default function DashboardPage() {
     name.toLowerCase().includes(searchTerm.toLowerCase())
   );
 
+  const activeBadgeColor = isAws
+    ? "bg-amber-500/10 text-amber-400 border-amber-500/30"
+    : "bg-blue-500/10 text-blue-400 border-blue-500/30";
+
+  const cardHoverBorder = isAws
+    ? "hover:border-amber-500/50 hover:shadow-amber-500/5"
+    : "hover:border-blue-500/50 hover:shadow-blue-500/5";
+
+  const iconBg = isAws
+    ? "bg-amber-500/10 text-amber-400 group-hover:bg-amber-500 group-hover:text-slate-950"
+    : "bg-blue-500/10 text-blue-400 group-hover:bg-blue-500 group-hover:text-white";
+
+  const linkColor = isAws ? "text-amber-400" : "text-blue-400";
+
   return (
     <div className="space-y-8 max-w-7xl mx-auto">
       {/* Top Banner */}
       <div className="bg-gradient-to-r from-slate-900 to-[#0f172a] border border-slate-800 rounded-2xl p-6 shadow-xl relative overflow-hidden">
-        <div className="absolute right-0 top-0 w-96 h-96 bg-emerald-500/5 rounded-full blur-3xl pointer-events-none" />
+        <div
+          className={`absolute right-0 top-0 w-96 h-96 rounded-full blur-3xl pointer-events-none ${
+            isAws ? "bg-amber-500/5" : "bg-blue-500/5"
+          }`}
+        />
         <div className="flex flex-col md:flex-row md:items-center justify-between gap-4">
           <div>
             <div className="flex items-center gap-3">
-              <h2 className="text-2xl font-bold tracking-tight text-white">Floci Cloud Services</h2>
-              <span className="px-2.5 py-0.5 rounded-full text-xs font-semibold bg-emerald-500/10 text-emerald-400 border border-emerald-500/30">
-                {health?.original_edition || "floci-always-free"} v{health?.version || "2.0.1"}
+              <h2 className="text-2xl font-bold tracking-tight text-white">{branding.title}</h2>
+              <span className={`px-2.5 py-0.5 rounded-full text-xs font-semibold border ${activeBadgeColor}`}>
+                {isAws ? "AWS Compatible" : "GCP Compatible"} v{health?.version || "2.0.1"}
               </span>
             </div>
             <p className="text-slate-400 text-sm mt-1">
-              Connected emulator host: <span className="font-mono text-slate-200">{endpoint}</span>
+              Active Endpoint: <span className="font-mono text-slate-200">{endpoint}</span>
             </p>
           </div>
 
@@ -96,76 +116,84 @@ export default function DashboardPage() {
         </div>
       </div>
 
-      {/* Quick Resource Metric Cards */}
+      {/* Resource Metric Cards */}
       <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-4">
         <Link
           href="/ec2"
-          className="group bg-[#0d1322] border border-slate-800 hover:border-emerald-500/50 rounded-xl p-5 transition-all shadow-md hover:shadow-emerald-500/5"
+          className={`group bg-[#0d1322] border border-slate-800 rounded-xl p-5 transition-all shadow-md ${cardHoverBorder}`}
         >
           <div className="flex items-center justify-between">
-            <span className="text-xs font-medium text-slate-400 uppercase tracking-wider">EC2 Compute</span>
-            <div className="p-2 rounded-lg bg-emerald-500/10 text-emerald-400 group-hover:bg-emerald-500 group-hover:text-slate-950 transition-colors">
+            <span className="text-xs font-medium text-slate-400 uppercase tracking-wider">
+              {isAws ? "EC2 Compute" : "Compute Engine"}
+            </span>
+            <div className={`p-2 rounded-lg transition-colors ${iconBg}`}>
               <Server className="w-4 h-4" />
             </div>
           </div>
           <div className="mt-3 flex items-baseline justify-between">
             <span className="text-3xl font-bold text-white">{counts.ec2}</span>
-            <span className="text-xs text-emerald-400 flex items-center gap-1 font-medium">
-              Manage <ExternalLink className="w-3 h-3" />
+            <span className={`text-xs flex items-center gap-1 font-medium ${linkColor}`}>
+              {serviceLabels.instances} <ExternalLink className="w-3 h-3" />
             </span>
           </div>
         </Link>
 
         <Link
           href="/s3"
-          className="group bg-[#0d1322] border border-slate-800 hover:border-emerald-500/50 rounded-xl p-5 transition-all shadow-md hover:shadow-emerald-500/5"
+          className={`group bg-[#0d1322] border border-slate-800 rounded-xl p-5 transition-all shadow-md ${cardHoverBorder}`}
         >
           <div className="flex items-center justify-between">
-            <span className="text-xs font-medium text-slate-400 uppercase tracking-wider">S3 Storage</span>
-            <div className="p-2 rounded-lg bg-emerald-500/10 text-emerald-400 group-hover:bg-emerald-500 group-hover:text-slate-950 transition-colors">
+            <span className="text-xs font-medium text-slate-400 uppercase tracking-wider">
+              {isAws ? "S3 Storage" : "Cloud Storage"}
+            </span>
+            <div className={`p-2 rounded-lg transition-colors ${iconBg}`}>
               <FolderLock className="w-4 h-4" />
             </div>
           </div>
           <div className="mt-3 flex items-baseline justify-between">
             <span className="text-3xl font-bold text-white">{counts.s3}</span>
-            <span className="text-xs text-emerald-400 flex items-center gap-1 font-medium">
-              Explore <ExternalLink className="w-3 h-3" />
+            <span className={`text-xs flex items-center gap-1 font-medium ${linkColor}`}>
+              {serviceLabels.buckets} <ExternalLink className="w-3 h-3" />
             </span>
           </div>
         </Link>
 
         <Link
           href="/iam"
-          className="group bg-[#0d1322] border border-slate-800 hover:border-emerald-500/50 rounded-xl p-5 transition-all shadow-md hover:shadow-emerald-500/5"
+          className={`group bg-[#0d1322] border border-slate-800 rounded-xl p-5 transition-all shadow-md ${cardHoverBorder}`}
         >
           <div className="flex items-center justify-between">
-            <span className="text-xs font-medium text-slate-400 uppercase tracking-wider">IAM Identities</span>
-            <div className="p-2 rounded-lg bg-emerald-500/10 text-emerald-400 group-hover:bg-emerald-500 group-hover:text-slate-950 transition-colors">
+            <span className="text-xs font-medium text-slate-400 uppercase tracking-wider">
+              {isAws ? "IAM Identities" : "IAM & Admin"}
+            </span>
+            <div className={`p-2 rounded-lg transition-colors ${iconBg}`}>
               <Users className="w-4 h-4" />
             </div>
           </div>
           <div className="mt-3 flex items-baseline justify-between">
             <span className="text-3xl font-bold text-white">{counts.iam}</span>
-            <span className="text-xs text-emerald-400 flex items-center gap-1 font-medium">
-              View Roles <ExternalLink className="w-3 h-3" />
+            <span className={`text-xs flex items-center gap-1 font-medium ${linkColor}`}>
+              {serviceLabels.roles} <ExternalLink className="w-3 h-3" />
             </span>
           </div>
         </Link>
 
         <Link
           href="/dynamodb"
-          className="group bg-[#0d1322] border border-slate-800 hover:border-emerald-500/50 rounded-xl p-5 transition-all shadow-md hover:shadow-emerald-500/5"
+          className={`group bg-[#0d1322] border border-slate-800 rounded-xl p-5 transition-all shadow-md ${cardHoverBorder}`}
         >
           <div className="flex items-center justify-between">
-            <span className="text-xs font-medium text-slate-400 uppercase tracking-wider">DynamoDB Tables</span>
-            <div className="p-2 rounded-lg bg-emerald-500/10 text-emerald-400 group-hover:bg-emerald-500 group-hover:text-slate-950 transition-colors">
+            <span className="text-xs font-medium text-slate-400 uppercase tracking-wider">
+              {isAws ? "DynamoDB NoSQL" : "Datastore / NoSQL"}
+            </span>
+            <div className={`p-2 rounded-lg transition-colors ${iconBg}`}>
               <Database className="w-4 h-4" />
             </div>
           </div>
           <div className="mt-3 flex items-baseline justify-between">
             <span className="text-3xl font-bold text-white">{counts.dynamodb}</span>
-            <span className="text-xs text-emerald-400 flex items-center gap-1 font-medium">
-              Inspect <ExternalLink className="w-3 h-3" />
+            <span className={`text-xs flex items-center gap-1 font-medium ${linkColor}`}>
+              {serviceLabels.tables} <ExternalLink className="w-3 h-3" />
             </span>
           </div>
         </Link>
@@ -176,11 +204,11 @@ export default function DashboardPage() {
         <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-4 pb-4 border-b border-slate-800/80">
           <div>
             <h3 className="text-lg font-bold text-slate-100 flex items-center gap-2">
-              <Activity className="w-5 h-5 text-emerald-400" />
-              Active Emulated Services
+              <Activity className={`w-5 h-5 ${isAws ? "text-amber-400" : "text-blue-400"}`} />
+              Active Emulated Cloud Services
             </h3>
             <p className="text-xs text-slate-400 mt-0.5">
-              Real-time operational status of all services exposed by Floci
+              Real-time operational status of all services running in this emulator instance
             </p>
           </div>
 
@@ -188,10 +216,10 @@ export default function DashboardPage() {
             <Search className="w-4 h-4 text-slate-500 absolute left-3 top-1/2 -translate-y-1/2" />
             <input
               type="text"
-              placeholder="Search services (e.g. s3, ec2, iam)..."
+              placeholder="Filter services (e.g. s3, ec2, compute, iam)..."
               value={searchTerm}
               onChange={(e) => setSearchTerm(e.target.value)}
-              className="bg-slate-900 border border-slate-800 pl-9 pr-4 py-1.5 rounded-xl text-xs text-slate-200 placeholder-slate-500 focus:outline-none focus:border-emerald-500 w-64"
+              className="bg-slate-900 border border-slate-800 pl-9 pr-4 py-1.5 rounded-xl text-xs text-slate-200 placeholder-slate-500 focus:outline-none focus:border-slate-600 w-64"
             />
           </div>
         </div>
