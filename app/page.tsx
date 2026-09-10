@@ -23,16 +23,24 @@ export default function DashboardPage() {
   const [counts, setCounts] = useState({
     ec2: 0,
     s3: 0,
-    iam: 0,
+    iamRoles: 0,
+    iamUsers: 0,
+    iamPolicies: 0,
+    iamTotal: 0,
     dynamodb: 0,
   });
+  const [isLoadingCounts, setIsLoadingCounts] = useState(true);
 
   const isAws = cloudMode === "aws";
 
   useEffect(() => {
-    if (!isConnected) return;
+    if (!isConnected) {
+      setIsLoadingCounts(false);
+      return;
+    }
 
     const fetchCounts = async () => {
+      setIsLoadingCounts(true);
       try {
         const [ec2Res, s3Res, iamRes, ddbRes] = await Promise.allSettled([
           fetch(`/api/floci/ec2?endpoint=${encodeURIComponent(endpoint)}`).then((r) => r.json()),
@@ -41,17 +49,33 @@ export default function DashboardPage() {
           fetch(`/api/floci/dynamodb?endpoint=${encodeURIComponent(endpoint)}`).then((r) => r.json()),
         ]);
 
+        const rolesCount =
+          iamRes.status === "fulfilled" && iamRes.value?.success
+            ? iamRes.value.data?.roles?.length || 0
+            : 0;
+        const usersCount =
+          iamRes.status === "fulfilled" && iamRes.value?.success
+            ? iamRes.value.data?.users?.length || 0
+            : 0;
+        const policiesCount =
+          iamRes.status === "fulfilled" && iamRes.value?.success
+            ? iamRes.value.data?.policies?.length || 0
+            : 0;
+        const totalIdentities = rolesCount + usersCount;
+
         setCounts({
           ec2: ec2Res.status === "fulfilled" && ec2Res.value?.success ? ec2Res.value.count : 0,
           s3: s3Res.status === "fulfilled" && s3Res.value?.success ? s3Res.value.count : 0,
-          iam:
-            iamRes.status === "fulfilled" && iamRes.value?.success
-              ? (iamRes.value.data?.users?.length || 0) + (iamRes.value.data?.roles?.length || 0)
-              : 0,
+          iamRoles: rolesCount,
+          iamUsers: usersCount,
+          iamPolicies: policiesCount,
+          iamTotal: totalIdentities > 0 ? totalIdentities : policiesCount,
           dynamodb: ddbRes.status === "fulfilled" && ddbRes.value?.success ? ddbRes.value.count : 0,
         });
       } catch (e) {
         console.error("Failed to load counts", e);
+      } finally {
+        setIsLoadingCounts(false);
       }
     };
 
@@ -109,7 +133,7 @@ export default function DashboardPage() {
             <div className="bg-slate-950/60 border border-slate-800 px-4 py-2 rounded-xl text-center">
               <span className="text-xs text-slate-500 block">Status</span>
               <span className="text-sm font-bold text-emerald-400 flex items-center gap-1.5 mt-0.5">
-                <CheckCircle2 className="w-4 h-4" /> Healthy
+                <CheckCircle2 className="w-4 h-4" /> {isConnected ? "Healthy" : "Offline"}
               </span>
             </div>
           </div>
@@ -131,11 +155,18 @@ export default function DashboardPage() {
             </div>
           </div>
           <div className="mt-3 flex items-baseline justify-between">
-            <span className="text-3xl font-bold text-white">{counts.ec2}</span>
+            {isLoadingCounts ? (
+              <div className="h-8 w-14 bg-slate-800 animate-pulse rounded-lg mt-1" />
+            ) : (
+              <span className="text-3xl font-bold text-white">{counts.ec2}</span>
+            )}
             <span className={`text-xs flex items-center gap-1 font-medium ${linkColor}`}>
               {serviceLabels.instances} <ExternalLink className="w-3 h-3" />
             </span>
           </div>
+          <p className="mt-1.5 text-[11px] text-slate-500 truncate">
+            {counts.ec2 > 0 ? `${counts.ec2} active instance${counts.ec2 > 1 ? "s" : ""}` : "No instances deployed"}
+          </p>
         </Link>
 
         <Link
@@ -151,11 +182,18 @@ export default function DashboardPage() {
             </div>
           </div>
           <div className="mt-3 flex items-baseline justify-between">
-            <span className="text-3xl font-bold text-white">{counts.s3}</span>
+            {isLoadingCounts ? (
+              <div className="h-8 w-14 bg-slate-800 animate-pulse rounded-lg mt-1" />
+            ) : (
+              <span className="text-3xl font-bold text-white">{counts.s3}</span>
+            )}
             <span className={`text-xs flex items-center gap-1 font-medium ${linkColor}`}>
               {serviceLabels.buckets} <ExternalLink className="w-3 h-3" />
             </span>
           </div>
+          <p className="mt-1.5 text-[11px] text-slate-500 truncate">
+            {counts.s3 > 0 ? `${counts.s3} bucket${counts.s3 > 1 ? "s" : ""} available` : "No buckets created"}
+          </p>
         </Link>
 
         <Link
@@ -171,11 +209,22 @@ export default function DashboardPage() {
             </div>
           </div>
           <div className="mt-3 flex items-baseline justify-between">
-            <span className="text-3xl font-bold text-white">{counts.iam}</span>
+            {isLoadingCounts ? (
+              <div className="h-8 w-14 bg-slate-800 animate-pulse rounded-lg mt-1" />
+            ) : (
+              <span className="text-3xl font-bold text-white">{counts.iamTotal}</span>
+            )}
             <span className={`text-xs flex items-center gap-1 font-medium ${linkColor}`}>
               {serviceLabels.roles} <ExternalLink className="w-3 h-3" />
             </span>
           </div>
+          <p className="mt-1.5 text-[11px] text-slate-500 truncate">
+            {counts.iamRoles > 0 || counts.iamUsers > 0
+              ? `${counts.iamRoles} Roles · ${counts.iamUsers} Users`
+              : counts.iamPolicies > 0
+              ? `${counts.iamPolicies} Managed Policies`
+              : "No identities configured"}
+          </p>
         </Link>
 
         <Link
@@ -191,11 +240,18 @@ export default function DashboardPage() {
             </div>
           </div>
           <div className="mt-3 flex items-baseline justify-between">
-            <span className="text-3xl font-bold text-white">{counts.dynamodb}</span>
+            {isLoadingCounts ? (
+              <div className="h-8 w-14 bg-slate-800 animate-pulse rounded-lg mt-1" />
+            ) : (
+              <span className="text-3xl font-bold text-white">{counts.dynamodb}</span>
+            )}
             <span className={`text-xs flex items-center gap-1 font-medium ${linkColor}`}>
               {serviceLabels.tables} <ExternalLink className="w-3 h-3" />
             </span>
           </div>
+          <p className="mt-1.5 text-[11px] text-slate-500 truncate">
+            {counts.dynamodb > 0 ? `${counts.dynamodb} active table${counts.dynamodb > 1 ? "s" : ""}` : "No tables created"}
+          </p>
         </Link>
       </div>
 

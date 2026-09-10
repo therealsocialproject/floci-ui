@@ -31,6 +31,7 @@ export async function GET(request: NextRequest) {
       endpoint: resolveEndpoint(endpoint),
       count: response.TableNames?.length || 0,
       tables: response.TableNames || [],
+      data: response.TableNames || [],
     });
   } catch (error: any) {
     return NextResponse.json(

@@ -2,23 +2,26 @@
 
 import React, { createContext, useContext, useState, useEffect, ReactNode } from "react";
 
+export type CloudProvider = "aws" | "gcp";
+
 export interface CloudEnvironment {
   id: string;
   name: string;
   url: string;
+  provider: CloudProvider;
 }
 
 export const DEFAULT_ENVIRONMENTS: CloudEnvironment[] = [
-  { id: "local", name: "Local Floci", url: "http://localhost:4566" },
+  { id: "local", name: "Local Floci", url: "http://localhost:4566", provider: "aws" },
 ];
 
 interface EndpointContextType {
   endpoint: string;
   environments: CloudEnvironment[];
-  currentEnvironment: CloudEnvironment | null;
+  currentEnvironment: CloudEnvironment;
   setEndpoint: (ep: string) => void;
   selectEnvironment: (id: string) => void;
-  addEnvironment: (name: string, url: string) => void;
+  addEnvironment: (name: string, url: string, provider?: CloudProvider) => void;
   removeEnvironment: (id: string) => void;
   isConnected: boolean;
   isLoading: boolean;
@@ -43,8 +46,20 @@ export function EndpointProvider({ children }: { children: ReactNode }) {
       try {
         const parsed = JSON.parse(savedEnvs);
         if (Array.isArray(parsed) && parsed.length > 0) {
-          initialEnvs = parsed;
-          setEnvironments(parsed);
+          const normalized: CloudEnvironment[] = parsed.map((env: any) => ({
+            id: env.id || `env-${Math.random().toString(36).slice(2)}`,
+            name: env.name || env.url,
+            url: env.url,
+            provider:
+              env.provider ||
+              (env.name?.toLowerCase().includes("gcp") ||
+              env.url?.toLowerCase().includes("gcp") ||
+              env.url?.includes("159")
+                ? "gcp"
+                : "aws"),
+          }));
+          initialEnvs = normalized;
+          setEnvironments(normalized);
         }
       } catch (e) {
         console.error("Failed to parse saved environments", e);
@@ -80,15 +95,24 @@ export function EndpointProvider({ children }: { children: ReactNode }) {
     }
   };
 
-  const addEnvironment = (name: string, url: string) => {
+  const addEnvironment = (name: string, url: string, provider?: CloudProvider) => {
     let cleanUrl = url.trim();
     if (!cleanUrl.startsWith("http://") && !cleanUrl.startsWith("https://")) {
       cleanUrl = `http://${cleanUrl}`;
     }
+    const resolvedProvider: CloudProvider =
+      provider ||
+      (name.toLowerCase().includes("gcp") ||
+      cleanUrl.toLowerCase().includes("gcp") ||
+      cleanUrl.includes("159")
+        ? "gcp"
+        : "aws");
+
     const newEnv: CloudEnvironment = {
       id: `env-${Date.now()}`,
       name: name.trim() || cleanUrl,
       url: cleanUrl,
+      provider: resolvedProvider,
     };
     const updated = [...environments, newEnv];
     saveEnvironments(updated);
@@ -125,11 +149,13 @@ export function EndpointProvider({ children }: { children: ReactNode }) {
     }
   };
 
-  const currentEnvironment =
+  const currentEnvironment: CloudEnvironment =
     environments.find((e) => e.url === endpoint) || {
       id: "custom",
       name: "Custom Host",
       url: endpoint,
+      provider:
+        endpoint.toLowerCase().includes("gcp") || endpoint.includes("159") ? "gcp" : "aws",
     };
 
   return (

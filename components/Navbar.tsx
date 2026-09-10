@@ -139,6 +139,7 @@ export function Header() {
   const [isEnvModalOpen, setIsEnvModalOpen] = useState(false);
   const [newEnvName, setNewEnvName] = useState("");
   const [newEnvUrl, setNewEnvUrl] = useState("");
+  const [newEnvProvider, setNewEnvProvider] = useState<"aws" | "gcp">("aws");
   const [mounted, setMounted] = useState(false);
 
   useEffect(() => {
@@ -147,12 +148,31 @@ export function Header() {
 
   const isAws = cloudMode === "aws";
 
+  const handleUrlChange = (url: string) => {
+    setNewEnvUrl(url);
+    if (url.toLowerCase().includes("gcp") || url.includes("159")) {
+      setNewEnvProvider("gcp");
+    } else if (url.toLowerCase().includes("aws") || url.includes("151")) {
+      setNewEnvProvider("aws");
+    }
+  };
+
+  const handleNameChange = (name: string) => {
+    setNewEnvName(name);
+    if (name.toLowerCase().includes("gcp") || name.toLowerCase().includes("google")) {
+      setNewEnvProvider("gcp");
+    } else if (name.toLowerCase().includes("aws") || name.toLowerCase().includes("amazon")) {
+      setNewEnvProvider("aws");
+    }
+  };
+
   const handleAddEnv = (e: React.FormEvent) => {
     e.preventDefault();
     if (!newEnvUrl.trim()) return;
-    addEnvironment(newEnvName, newEnvUrl);
+    addEnvironment(newEnvName, newEnvUrl, newEnvProvider);
     setNewEnvName("");
     setNewEnvUrl("");
+    setNewEnvProvider("aws");
     setIsEnvModalOpen(false);
   };
 
@@ -217,8 +237,8 @@ export function Header() {
           {isLoading
             ? "Connecting..."
             : isConnected
-            ? `Online (v${health?.version || "2.0.1"})`
-            : "Offline"}
+            ? `Connected (v${health?.version || "2.0.1"})`
+            : "Disconnected"}
         </div>
 
         {/* Environment Selector Dropdown */}
@@ -232,13 +252,18 @@ export function Header() {
                 selectEnvironment(e.target.value);
               }
             }}
-            className="bg-transparent text-slate-200 text-xs px-2.5 py-1 rounded-lg focus:outline-none font-medium cursor-pointer"
+            className="bg-transparent text-slate-200 text-xs px-2.5 py-1 rounded-lg focus:outline-none font-medium cursor-pointer max-w-[260px] truncate"
           >
-            {environments.map((env) => (
-              <option key={env.id} value={env.id} className="bg-slate-900 text-slate-200">
-                {env.name} ({env.url})
-              </option>
-            ))}
+            {environments.map((env) => {
+              const displayLabel =
+                env.name && env.name !== env.url ? `${env.name} (${env.url})` : env.url;
+              const providerTag = env.provider ? `[${env.provider.toUpperCase()}] ` : "";
+              return (
+                <option key={env.id} value={env.id} className="bg-slate-900 text-slate-200">
+                  {providerTag}{displayLabel}
+                </option>
+              );
+            })}
             <option value="manage" className="bg-slate-800 text-emerald-400 font-semibold">
               + Manage Environments...
             </option>
@@ -298,8 +323,19 @@ export function Header() {
                     className="flex items-center justify-between bg-slate-900 border border-slate-800/80 px-3 py-2 rounded-xl text-xs"
                   >
                     <div>
-                      <span className="font-semibold text-slate-200 block">{env.name}</span>
-                      <span className="font-mono text-[11px] text-slate-500">{env.url}</span>
+                      <div className="flex items-center gap-2">
+                        <span
+                          className={`px-1.5 py-0.5 rounded text-[9px] font-bold uppercase tracking-wider ${
+                            env.provider === "gcp"
+                              ? "bg-blue-500/20 text-blue-400 border border-blue-500/30"
+                              : "bg-amber-500/20 text-amber-400 border border-amber-500/30"
+                          }`}
+                        >
+                          {env.provider || "AWS"}
+                        </span>
+                        <span className="font-semibold text-slate-200">{env.name}</span>
+                      </div>
+                      <span className="font-mono text-[11px] text-slate-500 block mt-0.5">{env.url}</span>
                     </div>
                     <div className="flex items-center gap-2">
                       {endpoint === env.url && (
@@ -324,22 +360,48 @@ export function Header() {
 
             {/* Add New Environment Form */}
             <form onSubmit={handleAddEnv} className="space-y-3 pt-3 border-t border-slate-800">
-              <span className="text-xs font-semibold text-slate-400 uppercase tracking-wider block">
-                Add New Endpoint
-              </span>
+              <div className="flex items-center justify-between">
+                <span className="text-xs font-semibold text-slate-400 uppercase tracking-wider">
+                  Add New Endpoint
+                </span>
+                <div className="flex items-center gap-1 bg-slate-950/80 p-0.5 rounded-lg border border-slate-800 text-[11px]">
+                  <button
+                    type="button"
+                    onClick={() => setNewEnvProvider("aws")}
+                    className={`px-2.5 py-0.5 rounded-md font-semibold transition-colors ${
+                      newEnvProvider === "aws"
+                        ? "bg-amber-500 text-slate-950 font-bold"
+                        : "text-slate-400 hover:text-slate-200"
+                    }`}
+                  >
+                    AWS
+                  </button>
+                  <button
+                    type="button"
+                    onClick={() => setNewEnvProvider("gcp")}
+                    className={`px-2.5 py-0.5 rounded-md font-semibold transition-colors ${
+                      newEnvProvider === "gcp"
+                        ? "bg-blue-600 text-white font-bold"
+                        : "text-slate-400 hover:text-slate-200"
+                    }`}
+                  >
+                    GCP
+                  </button>
+                </div>
+              </div>
               <div className="grid grid-cols-1 sm:grid-cols-2 gap-2">
                 <input
                   type="text"
                   placeholder="Name (e.g. Staging VM)"
                   value={newEnvName}
-                  onChange={(e) => setNewEnvName(e.target.value)}
+                  onChange={(e) => handleNameChange(e.target.value)}
                   className="bg-slate-900 border border-slate-800 px-3 py-1.5 rounded-xl text-xs text-slate-200 focus:outline-none focus:border-emerald-500"
                 />
                 <input
                   type="text"
                   placeholder="URL (e.g. http://192.168.1.50:4566)"
                   value={newEnvUrl}
-                  onChange={(e) => setNewEnvUrl(e.target.value)}
+                  onChange={(e) => handleUrlChange(e.target.value)}
                   className="bg-slate-900 border border-slate-800 px-3 py-1.5 rounded-xl text-xs text-slate-200 focus:outline-none focus:border-emerald-500 font-mono"
                   required
                 />

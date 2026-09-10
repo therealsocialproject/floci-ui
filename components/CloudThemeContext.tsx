@@ -1,6 +1,7 @@
 "use client";
 
 import React, { createContext, useContext, useState, useEffect, ReactNode } from "react";
+import { useEndpoint } from "./EndpointProvider";
 
 export type CloudMode = "aws" | "gcp";
 
@@ -32,7 +33,16 @@ interface CloudThemeContextType {
 const CloudThemeContext = createContext<CloudThemeContextType | undefined>(undefined);
 
 export function CloudThemeProvider({ children }: { children: ReactNode }) {
+  const { currentEnvironment } = useEndpoint();
   const [cloudMode, setCloudModeState] = useState<CloudMode>("aws");
+
+  // Synchronize with active environment provider whenever environment changes
+  useEffect(() => {
+    if (currentEnvironment?.provider) {
+      setCloudModeState(currentEnvironment.provider);
+      localStorage.setItem("floci_cloud_mode", currentEnvironment.provider);
+    }
+  }, [currentEnvironment?.id, currentEnvironment?.provider]);
 
   useEffect(() => {
     const saved = localStorage.getItem("floci_cloud_mode") as CloudMode | null;
