@@ -134,7 +134,7 @@ export function Header() {
     checkHealth,
   } = useEndpoint();
 
-  const { cloudMode, setCloudMode, branding } = useCloudTheme();
+  const { cloudMode, branding } = useCloudTheme();
 
   const [isEnvModalOpen, setIsEnvModalOpen] = useState(false);
   const [newEnvName, setNewEnvName] = useState("");
@@ -186,28 +186,22 @@ export function Header() {
     >
       {/* Left: Provider branding & Scope */}
       <div className="flex items-center gap-4">
-        {/* Cloud Mode Selector (AWS vs GCP) */}
-        <div className="flex items-center p-1 bg-slate-900/90 border border-slate-800 rounded-xl text-xs font-semibold">
-          <button
-            onClick={() => setCloudMode("aws")}
-            className={`flex items-center gap-1.5 px-3 py-1 rounded-lg transition-all ${
-              isAws
-                ? "bg-amber-500 text-slate-950 font-bold shadow"
-                : "text-slate-400 hover:text-slate-200"
+        {/* Active Cloud Provider Badge (Locked to Environment) */}
+        <div
+          className={`flex items-center gap-2 px-3 py-1.5 rounded-xl text-xs font-semibold border ${
+            isAws
+              ? "bg-amber-500/10 text-amber-400 border-amber-500/30"
+              : "bg-blue-500/10 text-blue-400 border-blue-500/30"
+          }`}
+        >
+          <span
+            className={`w-2 h-2 rounded-full ${
+              isAws ? "bg-amber-400" : "bg-blue-400"
             }`}
-          >
-            AWS Mode
-          </button>
-          <button
-            onClick={() => setCloudMode("gcp")}
-            className={`flex items-center gap-1.5 px-3 py-1 rounded-lg transition-all ${
-              !isAws
-                ? "bg-blue-600 text-white font-bold shadow"
-                : "text-slate-400 hover:text-slate-200"
-            }`}
-          >
-            GCP Mode
-          </button>
+          />
+          <span className="font-bold tracking-wide">
+            {isAws ? "AWS Management Console" : "Google Cloud Console"}
+          </span>
         </div>
 
         {/* Scope Pill (Region in AWS / Project in GCP) */}

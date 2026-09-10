@@ -7,8 +7,6 @@ export type CloudMode = "aws" | "gcp";
 
 interface CloudThemeContextType {
   cloudMode: CloudMode;
-  setCloudMode: (mode: CloudMode) => void;
-  toggleCloudMode: () => void;
   serviceLabels: {
     dashboard: string;
     ec2: string;
@@ -34,32 +32,10 @@ const CloudThemeContext = createContext<CloudThemeContextType | undefined>(undef
 
 export function CloudThemeProvider({ children }: { children: ReactNode }) {
   const { currentEnvironment } = useEndpoint();
-  const [cloudMode, setCloudModeState] = useState<CloudMode>("aws");
 
-  // Synchronize with active environment provider whenever environment changes
-  useEffect(() => {
-    if (currentEnvironment?.provider) {
-      setCloudModeState(currentEnvironment.provider);
-      localStorage.setItem("floci_cloud_mode", currentEnvironment.provider);
-    }
-  }, [currentEnvironment?.id, currentEnvironment?.provider]);
-
-  useEffect(() => {
-    const saved = localStorage.getItem("floci_cloud_mode") as CloudMode | null;
-    if (saved === "aws" || saved === "gcp") {
-      setCloudModeState(saved);
-    }
-  }, []);
-
-  const setCloudMode = (mode: CloudMode) => {
-    setCloudModeState(mode);
-    localStorage.setItem("floci_cloud_mode", mode);
-  };
-
-  const toggleCloudMode = () => {
-    const next = cloudMode === "aws" ? "gcp" : "aws";
-    setCloudMode(next);
-  };
+  // The active environment's provider strictly dictates the cloud console mode
+  const cloudMode: CloudMode =
+    currentEnvironment?.provider === "gcp" ? "gcp" : "aws";
 
   const isAws = cloudMode === "aws";
 
@@ -109,8 +85,6 @@ export function CloudThemeProvider({ children }: { children: ReactNode }) {
     <CloudThemeContext.Provider
       value={{
         cloudMode,
-        setCloudMode,
-        toggleCloudMode,
         serviceLabels,
         branding,
       }}
