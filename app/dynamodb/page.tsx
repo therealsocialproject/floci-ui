@@ -285,22 +285,22 @@ export default function DynamoDBPage() {
   };
 
   return (
-    <div className="space-y-6 max-w-7xl mx-auto">
+    <div className="space-y-6 resource-page">
       {/* Toast Notifications */}
       {errorMessage && (
-        <div className="fixed top-20 right-6 z-50 flex items-center gap-2 bg-rose-950/90 border border-rose-500/50 text-rose-200 px-4 py-3 rounded-xl shadow-2xl backdrop-blur-md text-xs">
-          <AlertCircle className="w-4 h-4 text-rose-400 shrink-0" />
+        <div className="fixed top-20 right-6 z-50 flex items-center gap-2 bg-danger-soft border border-rose-500/50 text-danger px-4 py-3 rounded-control shadow-2xl backdrop-blur-md text-xs">
+          <AlertCircle className="w-4 h-4 text-danger shrink-0" />
           <span>{errorMessage}</span>
-          <button onClick={() => setErrorMessage(null)} className="ml-2 text-rose-400 hover:text-rose-100">
+          <button onClick={() => setErrorMessage(null)} className="ml-2 text-danger hover:text-danger">
             <X className="w-3.5 h-3.5" />
           </button>
         </div>
       )}
       {successMessage && (
-        <div className="fixed top-20 right-6 z-50 flex items-center gap-2 bg-emerald-950/90 border border-emerald-500/50 text-emerald-200 px-4 py-3 rounded-xl shadow-2xl backdrop-blur-md text-xs">
-          <CheckCircle2 className="w-4 h-4 text-emerald-400 shrink-0" />
+        <div className="fixed top-20 right-6 z-50 flex items-center gap-2 bg-success-soft border border-emerald-500/50 text-success px-4 py-3 rounded-control shadow-2xl backdrop-blur-md text-xs">
+          <CheckCircle2 className="w-4 h-4 text-success shrink-0" />
           <span>{successMessage}</span>
-          <button onClick={() => setSuccessMessage(null)} className="ml-2 text-emerald-400 hover:text-emerald-100">
+          <button onClick={() => setSuccessMessage(null)} className="ml-2 text-success hover:text-emerald-100">
             <X className="w-3.5 h-3.5" />
           </button>
         </div>
@@ -309,11 +309,11 @@ export default function DynamoDBPage() {
       {/* Header */}
       <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-4">
         <div>
-          <h2 className="text-2xl font-bold text-white flex items-center gap-3">
-            <Database className={`w-6 h-6 ${isAws ? "text-amber-400" : "text-blue-400"}`} />
+          <h2 className="text-2xl font-semibold text-ink flex items-center gap-3">
+            <Database className={`w-6 h-6 ${isAws ? "text-accent" : "text-accent"}`} />
             {isAws ? "DynamoDB NoSQL Explorer" : "Datastore & NoSQL Explorer"}
           </h2>
-          <p className="text-sm text-slate-400 mt-1">
+          <p className="text-sm text-muted mt-1">
             {isAws
               ? "Create tables, manage composite keys, insert and query DynamoDB items"
               : "Create entities, manage partition keys, and manage NoSQL documents in Floci"}
@@ -323,10 +323,10 @@ export default function DynamoDBPage() {
         <div className="flex items-center gap-2">
           <button
             onClick={() => setIsCreateTableOpen(true)}
-            className={`flex items-center gap-2 px-4 py-2 rounded-xl text-xs font-semibold text-white shadow-lg transition-all ${
+            className={`flex items-center gap-2 px-4 py-2 rounded-control text-xs font-semibold text-white transition-all ${
               isAws
-                ? "bg-amber-600 hover:bg-amber-500 shadow-amber-600/20"
-                : "bg-blue-600 hover:bg-blue-500 shadow-blue-600/20"
+                ? "bg-action hover:bg-action shadow-amber-600/20"
+                : "bg-action hover:bg-action shadow-blue-600/20"
             }`}
           >
             <Plus className="w-4 h-4" />
@@ -336,9 +336,9 @@ export default function DynamoDBPage() {
           <button
             onClick={() => fetchTables()}
             disabled={loadingTables}
-            className="flex items-center gap-2 bg-slate-900 hover:bg-slate-800 text-slate-200 border border-slate-800 px-4 py-2 rounded-xl text-xs font-semibold transition-colors"
+            className="flex items-center gap-2 bg-subtle hover:bg-subtle text-ink border border-line px-4 py-2 rounded-control text-xs font-semibold transition-colors"
           >
-            <RefreshCw className={`w-3.5 h-3.5 ${loadingTables ? "animate-spin text-emerald-400" : ""}`} />
+            <RefreshCw className={`w-3.5 h-3.5 ${loadingTables ? "animate-spin text-success" : ""}`} />
             Refresh
           </button>
         </div>
@@ -346,22 +346,22 @@ export default function DynamoDBPage() {
 
       <div className="grid grid-cols-1 lg:grid-cols-3 gap-6">
         {/* Tables Sidebar */}
-        <div className="bg-[#0d1322] border border-slate-800 rounded-2xl p-5 shadow-xl space-y-3">
-          <div className="flex items-center justify-between pb-3 border-b border-slate-800">
-            <span className="text-xs font-bold text-slate-300 uppercase tracking-wider flex items-center gap-2">
-              <TableIcon className={`w-4 h-4 ${isAws ? "text-amber-400" : "text-blue-400"}`} />
+        <div className="bg-surface border border-line rounded-panel p-5 space-y-3">
+          <div className="flex items-center justify-between pb-3 border-b border-line">
+            <span className="text-xs font-bold text-ink uppercase tracking-wider flex items-center gap-2">
+              <TableIcon className={`w-4 h-4 ${isAws ? "text-accent" : "text-accent"}`} />
               {isAws ? "Tables" : "Entities"} ({tables.length})
             </span>
           </div>
 
           {loadingTables ? (
-            <div className="py-8 text-center text-xs text-slate-500">Loading {serviceLabels.tables}...</div>
+            <div className="py-8 text-center text-xs text-muted">Loading {serviceLabels.tables}...</div>
           ) : tables.length === 0 ? (
-            <div className="py-8 text-center text-xs text-slate-500 space-y-2">
+            <div className="py-8 text-center text-xs text-muted space-y-2">
               <p>No tables found.</p>
               <button
                 onClick={() => setIsCreateTableOpen(true)}
-                className="text-xs font-semibold text-emerald-400 hover:underline"
+                className="text-xs font-semibold text-success hover:underline"
               >
                 + Create your first table
               </button>
@@ -371,23 +371,23 @@ export default function DynamoDBPage() {
               {tables.map((tbl) => {
                 const isSelected = selectedTable === tbl;
                 const activeBorder = isAws
-                  ? "bg-amber-500/10 border-amber-500/40 text-amber-300 font-semibold"
-                  : "bg-blue-500/10 border-blue-500/40 text-blue-300 font-semibold";
+                  ? "bg-selected border-line text-accent font-semibold"
+                  : "bg-selected border-line text-accent font-semibold";
 
                 return (
                   <div
                     key={tbl}
-                    className={`group w-full p-2.5 rounded-xl text-xs font-mono transition-all flex items-center justify-between border ${
+                    className={`group w-full p-2.5 rounded-control text-xs font-mono transition-all flex items-center justify-between border ${
                       isSelected
                         ? activeBorder
-                        : "bg-slate-900/60 border-slate-800/80 text-slate-300 hover:border-slate-700"
+                        : "bg-subtle border-line text-ink hover:border-line"
                     }`}
                   >
                     <button
                       onClick={() => setSelectedTable(tbl)}
                       className="flex-1 text-left truncate flex items-center gap-2"
                     >
-                      <TableIcon className={`w-3.5 h-3.5 shrink-0 ${isSelected ? (isAws ? "text-amber-400" : "text-blue-400") : "text-slate-500"}`} />
+                      <TableIcon className={`w-3.5 h-3.5 shrink-0 ${isSelected ? (isAws ? "text-accent" : "text-accent") : "text-muted"}`} />
                       <span className="truncate">{tbl}</span>
                     </button>
                     <button
@@ -396,7 +396,7 @@ export default function DynamoDBPage() {
                         handleDeleteTable(tbl);
                       }}
                       title={`Delete table ${tbl}`}
-                      className="p-1 text-slate-500 hover:text-rose-400 rounded transition-colors opacity-80 hover:opacity-100"
+                      className="p-1 text-muted hover:text-danger rounded transition-colors opacity-80 hover:opacity-100"
                     >
                       <Trash2 className="w-3.5 h-3.5" />
                     </button>
@@ -408,32 +408,32 @@ export default function DynamoDBPage() {
         </div>
 
         {/* Table Schema & Items */}
-        <div className="lg:col-span-2 bg-[#0d1322] border border-slate-800 rounded-2xl p-5 shadow-xl space-y-5">
+        <div className="lg:col-span-2 bg-surface border border-line rounded-panel p-5 space-y-5">
           {loadingItems ? (
-            <div className="py-16 text-center text-xs text-slate-500 flex items-center justify-center gap-2">
-              <RefreshCw className="w-4 h-4 animate-spin text-emerald-400" />
+            <div className="py-16 text-center text-xs text-muted flex items-center justify-center gap-2">
+              <RefreshCw className="w-4 h-4 animate-spin text-success" />
               Scanning table items...
             </div>
           ) : !selectedTable ? (
-            <div className="py-16 text-center text-xs text-slate-500">
+            <div className="py-16 text-center text-xs text-muted">
               Select or create a table to view schema and records.
             </div>
           ) : (
             <>
               {/* Schema Summary */}
               {tableDetails && (
-                <div className="bg-slate-900/60 border border-slate-800 rounded-xl p-4 space-y-3">
+                <div className="bg-subtle border border-line rounded-control p-4 space-y-3">
                   <div className="flex items-center justify-between">
-                    <span className="font-mono text-sm font-bold text-slate-100">
+                    <span className="font-mono text-sm font-bold text-ink">
                       {tableDetails.TableName}
                     </span>
                     <div className="flex items-center gap-2">
-                      <span className="text-[10px] px-2 py-0.5 rounded bg-emerald-500/10 text-emerald-400 border border-emerald-500/30 font-semibold uppercase">
+                      <span className="text-[10px] px-2 py-0.5 rounded bg-success-soft text-success border border-emerald-500/30 font-semibold uppercase">
                         {tableDetails.TableStatus || "ACTIVE"}
                       </span>
                       <button
                         onClick={() => handleDeleteTable(selectedTable)}
-                        className="text-[11px] text-rose-400 hover:text-rose-300 flex items-center gap-1 hover:underline ml-2"
+                        className="text-[11px] text-danger hover:text-danger flex items-center gap-1 hover:underline ml-2"
                       >
                         <Trash2 className="w-3 h-3" /> Delete Table
                       </button>
@@ -442,25 +442,25 @@ export default function DynamoDBPage() {
 
                   <div className="grid grid-cols-2 sm:grid-cols-3 gap-3 text-xs">
                     <div>
-                      <span className="text-slate-500 text-[11px] block">
+                      <span className="text-muted text-[11px] block">
                         {isAws ? "Key Schema" : "Partition & Key"}
                       </span>
-                      <div className="font-mono text-slate-300 mt-0.5 flex items-center gap-1">
-                        <Key className={`w-3 h-3 ${isAws ? "text-amber-400" : "text-blue-400"}`} />
+                      <div className="font-mono text-ink mt-0.5 flex items-center gap-1">
+                        <Key className={`w-3 h-3 ${isAws ? "text-accent" : "text-accent"}`} />
                         {tableDetails.KeySchema?.map(
                           (k: any) => `${k.AttributeName} (${k.KeyType})`
                         ).join(", ")}
                       </div>
                     </div>
                     <div>
-                      <span className="text-slate-500 text-[11px] block">Item Count</span>
-                      <span className="font-semibold text-slate-300 mt-0.5 block">
+                      <span className="text-muted text-[11px] block">Item Count</span>
+                      <span className="font-semibold text-ink mt-0.5 block">
                         {tableDetails.ItemCount ?? items.length}
                       </span>
                     </div>
                     <div>
-                      <span className="text-slate-500 text-[11px] block">Throughput Mode</span>
-                      <span className="text-slate-300 mt-0.5 block">
+                      <span className="text-muted text-[11px] block">Throughput Mode</span>
+                      <span className="text-ink mt-0.5 block">
                         {tableDetails.BillingModeSummary?.BillingMode || "PAY_PER_REQUEST"}
                       </span>
                     </div>
@@ -471,8 +471,8 @@ export default function DynamoDBPage() {
               {/* Items View */}
               <div className="space-y-3">
                 <div className="flex items-center justify-between">
-                  <span className="text-xs font-bold text-slate-300 uppercase tracking-wider flex items-center gap-2">
-                    <Code2 className="w-4 h-4 text-emerald-400" />
+                  <span className="text-xs font-bold text-ink uppercase tracking-wider flex items-center gap-2">
+                    <Code2 className="w-4 h-4 text-success" />
                     Scanned Records ({items.length})
                   </span>
 
@@ -480,8 +480,8 @@ export default function DynamoDBPage() {
                     onClick={openAddItemModal}
                     className={`flex items-center gap-1.5 px-3 py-1.5 rounded-lg text-xs font-semibold text-white transition-all ${
                       isAws
-                        ? "bg-amber-600 hover:bg-amber-500"
-                        : "bg-blue-600 hover:bg-blue-500"
+                        ? "bg-action hover:bg-action"
+                        : "bg-action hover:bg-action"
                     }`}
                   >
                     <FilePlus2 className="w-3.5 h-3.5" />
@@ -490,11 +490,11 @@ export default function DynamoDBPage() {
                 </div>
 
                 {items.length === 0 ? (
-                  <div className="py-8 text-center text-xs text-slate-500 space-y-2">
+                  <div className="py-8 text-center text-xs text-muted space-y-2">
                     <p>No items found in this table.</p>
                     <button
                       onClick={openAddItemModal}
-                      className="text-xs font-semibold text-emerald-400 hover:underline inline-flex items-center gap-1"
+                      className="text-xs font-semibold text-success hover:underline inline-flex items-center gap-1"
                     >
                       <Plus className="w-3.5 h-3.5" /> Insert first item
                     </button>
@@ -504,16 +504,16 @@ export default function DynamoDBPage() {
                     {items.map((item, idx) => (
                       <div
                         key={idx}
-                        className="bg-slate-900 border border-slate-800/80 rounded-xl p-3.5 relative group"
+                        className="bg-subtle border border-line rounded-control p-3.5 relative group"
                       >
                         <button
                           onClick={() => handleDeleteItem(item)}
                           title="Delete record"
-                          className="absolute top-3 right-3 p-1 text-slate-500 hover:text-rose-400 rounded transition-colors opacity-0 group-hover:opacity-100 bg-slate-950/80"
+                          className="absolute top-3 right-3 p-1 text-muted hover:text-danger rounded transition-colors opacity-0 group-hover:opacity-100 bg-subtle"
                         >
                           <Trash2 className="w-3.5 h-3.5" />
                         </button>
-                        <pre className="text-emerald-400 leading-relaxed overflow-x-auto pr-8">
+                        <pre className="text-success leading-relaxed overflow-x-auto pr-8">
                           {JSON.stringify(item, null, 2)}
                         </pre>
                       </div>
@@ -529,22 +529,22 @@ export default function DynamoDBPage() {
       {/* Create Table Modal */}
       {isCreateTableOpen && mounted && createPortal(
         <div
-          className="fixed inset-0 bg-slate-950/80 backdrop-blur-sm z-[9999] flex items-center justify-center p-4"
+          className="fixed inset-0 bg-black/40 backdrop-blur-sm z-[9999] flex items-center justify-center p-4"
           onClick={(e) => {
             if (e.target === e.currentTarget) setIsCreateTableOpen(false);
           }}
         >
-          <div className="bg-[#0f172a] border border-slate-800 rounded-2xl w-full max-w-md p-6 shadow-2xl space-y-5">
-            <div className="flex items-center justify-between pb-3 border-b border-slate-800">
+          <div className="bg-surface border border-line rounded-panel w-full max-w-md p-6 shadow-2xl space-y-5">
+            <div className="flex items-center justify-between pb-3 border-b border-line">
               <div className="flex items-center gap-2">
-                <Database className={`w-5 h-5 ${isAws ? "text-amber-400" : "text-blue-400"}`} />
-                <h3 className="font-bold text-slate-100 text-base">
+                <Database className={`w-5 h-5 ${isAws ? "text-accent" : "text-accent"}`} />
+                <h3 className="font-bold text-ink text-base">
                   {isAws ? "Create DynamoDB Table" : "Create Datastore Entity"}
                 </h3>
               </div>
               <button
                 onClick={() => setIsCreateTableOpen(false)}
-                className="text-slate-400 hover:text-slate-100 p-1 hover:bg-slate-800 rounded-lg transition-colors"
+                className="text-muted hover:text-ink p-1 hover:bg-subtle rounded-lg transition-colors"
               >
                 <X className="w-5 h-5" />
               </button>
@@ -552,7 +552,7 @@ export default function DynamoDBPage() {
 
             <form onSubmit={handleCreateTable} className="space-y-4">
               <div>
-                <label className="block text-xs font-semibold text-slate-300 mb-1.5">
+                <label className="block text-xs font-semibold text-ink mb-1.5">
                   Table Name
                 </label>
                 <input
@@ -561,13 +561,13 @@ export default function DynamoDBPage() {
                   value={newTableName}
                   onChange={(e) => setNewTableName(e.target.value)}
                   required
-                  className="w-full bg-slate-900 border border-slate-800 px-3.5 py-2 rounded-xl text-xs text-slate-200 focus:outline-none focus:border-emerald-500 font-mono"
+                  className="w-full bg-subtle border border-line px-3.5 py-2 rounded-control text-xs text-ink focus:outline-none focus:border-emerald-500 font-mono"
                 />
               </div>
 
               <div className="grid grid-cols-2 gap-3">
                 <div>
-                  <label className="block text-xs font-semibold text-slate-300 mb-1.5">
+                  <label className="block text-xs font-semibold text-ink mb-1.5">
                     Partition Key (HASH)
                   </label>
                   <input
@@ -576,17 +576,17 @@ export default function DynamoDBPage() {
                     value={partitionKeyName}
                     onChange={(e) => setPartitionKeyName(e.target.value)}
                     required
-                    className="w-full bg-slate-900 border border-slate-800 px-3.5 py-2 rounded-xl text-xs text-slate-200 focus:outline-none focus:border-emerald-500 font-mono"
+                    className="w-full bg-subtle border border-line px-3.5 py-2 rounded-control text-xs text-ink focus:outline-none focus:border-emerald-500 font-mono"
                   />
                 </div>
                 <div>
-                  <label className="block text-xs font-semibold text-slate-300 mb-1.5">
+                  <label className="block text-xs font-semibold text-ink mb-1.5">
                     Key Type
                   </label>
                   <select
                     value={partitionKeyType}
                     onChange={(e) => setPartitionKeyType(e.target.value)}
-                    className="w-full bg-slate-900 border border-slate-800 px-3 py-2 rounded-xl text-xs text-slate-200 focus:outline-none focus:border-emerald-500 font-mono cursor-pointer"
+                    className="w-full bg-subtle border border-line px-3 py-2 rounded-control text-xs text-ink focus:outline-none focus:border-emerald-500 font-mono cursor-pointer"
                   >
                     <option value="S">String (S)</option>
                     <option value="N">Number (N)</option>
@@ -596,12 +596,12 @@ export default function DynamoDBPage() {
               </div>
 
               <div>
-                <label className="flex items-center gap-2 cursor-pointer text-xs text-slate-300">
+                <label className="flex items-center gap-2 cursor-pointer text-xs text-ink">
                   <input
                     type="checkbox"
                     checked={enableSortKey}
                     onChange={(e) => setEnableSortKey(e.target.checked)}
-                    className="rounded bg-slate-900 border-slate-800 text-emerald-500 focus:ring-0"
+                    className="rounded bg-subtle border-line text-emerald-500 focus:ring-0"
                   />
                   <span>Add Sort Key (RANGE)</span>
                 </label>
@@ -610,7 +610,7 @@ export default function DynamoDBPage() {
               {enableSortKey && (
                 <div className="grid grid-cols-2 gap-3 pt-1">
                   <div>
-                    <label className="block text-xs font-semibold text-slate-300 mb-1.5">
+                    <label className="block text-xs font-semibold text-ink mb-1.5">
                       Sort Key Name
                     </label>
                     <input
@@ -619,17 +619,17 @@ export default function DynamoDBPage() {
                       value={sortKeyName}
                       onChange={(e) => setSortKeyName(e.target.value)}
                       required={enableSortKey}
-                      className="w-full bg-slate-900 border border-slate-800 px-3.5 py-2 rounded-xl text-xs text-slate-200 focus:outline-none focus:border-emerald-500 font-mono"
+                      className="w-full bg-subtle border border-line px-3.5 py-2 rounded-control text-xs text-ink focus:outline-none focus:border-emerald-500 font-mono"
                     />
                   </div>
                   <div>
-                    <label className="block text-xs font-semibold text-slate-300 mb-1.5">
+                    <label className="block text-xs font-semibold text-ink mb-1.5">
                       Sort Key Type
                     </label>
                     <select
                       value={sortKeyType}
                       onChange={(e) => setSortKeyType(e.target.value)}
-                      className="w-full bg-slate-900 border border-slate-800 px-3 py-2 rounded-xl text-xs text-slate-200 focus:outline-none focus:border-emerald-500 font-mono cursor-pointer"
+                      className="w-full bg-subtle border border-line px-3 py-2 rounded-control text-xs text-ink focus:outline-none focus:border-emerald-500 font-mono cursor-pointer"
                     >
                       <option value="S">String (S)</option>
                       <option value="N">Number (N)</option>
@@ -643,17 +643,17 @@ export default function DynamoDBPage() {
                 <button
                   type="button"
                   onClick={() => setIsCreateTableOpen(false)}
-                  className="px-4 py-2 text-xs text-slate-400 hover:text-slate-200 rounded-xl"
+                  className="px-4 py-2 text-xs text-muted hover:text-ink rounded-control"
                 >
                   Cancel
                 </button>
                 <button
                   type="submit"
                   disabled={actionLoading}
-                  className={`px-4 py-2 text-xs font-semibold text-white rounded-xl transition-colors flex items-center gap-1.5 ${
+                  className={`px-4 py-2 text-xs font-semibold text-white rounded-control transition-colors flex items-center gap-1.5 ${
                     isAws
-                      ? "bg-amber-600 hover:bg-amber-500"
-                      : "bg-blue-600 hover:bg-blue-500"
+                      ? "bg-action hover:bg-action"
+                      : "bg-action hover:bg-action"
                   }`}
                 >
                   {actionLoading ? <RefreshCw className="w-3.5 h-3.5 animate-spin" /> : <Plus className="w-3.5 h-3.5" />}
@@ -669,22 +669,22 @@ export default function DynamoDBPage() {
       {/* Add Item Modal */}
       {isAddItemOpen && mounted && createPortal(
         <div
-          className="fixed inset-0 bg-slate-950/80 backdrop-blur-sm z-[9999] flex items-center justify-center p-4"
+          className="fixed inset-0 bg-black/40 backdrop-blur-sm z-[9999] flex items-center justify-center p-4"
           onClick={(e) => {
             if (e.target === e.currentTarget) setIsAddItemOpen(false);
           }}
         >
-          <div className="bg-[#0f172a] border border-slate-800 rounded-2xl w-full max-w-lg p-6 shadow-2xl space-y-5">
-            <div className="flex items-center justify-between pb-3 border-b border-slate-800">
+          <div className="bg-surface border border-line rounded-panel w-full max-w-lg p-6 shadow-2xl space-y-5">
+            <div className="flex items-center justify-between pb-3 border-b border-line">
               <div className="flex items-center gap-2">
-                <FilePlus2 className={`w-5 h-5 ${isAws ? "text-amber-400" : "text-blue-400"}`} />
-                <h3 className="font-bold text-slate-100 text-base">
+                <FilePlus2 className={`w-5 h-5 ${isAws ? "text-accent" : "text-accent"}`} />
+                <h3 className="font-bold text-ink text-base">
                   Insert Item into {selectedTable}
                 </h3>
               </div>
               <button
                 onClick={() => setIsAddItemOpen(false)}
-                className="text-slate-400 hover:text-slate-100 p-1 hover:bg-slate-800 rounded-lg transition-colors"
+                className="text-muted hover:text-ink p-1 hover:bg-subtle rounded-lg transition-colors"
               >
                 <X className="w-5 h-5" />
               </button>
@@ -692,7 +692,7 @@ export default function DynamoDBPage() {
 
             <form onSubmit={handleAddItem} className="space-y-4">
               <div>
-                <label className="block text-xs font-semibold text-slate-300 mb-1.5">
+                <label className="block text-xs font-semibold text-ink mb-1.5">
                   Item JSON Document
                 </label>
                 <textarea
@@ -700,9 +700,9 @@ export default function DynamoDBPage() {
                   value={itemJson}
                   onChange={(e) => setItemJson(e.target.value)}
                   required
-                  className="w-full bg-slate-900 border border-slate-800 p-3 rounded-xl text-xs text-emerald-400 focus:outline-none focus:border-emerald-500 font-mono"
+                  className="w-full bg-subtle border border-line p-3 rounded-control text-xs text-success focus:outline-none focus:border-emerald-500 font-mono"
                 />
-                <span className="text-[11px] text-slate-500 mt-1 block">
+                <span className="text-[11px] text-muted mt-1 block">
                   Must include the primary key attributes defined in the table schema.
                 </span>
               </div>
@@ -711,17 +711,17 @@ export default function DynamoDBPage() {
                 <button
                   type="button"
                   onClick={() => setIsAddItemOpen(false)}
-                  className="px-4 py-2 text-xs text-slate-400 hover:text-slate-200 rounded-xl"
+                  className="px-4 py-2 text-xs text-muted hover:text-ink rounded-control"
                 >
                   Cancel
                 </button>
                 <button
                   type="submit"
                   disabled={actionLoading}
-                  className={`px-4 py-2 text-xs font-semibold text-white rounded-xl transition-colors flex items-center gap-1.5 ${
+                  className={`px-4 py-2 text-xs font-semibold text-white rounded-control transition-colors flex items-center gap-1.5 ${
                     isAws
-                      ? "bg-amber-600 hover:bg-amber-500"
-                      : "bg-blue-600 hover:bg-blue-500"
+                      ? "bg-action hover:bg-action"
+                      : "bg-action hover:bg-action"
                   }`}
                 >
                   {actionLoading ? <RefreshCw className="w-3.5 h-3.5 animate-spin" /> : <Plus className="w-3.5 h-3.5" />}

@@ -145,22 +145,22 @@ export default function EC2Page() {
     : ["e2-micro", "e2-small", "e2-medium", "n1-standard-1", "n1-standard-2", "c2-standard-4"];
 
   return (
-    <div className="space-y-6 max-w-7xl mx-auto">
+    <div className="space-y-6 resource-page">
       {/* Toast Notifications */}
       {errorMessage && (
-        <div className="fixed top-20 right-6 z-50 flex items-center gap-2 bg-rose-950/90 border border-rose-500/50 text-rose-200 px-4 py-3 rounded-xl shadow-2xl backdrop-blur-md text-xs">
-          <AlertCircle className="w-4 h-4 text-rose-400 shrink-0" />
+        <div className="fixed top-20 right-6 z-50 flex items-center gap-2 bg-danger-soft border border-rose-500/50 text-danger px-4 py-3 rounded-control shadow-2xl backdrop-blur-md text-xs">
+          <AlertCircle className="w-4 h-4 text-danger shrink-0" />
           <span>{errorMessage}</span>
-          <button onClick={() => setErrorMessage(null)} className="ml-2 text-rose-400 hover:text-rose-100">
+          <button onClick={() => setErrorMessage(null)} className="ml-2 text-danger hover:text-danger">
             <X className="w-3.5 h-3.5" />
           </button>
         </div>
       )}
       {successMessage && (
-        <div className="fixed top-20 right-6 z-50 flex items-center gap-2 bg-emerald-950/90 border border-emerald-500/50 text-emerald-200 px-4 py-3 rounded-xl shadow-2xl backdrop-blur-md text-xs">
-          <CheckCircle2 className="w-4 h-4 text-emerald-400 shrink-0" />
+        <div className="fixed top-20 right-6 z-50 flex items-center gap-2 bg-success-soft border border-emerald-500/50 text-success px-4 py-3 rounded-control shadow-2xl backdrop-blur-md text-xs">
+          <CheckCircle2 className="w-4 h-4 text-success shrink-0" />
           <span>{successMessage}</span>
-          <button onClick={() => setSuccessMessage(null)} className="ml-2 text-emerald-400 hover:text-emerald-100">
+          <button onClick={() => setSuccessMessage(null)} className="ml-2 text-success hover:text-emerald-100">
             <X className="w-3.5 h-3.5" />
           </button>
         </div>
@@ -169,11 +169,11 @@ export default function EC2Page() {
       {/* Header */}
       <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-4">
         <div>
-          <h2 className="text-2xl font-bold text-white flex items-center gap-3">
-            <Server className={`w-6 h-6 ${isAws ? "text-amber-400" : "text-blue-400"}`} />
+          <h2 className="text-2xl font-semibold text-ink flex items-center gap-3">
+            <Server className={`w-6 h-6 ${isAws ? "text-accent" : "text-accent"}`} />
             {isAws ? "EC2 Compute Instances" : "Compute Engine VM Instances"}
           </h2>
-          <p className="text-sm text-slate-400 mt-1">
+          <p className="text-sm text-muted mt-1">
             {isAws
               ? "Launch and manage virtual machines and containerized EC2 instances running in Floci"
               : "Launch and manage simulated GCE compute nodes, machine types, and attached service accounts"}
@@ -183,10 +183,10 @@ export default function EC2Page() {
         <div className="flex items-center gap-2">
           <button
             onClick={() => setIsLaunchModalOpen(true)}
-            className={`flex items-center gap-2 px-4 py-2 rounded-xl text-xs font-semibold text-white shadow-lg transition-all ${
+            className={`flex items-center gap-2 px-4 py-2 rounded-control text-xs font-semibold text-white transition-all ${
               isAws
-                ? "bg-amber-600 hover:bg-amber-500 shadow-amber-600/20"
-                : "bg-blue-600 hover:bg-blue-500 shadow-blue-600/20"
+                ? "bg-action hover:bg-action shadow-amber-600/20"
+                : "bg-action hover:bg-action shadow-blue-600/20"
             }`}
           >
             <Plus className="w-4 h-4" />
@@ -196,9 +196,9 @@ export default function EC2Page() {
           <button
             onClick={fetchInstances}
             disabled={loading}
-            className="flex items-center gap-2 bg-slate-900 hover:bg-slate-800 text-slate-200 border border-slate-800 px-4 py-2 rounded-xl text-xs font-semibold transition-colors"
+            className="flex items-center gap-2 bg-subtle hover:bg-subtle text-ink border border-line px-4 py-2 rounded-control text-xs font-semibold transition-colors"
           >
-            <RefreshCw className={`w-3.5 h-3.5 ${loading ? "animate-spin text-emerald-400" : ""}`} />
+            <RefreshCw className={`w-3.5 h-3.5 ${loading ? "animate-spin text-success" : ""}`} />
             Refresh
           </button>
         </div>
@@ -206,31 +206,31 @@ export default function EC2Page() {
 
       {/* Instances Table */}
       {loading ? (
-        <div className="bg-[#0d1322] border border-slate-800 rounded-2xl p-12 text-center text-slate-400">
-          <RefreshCw className="w-6 h-6 animate-spin mx-auto text-emerald-400 mb-3" />
+        <div className="bg-surface border border-line rounded-panel p-12 text-center text-muted">
+          <RefreshCw className="w-6 h-6 animate-spin mx-auto text-success mb-3" />
           Querying {serviceLabels.instances} from {endpoint}...
         </div>
       ) : instances.length === 0 ? (
-        <div className="bg-[#0d1322] border border-slate-800 rounded-2xl p-12 text-center text-slate-400 space-y-3">
-          <Server className="w-10 h-10 mx-auto text-slate-600" />
-          <p className="font-semibold text-slate-300">No {serviceLabels.instances} found</p>
-          <p className="text-xs text-slate-500 max-w-sm mx-auto">
+        <div className="bg-surface border border-line rounded-panel p-12 text-center text-muted space-y-3">
+          <Server className="w-10 h-10 mx-auto text-muted" />
+          <p className="font-semibold text-ink">No {serviceLabels.instances} found</p>
+          <p className="text-xs text-muted max-w-sm mx-auto">
             Click &apos;{isAws ? "Launch Instance" : "Create VM Instance"}&apos; to deploy your first simulated virtual machine.
           </p>
           <button
             onClick={() => setIsLaunchModalOpen(true)}
-            className={`inline-flex items-center gap-1.5 px-4 py-2 rounded-xl text-xs font-semibold text-white transition-all ${
-              isAws ? "bg-amber-600 hover:bg-amber-500" : "bg-blue-600 hover:bg-blue-500"
+            className={`inline-flex items-center gap-1.5 px-4 py-2 rounded-control text-xs font-semibold text-white transition-all ${
+              isAws ? "bg-action hover:bg-action" : "bg-action hover:bg-action"
             }`}
           >
             <Plus className="w-3.5 h-3.5" /> Launch Now
           </button>
         </div>
       ) : (
-        <div className="bg-[#0d1322] border border-slate-800 rounded-2xl overflow-hidden shadow-xl">
+        <div className="bg-surface border border-line rounded-panel overflow-hidden ">
           <div className="overflow-x-auto">
             <table className="w-full text-left text-xs">
-              <thead className="bg-slate-900/80 border-b border-slate-800 text-slate-400 uppercase tracking-wider font-semibold">
+              <thead className="bg-subtle border-b border-line text-muted uppercase tracking-wider font-semibold">
                 <tr>
                   <th className="px-6 py-3.5">{isAws ? "Instance ID / Name" : "VM Name / ID"}</th>
                   <th className="px-6 py-3.5">Status</th>
@@ -240,23 +240,23 @@ export default function EC2Page() {
                   <th className="px-6 py-3.5 text-right">Actions</th>
                 </tr>
               </thead>
-              <tbody className="divide-y divide-slate-800/60">
+              <tbody className="divide-y divide-line">
                 {instances.map((inst) => {
                   const isRunning = inst.state === "running";
                   const nameTag = inst.tags?.Name || inst.tags?.name || inst.instanceId;
                   const workloadTag = inst.tags?.Role || inst.tags?.Workload || inst.tags?.workload;
 
                   return (
-                    <tr key={inst.instanceId} className="hover:bg-slate-900/40 transition-colors">
+                    <tr key={inst.instanceId} className="hover:bg-subtle transition-colors">
                       <td className="px-6 py-4">
-                        <div className="font-semibold text-slate-200">{nameTag}</div>
-                        <div className="font-mono text-[11px] text-slate-400 mt-0.5">{inst.instanceId}</div>
+                        <div className="font-semibold text-ink">{nameTag}</div>
+                        <div className="font-mono text-[11px] text-muted mt-0.5">{inst.instanceId}</div>
                         {workloadTag && (
                           <div
                             className={`mt-1 inline-flex items-center gap-1 text-[10px] px-2 py-0.5 rounded border ${
                               isAws
-                                ? "text-amber-400 bg-amber-500/10 border-amber-500/20"
-                                : "text-blue-400 bg-blue-500/10 border-blue-500/20"
+                                ? "text-accent bg-selected border-line"
+                                : "text-accent bg-selected border-line"
                             }`}
                           >
                             <Tag className="w-2.5 h-2.5" />
@@ -268,8 +268,8 @@ export default function EC2Page() {
                         <span
                           className={`inline-flex items-center gap-1.5 px-2.5 py-1 rounded-full text-[11px] font-semibold border ${
                             isRunning
-                              ? "bg-emerald-950/60 text-emerald-400 border-emerald-500/30"
-                              : "bg-slate-900 text-slate-400 border-slate-800"
+                              ? "bg-success-soft text-success border-emerald-500/30"
+                              : "bg-subtle text-muted border-line"
                           }`}
                         >
                           <span
@@ -280,25 +280,25 @@ export default function EC2Page() {
                           {inst.state}
                         </span>
                       </td>
-                      <td className="px-6 py-4 font-mono text-slate-300">
+                      <td className="px-6 py-4 font-mono text-ink">
                         {inst.tags?.MachineType || inst.instanceType}
                       </td>
                       <td className="px-6 py-4 space-y-1">
-                        <div className="flex items-center gap-1.5 text-slate-300 font-mono">
-                          <Globe className="w-3 h-3 text-slate-500" />
+                        <div className="flex items-center gap-1.5 text-ink font-mono">
+                          <Globe className="w-3 h-3 text-muted" />
                           <span>External: {inst.publicIp}</span>
                         </div>
-                        <div className="flex items-center gap-1.5 text-slate-400 font-mono">
-                          <Lock className="w-3 h-3 text-slate-500" />
+                        <div className="flex items-center gap-1.5 text-muted font-mono">
+                          <Lock className="w-3 h-3 text-muted" />
                           <span>Internal: {inst.privateIp}</span>
                         </div>
                       </td>
                       <td className="px-6 py-4 space-y-1.5">
                         {inst.securityGroups?.length > 0 && (
-                          <div className="flex items-center gap-1.5 text-slate-300">
+                          <div className="flex items-center gap-1.5 text-ink">
                             <Shield
                               className={`w-3.5 h-3.5 shrink-0 ${
-                                isAws ? "text-amber-400" : "text-blue-400"
+                                isAws ? "text-accent" : "text-accent"
                               }`}
                             />
                             <span className="truncate max-w-[180px]">
@@ -307,8 +307,8 @@ export default function EC2Page() {
                           </div>
                         )}
                         {(inst.iamInstanceProfile !== "-" || inst.tags?.ServiceAccount) && (
-                          <div className="flex items-center gap-1.5 text-slate-400 text-[11px] font-mono truncate max-w-[200px]">
-                            <Key className="w-3 h-3 text-emerald-400 shrink-0" />
+                          <div className="flex items-center gap-1.5 text-muted text-[11px] font-mono truncate max-w-[200px]">
+                            <Key className="w-3 h-3 text-success shrink-0" />
                             <span className="truncate">
                               {inst.tags?.ServiceAccount || inst.iamInstanceProfile.split("/").pop()}
                             </span>
@@ -322,7 +322,7 @@ export default function EC2Page() {
                               onClick={() => handleAction("stop", inst.instanceId)}
                               disabled={actionLoading !== null}
                               title="Stop VM"
-                              className="p-1.5 rounded-lg bg-slate-900 hover:bg-slate-800 text-amber-400 border border-slate-800 transition-colors"
+                              className="p-1.5 rounded-lg bg-subtle hover:bg-subtle text-accent border border-line transition-colors"
                             >
                               <Square className="w-3.5 h-3.5" />
                             </button>
@@ -331,7 +331,7 @@ export default function EC2Page() {
                               onClick={() => handleAction("start", inst.instanceId)}
                               disabled={actionLoading !== null}
                               title="Start VM"
-                              className="p-1.5 rounded-lg bg-slate-900 hover:bg-slate-800 text-emerald-400 border border-slate-800 transition-colors"
+                              className="p-1.5 rounded-lg bg-subtle hover:bg-subtle text-success border border-line transition-colors"
                             >
                               <Play className="w-3.5 h-3.5" />
                             </button>
@@ -340,7 +340,7 @@ export default function EC2Page() {
                             onClick={() => handleAction("terminate", inst.instanceId)}
                             disabled={actionLoading !== null}
                             title="Delete / Terminate VM"
-                            className="p-1.5 rounded-lg bg-slate-900 hover:bg-rose-950/40 text-rose-400 border border-slate-800 transition-colors"
+                            className="p-1.5 rounded-lg bg-subtle hover:bg-danger-soft text-danger border border-line transition-colors"
                           >
                             <Trash2 className="w-3.5 h-3.5" />
                           </button>
@@ -358,22 +358,22 @@ export default function EC2Page() {
       {/* Launch Instance Modal */}
       {isLaunchModalOpen && mounted && createPortal(
         <div
-          className="fixed inset-0 bg-slate-950/80 backdrop-blur-sm z-[9999] flex items-center justify-center p-4"
+          className="fixed inset-0 bg-black/40 backdrop-blur-sm z-[9999] flex items-center justify-center p-4"
           onClick={(e) => {
             if (e.target === e.currentTarget) setIsLaunchModalOpen(false);
           }}
         >
-          <div className="bg-[#0f172a] border border-slate-800 rounded-2xl w-full max-w-md p-6 shadow-2xl space-y-5">
-            <div className="flex items-center justify-between pb-3 border-b border-slate-800">
+          <div className="bg-surface border border-line rounded-panel w-full max-w-md p-6 shadow-2xl space-y-5">
+            <div className="flex items-center justify-between pb-3 border-b border-line">
               <div className="flex items-center gap-2">
-                <Server className={`w-5 h-5 ${isAws ? "text-amber-400" : "text-blue-400"}`} />
-                <h3 className="font-bold text-slate-100 text-base">
+                <Server className={`w-5 h-5 ${isAws ? "text-accent" : "text-accent"}`} />
+                <h3 className="font-bold text-ink text-base">
                   {isAws ? "Launch EC2 Instance" : "Create Compute Instance"}
                 </h3>
               </div>
               <button
                 onClick={() => setIsLaunchModalOpen(false)}
-                className="text-slate-400 hover:text-slate-100 p-1 hover:bg-slate-800 rounded-lg transition-colors"
+                className="text-muted hover:text-ink p-1 hover:bg-subtle rounded-lg transition-colors"
               >
                 <X className="w-5 h-5" />
               </button>
@@ -381,7 +381,7 @@ export default function EC2Page() {
 
             <form onSubmit={handleLaunch} className="space-y-4">
               <div>
-                <label className="block text-xs font-semibold text-slate-300 mb-1.5">
+                <label className="block text-xs font-semibold text-ink mb-1.5">
                   Instance Name (Tag: Name)
                 </label>
                 <input
@@ -390,18 +390,18 @@ export default function EC2Page() {
                   value={instanceName}
                   onChange={(e) => setInstanceName(e.target.value)}
                   required
-                  className="w-full bg-slate-900 border border-slate-800 px-3.5 py-2 rounded-xl text-xs text-slate-200 focus:outline-none focus:border-emerald-500 font-mono"
+                  className="w-full bg-subtle border border-line px-3.5 py-2 rounded-control text-xs text-ink focus:outline-none focus:border-emerald-500 font-mono"
                 />
               </div>
 
               <div>
-                <label className="block text-xs font-semibold text-slate-300 mb-1.5">
+                <label className="block text-xs font-semibold text-ink mb-1.5">
                   {isAws ? "Instance Type" : "Machine Type"}
                 </label>
                 <select
                   value={instanceType}
                   onChange={(e) => setInstanceType(e.target.value)}
-                  className="w-full bg-slate-900 border border-slate-800 px-3.5 py-2 rounded-xl text-xs text-slate-200 focus:outline-none focus:border-emerald-500 font-mono cursor-pointer"
+                  className="w-full bg-subtle border border-line px-3.5 py-2 rounded-control text-xs text-ink focus:outline-none focus:border-emerald-500 font-mono cursor-pointer"
                 >
                   {instanceTypes.map((type) => (
                     <option key={type} value={type}>
@@ -412,7 +412,7 @@ export default function EC2Page() {
               </div>
 
               <div>
-                <label className="block text-xs font-semibold text-slate-300 mb-1.5">
+                <label className="block text-xs font-semibold text-ink mb-1.5">
                   Workload / Role Tag
                 </label>
                 <input
@@ -420,19 +420,19 @@ export default function EC2Page() {
                   placeholder="e.g. web, worker, api"
                   value={workloadTag}
                   onChange={(e) => setWorkloadTag(e.target.value)}
-                  className="w-full bg-slate-900 border border-slate-800 px-3.5 py-2 rounded-xl text-xs text-slate-200 focus:outline-none focus:border-emerald-500 font-mono"
+                  className="w-full bg-subtle border border-line px-3.5 py-2 rounded-control text-xs text-ink focus:outline-none focus:border-emerald-500 font-mono"
                 />
               </div>
 
               <div>
-                <label className="block text-xs font-semibold text-slate-300 mb-1.5">
+                <label className="block text-xs font-semibold text-ink mb-1.5">
                   Image ID / AMI
                 </label>
                 <input
                   type="text"
                   value={imageId}
                   onChange={(e) => setImageId(e.target.value)}
-                  className="w-full bg-slate-900 border border-slate-800 px-3.5 py-2 rounded-xl text-xs text-slate-200 focus:outline-none focus:border-emerald-500 font-mono"
+                  className="w-full bg-subtle border border-line px-3.5 py-2 rounded-control text-xs text-ink focus:outline-none focus:border-emerald-500 font-mono"
                 />
               </div>
 
@@ -440,17 +440,17 @@ export default function EC2Page() {
                 <button
                   type="button"
                   onClick={() => setIsLaunchModalOpen(false)}
-                  className="px-4 py-2 text-xs text-slate-400 hover:text-slate-200 rounded-xl"
+                  className="px-4 py-2 text-xs text-muted hover:text-ink rounded-control"
                 >
                   Cancel
                 </button>
                 <button
                   type="submit"
                   disabled={actionLoading !== null}
-                  className={`px-4 py-2 text-xs font-semibold text-white rounded-xl transition-colors flex items-center gap-1.5 ${
+                  className={`px-4 py-2 text-xs font-semibold text-white rounded-control transition-colors flex items-center gap-1.5 ${
                     isAws
-                      ? "bg-amber-600 hover:bg-amber-500"
-                      : "bg-blue-600 hover:bg-blue-500"
+                      ? "bg-action hover:bg-action"
+                      : "bg-action hover:bg-action"
                   }`}
                 >
                   {actionLoading === "launch" ? <RefreshCw className="w-3.5 h-3.5 animate-spin" /> : <Plus className="w-3.5 h-3.5" />}

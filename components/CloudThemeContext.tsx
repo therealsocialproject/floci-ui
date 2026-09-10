@@ -1,6 +1,6 @@
 "use client";
 
-import React, { createContext, useContext, useState, useEffect, ReactNode } from "react";
+import React, { createContext, useContext, useEffect, ReactNode } from "react";
 import { useEndpoint } from "./EndpointProvider";
 
 export type CloudMode = "aws" | "gcp";
@@ -28,7 +28,9 @@ interface CloudThemeContextType {
   };
 }
 
-const CloudThemeContext = createContext<CloudThemeContextType | undefined>(undefined);
+const CloudThemeContext = createContext<CloudThemeContextType | undefined>(
+  undefined,
+);
 
 export function CloudThemeProvider({ children }: { children: ReactNode }) {
   const { currentEnvironment } = useEndpoint();
@@ -36,6 +38,10 @@ export function CloudThemeProvider({ children }: { children: ReactNode }) {
   // The active environment's provider strictly dictates the cloud console mode
   const cloudMode: CloudMode =
     currentEnvironment?.provider === "gcp" ? "gcp" : "aws";
+
+  useEffect(() => {
+    document.documentElement.dataset.cloud = cloudMode;
+  }, [cloudMode]);
 
   const isAws = cloudMode === "aws";
 

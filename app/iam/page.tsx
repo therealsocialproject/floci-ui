@@ -223,8 +223,8 @@ export default function IAMPage() {
   });
 
   const tabActiveClass = isAws
-    ? "bg-amber-500 text-slate-950 shadow-sm"
-    : "bg-blue-600 text-white shadow-sm";
+    ? "bg-action text-slate-950 shadow-sm"
+    : "bg-action text-white shadow-sm";
 
   const getCreateButtonLabel = () => {
     if (activeTab === "roles") return isAws ? "Create Role" : "Create Service Account";
@@ -234,22 +234,22 @@ export default function IAMPage() {
   };
 
   return (
-    <div className="space-y-6 max-w-7xl mx-auto">
+    <div className="space-y-6 resource-page">
       {/* Toast Notifications */}
       {errorMessage && (
-        <div className="fixed top-20 right-6 z-50 flex items-center gap-2 bg-rose-950/90 border border-rose-500/50 text-rose-200 px-4 py-3 rounded-xl shadow-2xl backdrop-blur-md text-xs">
-          <AlertCircle className="w-4 h-4 text-rose-400 shrink-0" />
+        <div className="fixed top-20 right-6 z-50 flex items-center gap-2 bg-danger-soft border border-rose-500/50 text-danger px-4 py-3 rounded-control shadow-2xl backdrop-blur-md text-xs">
+          <AlertCircle className="w-4 h-4 text-danger shrink-0" />
           <span>{errorMessage}</span>
-          <button onClick={() => setErrorMessage(null)} className="ml-2 text-rose-400 hover:text-rose-100">
+          <button onClick={() => setErrorMessage(null)} className="ml-2 text-danger hover:text-danger">
             <X className="w-3.5 h-3.5" />
           </button>
         </div>
       )}
       {successMessage && (
-        <div className="fixed top-20 right-6 z-50 flex items-center gap-2 bg-emerald-950/90 border border-emerald-500/50 text-emerald-200 px-4 py-3 rounded-xl shadow-2xl backdrop-blur-md text-xs">
-          <CheckCircle2 className="w-4 h-4 text-emerald-400 shrink-0" />
+        <div className="fixed top-20 right-6 z-50 flex items-center gap-2 bg-success-soft border border-emerald-500/50 text-success px-4 py-3 rounded-control shadow-2xl backdrop-blur-md text-xs">
+          <CheckCircle2 className="w-4 h-4 text-success shrink-0" />
           <span>{successMessage}</span>
-          <button onClick={() => setSuccessMessage(null)} className="ml-2 text-emerald-400 hover:text-emerald-100">
+          <button onClick={() => setSuccessMessage(null)} className="ml-2 text-success hover:text-emerald-100">
             <X className="w-3.5 h-3.5" />
           </button>
         </div>
@@ -258,11 +258,11 @@ export default function IAMPage() {
       {/* Header */}
       <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-4">
         <div>
-          <h2 className="text-2xl font-bold text-white flex items-center gap-3">
-            <Users className={`w-6 h-6 ${isAws ? "text-amber-400" : "text-blue-400"}`} />
+          <h2 className="text-2xl font-semibold text-ink flex items-center gap-3">
+            <Users className={`w-6 h-6 ${isAws ? "text-accent" : "text-accent"}`} />
             {isAws ? "IAM Access & Permissions" : "IAM & Admin Console"}
           </h2>
-          <p className="text-sm text-slate-400 mt-1">
+          <p className="text-sm text-muted mt-1">
             {isAws
               ? "Create and manage simulated IAM Roles, Users, Groups, and Policies in Floci"
               : "Create and manage Service Accounts, Principals, Roles, and Permissions in Floci"}
@@ -272,10 +272,10 @@ export default function IAMPage() {
         <div className="flex items-center gap-2">
           <button
             onClick={openCreateModal}
-            className={`flex items-center gap-2 px-4 py-2 rounded-xl text-xs font-semibold text-white shadow-lg transition-all ${
+            className={`flex items-center gap-2 px-4 py-2 rounded-control text-xs font-semibold text-white transition-all ${
               isAws
-                ? "bg-amber-600 hover:bg-amber-500 shadow-amber-600/20"
-                : "bg-blue-600 hover:bg-blue-500 shadow-blue-600/20"
+                ? "bg-action hover:bg-action shadow-amber-600/20"
+                : "bg-action hover:bg-action shadow-blue-600/20"
             }`}
           >
             <Plus className="w-4 h-4" />
@@ -285,21 +285,21 @@ export default function IAMPage() {
           <button
             onClick={fetchIAM}
             disabled={loading}
-            className="flex items-center gap-2 bg-slate-900 hover:bg-slate-800 text-slate-200 border border-slate-800 px-4 py-2 rounded-xl text-xs font-semibold transition-colors"
+            className="flex items-center gap-2 bg-subtle hover:bg-subtle text-ink border border-line px-4 py-2 rounded-control text-xs font-semibold transition-colors"
           >
-            <RefreshCw className={`w-3.5 h-3.5 ${loading ? "animate-spin text-emerald-400" : ""}`} />
+            <RefreshCw className={`w-3.5 h-3.5 ${loading ? "animate-spin text-success" : ""}`} />
             Refresh
           </button>
         </div>
       </div>
 
       {/* Tabs and Search Bar */}
-      <div className="bg-[#0d1322] border border-slate-800 rounded-2xl p-4 shadow-xl flex flex-col sm:flex-row items-center justify-between gap-4">
-        <div className="flex items-center gap-2 p-1 bg-slate-900 border border-slate-800 rounded-xl text-xs w-full sm:w-auto">
+      <div className="bg-surface border border-line rounded-panel p-4 flex flex-col sm:flex-row items-center justify-between gap-4">
+        <div className="flex items-center gap-2 p-1 bg-subtle border border-line rounded-control text-xs w-full sm:w-auto">
           <button
             onClick={() => setActiveTab("roles")}
             className={`flex-1 sm:flex-initial px-4 py-2 rounded-lg font-semibold transition-colors flex items-center justify-center gap-2 ${
-              activeTab === "roles" ? tabActiveClass : "text-slate-400 hover:text-slate-200"
+              activeTab === "roles" ? tabActiveClass : "text-muted hover:text-ink"
             }`}
           >
             <Shield className="w-3.5 h-3.5" />
@@ -308,7 +308,7 @@ export default function IAMPage() {
           <button
             onClick={() => setActiveTab("users")}
             className={`flex-1 sm:flex-initial px-4 py-2 rounded-lg font-semibold transition-colors flex items-center justify-center gap-2 ${
-              activeTab === "users" ? tabActiveClass : "text-slate-400 hover:text-slate-200"
+              activeTab === "users" ? tabActiveClass : "text-muted hover:text-ink"
             }`}
           >
             <UserCheck className="w-3.5 h-3.5" />
@@ -317,7 +317,7 @@ export default function IAMPage() {
           <button
             onClick={() => setActiveTab("groups")}
             className={`flex-1 sm:flex-initial px-4 py-2 rounded-lg font-semibold transition-colors flex items-center justify-center gap-2 ${
-              activeTab === "groups" ? tabActiveClass : "text-slate-400 hover:text-slate-200"
+              activeTab === "groups" ? tabActiveClass : "text-muted hover:text-ink"
             }`}
           >
             <Users className="w-3.5 h-3.5" />
@@ -326,7 +326,7 @@ export default function IAMPage() {
           <button
             onClick={() => setActiveTab("policies")}
             className={`flex-1 sm:flex-initial px-4 py-2 rounded-lg font-semibold transition-colors flex items-center justify-center gap-2 ${
-              activeTab === "policies" ? tabActiveClass : "text-slate-400 hover:text-slate-200"
+              activeTab === "policies" ? tabActiveClass : "text-muted hover:text-ink"
             }`}
           >
             <KeyRound className="w-3.5 h-3.5" />
@@ -335,37 +335,37 @@ export default function IAMPage() {
         </div>
 
         <div className="relative w-full sm:w-72">
-          <Search className="w-4 h-4 text-slate-500 absolute left-3 top-1/2 -translate-y-1/2" />
+          <Search className="w-4 h-4 text-muted absolute left-3 top-1/2 -translate-y-1/2" />
           <input
             type="text"
             placeholder={`Search ${activeTab}...`}
             value={search}
             onChange={(e) => setSearch(e.target.value)}
-            className="w-full bg-slate-900 border border-slate-800 pl-9 pr-4 py-1.5 rounded-xl text-xs text-slate-200 placeholder-slate-500 focus:outline-none focus:border-slate-600"
+            className="w-full bg-subtle border border-line pl-9 pr-4 py-1.5 rounded-control text-xs text-ink placeholder-slate-500 focus:outline-none focus:border-line"
           />
         </div>
       </div>
 
       {/* Main Table */}
       {loading ? (
-        <div className="bg-[#0d1322] border border-slate-800 rounded-2xl p-12 text-center text-slate-400">
-          <RefreshCw className="w-6 h-6 animate-spin mx-auto text-emerald-400 mb-3" />
+        <div className="bg-surface border border-line rounded-panel p-12 text-center text-muted">
+          <RefreshCw className="w-6 h-6 animate-spin mx-auto text-success mb-3" />
           Loading IAM {activeTab}...
         </div>
       ) : filteredList.length === 0 ? (
-        <div className="bg-[#0d1322] border border-slate-800 rounded-2xl p-12 text-center text-slate-400 space-y-3">
+        <div className="bg-surface border border-line rounded-panel p-12 text-center text-muted space-y-3">
           <p>No {activeTab} match your criteria.</p>
           <button
             onClick={openCreateModal}
-            className="text-xs font-semibold text-emerald-400 hover:underline"
+            className="text-xs font-semibold text-success hover:underline"
           >
             + {getCreateButtonLabel()}
           </button>
         </div>
       ) : (
-        <div className="bg-[#0d1322] border border-slate-800 rounded-2xl overflow-hidden shadow-xl">
+        <div className="bg-surface border border-line rounded-panel overflow-hidden ">
           <table className="w-full text-left text-xs">
-            <thead className="bg-slate-900/80 border-b border-slate-800 text-slate-400 uppercase font-semibold">
+            <thead className="bg-subtle border-b border-line text-muted uppercase font-semibold">
               <tr>
                 <th className="px-6 py-3.5">{isAws ? "Identity Name" : "Principal / Resource"}</th>
                 <th className="px-6 py-3.5">ARN / Identifier</th>
@@ -374,25 +374,25 @@ export default function IAMPage() {
                 <th className="px-6 py-3.5 text-right">Actions</th>
               </tr>
             </thead>
-            <tbody className="divide-y divide-slate-800/60 font-mono">
+            <tbody className="divide-y divide-line font-mono">
               {filteredList.map((item: any, idx: number) => {
                 const name = item.roleName || item.userName || item.groupName || item.policyName;
                 return (
-                  <tr key={item.arn || idx} className="hover:bg-slate-900/40 transition-colors">
-                    <td className="px-6 py-3.5 font-semibold text-slate-200">{name}</td>
-                    <td className="px-6 py-3.5 text-slate-400 text-[11px] truncate max-w-md">
+                  <tr key={item.arn || idx} className="hover:bg-subtle transition-colors">
+                    <td className="px-6 py-3.5 font-semibold text-ink">{name}</td>
+                    <td className="px-6 py-3.5 text-muted text-[11px] truncate max-w-md">
                       {item.arn}
                     </td>
-                    <td className="px-6 py-3.5 text-slate-500 text-[11px] font-sans">
+                    <td className="px-6 py-3.5 text-muted text-[11px] font-sans">
                       {item.createDate ? new Date(item.createDate).toLocaleDateString() : "-"}
                     </td>
                     {activeTab === "policies" && (
-                      <td className="px-6 py-3.5 text-slate-300 font-sans">
+                      <td className="px-6 py-3.5 text-ink font-sans">
                         <span
                           className={`px-2 py-0.5 rounded text-[10px] font-semibold border ${
                             isAws
-                              ? "bg-amber-500/10 text-amber-400 border-amber-500/20"
-                              : "bg-blue-500/10 text-blue-400 border-blue-500/20"
+                              ? "bg-selected text-accent border-line"
+                              : "bg-selected text-accent border-line"
                           }`}
                         >
                           {item.attachmentCount} attached
@@ -403,7 +403,7 @@ export default function IAMPage() {
                       <button
                         onClick={() => handleDelete(item)}
                         title={`Delete ${name}`}
-                        className="p-1 text-slate-500 hover:text-rose-400 rounded transition-colors"
+                        className="p-1 text-muted hover:text-danger rounded transition-colors"
                       >
                         <Trash2 className="w-3.5 h-3.5" />
                       </button>
@@ -419,22 +419,22 @@ export default function IAMPage() {
       {/* Create Modal */}
       {isCreateOpen && mounted && createPortal(
         <div
-          className="fixed inset-0 bg-slate-950/80 backdrop-blur-sm z-[9999] flex items-center justify-center p-4"
+          className="fixed inset-0 bg-black/40 backdrop-blur-sm z-[9999] flex items-center justify-center p-4"
           onClick={(e) => {
             if (e.target === e.currentTarget) setIsCreateOpen(false);
           }}
         >
-          <div className="bg-[#0f172a] border border-slate-800 rounded-2xl w-full max-w-lg p-6 shadow-2xl space-y-5">
-            <div className="flex items-center justify-between pb-3 border-b border-slate-800">
+          <div className="bg-surface border border-line rounded-panel w-full max-w-lg p-6 shadow-2xl space-y-5">
+            <div className="flex items-center justify-between pb-3 border-b border-line">
               <div className="flex items-center gap-2">
-                <Users className={`w-5 h-5 ${isAws ? "text-amber-400" : "text-blue-400"}`} />
-                <h3 className="font-bold text-slate-100 text-base">
+                <Users className={`w-5 h-5 ${isAws ? "text-accent" : "text-accent"}`} />
+                <h3 className="font-bold text-ink text-base">
                   {getCreateButtonLabel()}
                 </h3>
               </div>
               <button
                 onClick={() => setIsCreateOpen(false)}
-                className="text-slate-400 hover:text-slate-100 p-1 hover:bg-slate-800 rounded-lg transition-colors"
+                className="text-muted hover:text-ink p-1 hover:bg-subtle rounded-lg transition-colors"
               >
                 <X className="w-5 h-5" />
               </button>
@@ -442,7 +442,7 @@ export default function IAMPage() {
 
             <form onSubmit={handleCreate} className="space-y-4">
               <div>
-                <label className="block text-xs font-semibold text-slate-300 mb-1.5">
+                <label className="block text-xs font-semibold text-ink mb-1.5">
                   {activeTab === "roles"
                     ? "Role Name"
                     : activeTab === "users"
@@ -457,13 +457,13 @@ export default function IAMPage() {
                   value={nameInput}
                   onChange={(e) => setNameInput(e.target.value)}
                   required
-                  className="w-full bg-slate-900 border border-slate-800 px-3.5 py-2 rounded-xl text-xs text-slate-200 focus:outline-none focus:border-emerald-500 font-mono"
+                  className="w-full bg-subtle border border-line px-3.5 py-2 rounded-control text-xs text-ink focus:outline-none focus:border-emerald-500 font-mono"
                 />
               </div>
 
               {(activeTab === "roles" || activeTab === "policies") && (
                 <div>
-                  <label className="block text-xs font-semibold text-slate-300 mb-1.5">
+                  <label className="block text-xs font-semibold text-ink mb-1.5">
                     Description
                   </label>
                   <input
@@ -471,14 +471,14 @@ export default function IAMPage() {
                     placeholder="Short description of purpose"
                     value={descriptionInput}
                     onChange={(e) => setDescriptionInput(e.target.value)}
-                    className="w-full bg-slate-900 border border-slate-800 px-3.5 py-2 rounded-xl text-xs text-slate-200 focus:outline-none focus:border-emerald-500"
+                    className="w-full bg-subtle border border-line px-3.5 py-2 rounded-control text-xs text-ink focus:outline-none focus:border-emerald-500"
                   />
                 </div>
               )}
 
               {(activeTab === "roles" || activeTab === "policies") && (
                 <div>
-                  <label className="block text-xs font-semibold text-slate-300 mb-1.5">
+                  <label className="block text-xs font-semibold text-ink mb-1.5">
                     {activeTab === "roles" ? "AssumeRole Trust Policy (JSON)" : "Policy Document (JSON)"}
                   </label>
                   <textarea
@@ -486,7 +486,7 @@ export default function IAMPage() {
                     value={documentInput}
                     onChange={(e) => setDocumentInput(e.target.value)}
                     required
-                    className="w-full bg-slate-900 border border-slate-800 p-3 rounded-xl text-xs text-emerald-400 focus:outline-none focus:border-emerald-500 font-mono"
+                    className="w-full bg-subtle border border-line p-3 rounded-control text-xs text-success focus:outline-none focus:border-emerald-500 font-mono"
                   />
                 </div>
               )}
@@ -495,17 +495,17 @@ export default function IAMPage() {
                 <button
                   type="button"
                   onClick={() => setIsCreateOpen(false)}
-                  className="px-4 py-2 text-xs text-slate-400 hover:text-slate-200 rounded-xl"
+                  className="px-4 py-2 text-xs text-muted hover:text-ink rounded-control"
                 >
                   Cancel
                 </button>
                 <button
                   type="submit"
                   disabled={actionLoading}
-                  className={`px-4 py-2 text-xs font-semibold text-white rounded-xl transition-colors flex items-center gap-1.5 ${
+                  className={`px-4 py-2 text-xs font-semibold text-white rounded-control transition-colors flex items-center gap-1.5 ${
                     isAws
-                      ? "bg-amber-600 hover:bg-amber-500"
-                      : "bg-blue-600 hover:bg-blue-500"
+                      ? "bg-action hover:bg-action"
+                      : "bg-action hover:bg-action"
                   }`}
                 >
                   {actionLoading ? <RefreshCw className="w-3.5 h-3.5 animate-spin" /> : <Plus className="w-3.5 h-3.5" />}

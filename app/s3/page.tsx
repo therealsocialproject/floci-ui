@@ -262,22 +262,22 @@ export default function S3Page() {
   };
 
   return (
-    <div className="space-y-6 max-w-7xl mx-auto">
+    <div className="space-y-6 resource-page">
       {/* Toast Notifications */}
       {errorMessage && (
-        <div className="fixed top-20 right-6 z-50 flex items-center gap-2 bg-rose-950/90 border border-rose-500/50 text-rose-200 px-4 py-3 rounded-xl shadow-2xl backdrop-blur-md text-xs">
-          <AlertCircle className="w-4 h-4 text-rose-400 shrink-0" />
+        <div className="fixed top-20 right-6 z-50 flex items-center gap-2 bg-danger-soft border border-rose-500/50 text-danger px-4 py-3 rounded-control shadow-2xl backdrop-blur-md text-xs">
+          <AlertCircle className="w-4 h-4 text-danger shrink-0" />
           <span>{errorMessage}</span>
-          <button onClick={() => setErrorMessage(null)} className="ml-2 text-rose-400 hover:text-rose-100">
+          <button onClick={() => setErrorMessage(null)} className="ml-2 text-danger hover:text-danger">
             <X className="w-3.5 h-3.5" />
           </button>
         </div>
       )}
       {successMessage && (
-        <div className="fixed top-20 right-6 z-50 flex items-center gap-2 bg-emerald-950/90 border border-emerald-500/50 text-emerald-200 px-4 py-3 rounded-xl shadow-2xl backdrop-blur-md text-xs">
-          <CheckCircle2 className="w-4 h-4 text-emerald-400 shrink-0" />
+        <div className="fixed top-20 right-6 z-50 flex items-center gap-2 bg-success-soft border border-emerald-500/50 text-success px-4 py-3 rounded-control shadow-2xl backdrop-blur-md text-xs">
+          <CheckCircle2 className="w-4 h-4 text-success shrink-0" />
           <span>{successMessage}</span>
-          <button onClick={() => setSuccessMessage(null)} className="ml-2 text-emerald-400 hover:text-emerald-100">
+          <button onClick={() => setSuccessMessage(null)} className="ml-2 text-success hover:text-emerald-100">
             <X className="w-3.5 h-3.5" />
           </button>
         </div>
@@ -286,11 +286,11 @@ export default function S3Page() {
       {/* Header */}
       <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-4">
         <div>
-          <h2 className="text-2xl font-bold text-white flex items-center gap-3">
-            <FolderLock className={`w-6 h-6 ${isAws ? "text-amber-400" : "text-blue-400"}`} />
+          <h2 className="text-2xl font-semibold text-ink flex items-center gap-3">
+            <FolderLock className={`w-6 h-6 ${isAws ? "text-accent" : "text-accent"}`} />
             {isAws ? "S3 Storage Buckets" : "Cloud Storage Buckets"}
           </h2>
-          <p className="text-sm text-slate-400 mt-1">
+          <p className="text-sm text-muted mt-1">
             {isAws
               ? "Create, manage, and browse AWS S3 buckets and stored objects"
               : "Create, manage, and browse GCP Cloud Storage buckets and blobs inside Floci"}
@@ -300,10 +300,10 @@ export default function S3Page() {
         <div className="flex items-center gap-2">
           <button
             onClick={() => setIsCreateBucketOpen(true)}
-            className={`flex items-center gap-2 px-4 py-2 rounded-xl text-xs font-semibold text-white shadow-lg transition-all ${
+            className={`flex items-center gap-2 px-4 py-2 rounded-control text-xs font-semibold text-white transition-all ${
               isAws
-                ? "bg-amber-600 hover:bg-amber-500 shadow-amber-600/20"
-                : "bg-blue-600 hover:bg-blue-500 shadow-blue-600/20"
+                ? "bg-action hover:bg-action shadow-amber-600/20"
+                : "bg-action hover:bg-action shadow-blue-600/20"
             }`}
           >
             <Plus className="w-4 h-4" />
@@ -313,9 +313,9 @@ export default function S3Page() {
           <button
             onClick={() => fetchBuckets()}
             disabled={loadingBuckets}
-            className="flex items-center gap-2 bg-slate-900 hover:bg-slate-800 text-slate-200 border border-slate-800 px-4 py-2 rounded-xl text-xs font-semibold transition-colors"
+            className="flex items-center gap-2 bg-subtle hover:bg-subtle text-ink border border-line px-4 py-2 rounded-control text-xs font-semibold transition-colors"
           >
-            <RefreshCw className={`w-3.5 h-3.5 ${loadingBuckets ? "animate-spin text-emerald-400" : ""}`} />
+            <RefreshCw className={`w-3.5 h-3.5 ${loadingBuckets ? "animate-spin text-success" : ""}`} />
             Refresh
           </button>
         </div>
@@ -324,22 +324,22 @@ export default function S3Page() {
       {/* Main Grid: Buckets + Objects */}
       <div className="grid grid-cols-1 lg:grid-cols-3 gap-6">
         {/* Buckets List */}
-        <div className="bg-[#0d1322] border border-slate-800 rounded-2xl p-5 shadow-xl space-y-3">
-          <div className="flex items-center justify-between pb-3 border-b border-slate-800">
-            <span className="text-xs font-bold text-slate-300 uppercase tracking-wider flex items-center gap-2">
-              <Folder className={`w-4 h-4 ${isAws ? "text-amber-400" : "text-blue-400"}`} />
+        <div className="bg-surface border border-line rounded-panel p-5 space-y-3">
+          <div className="flex items-center justify-between pb-3 border-b border-line">
+            <span className="text-xs font-bold text-ink uppercase tracking-wider flex items-center gap-2">
+              <Folder className={`w-4 h-4 ${isAws ? "text-accent" : "text-accent"}`} />
               {isAws ? "Buckets" : "Storage Buckets"} ({buckets.length})
             </span>
           </div>
 
           {loadingBuckets ? (
-            <div className="py-8 text-center text-xs text-slate-500">Loading {serviceLabels.buckets}...</div>
+            <div className="py-8 text-center text-xs text-muted">Loading {serviceLabels.buckets}...</div>
           ) : buckets.length === 0 ? (
-            <div className="py-8 text-center text-xs text-slate-500 space-y-2">
+            <div className="py-8 text-center text-xs text-muted space-y-2">
               <p>No buckets created yet.</p>
               <button
                 onClick={() => setIsCreateBucketOpen(true)}
-                className="text-xs font-semibold text-emerald-400 hover:underline"
+                className="text-xs font-semibold text-success hover:underline"
               >
                 + Create your first bucket
               </button>
@@ -349,27 +349,27 @@ export default function S3Page() {
               {buckets.map((b) => {
                 const isSelected = selectedBucket === b.name;
                 const activeBorder = isAws
-                  ? "bg-amber-500/10 border-amber-500/40 text-amber-300 font-semibold"
-                  : "bg-blue-500/10 border-blue-500/40 text-blue-300 font-semibold";
+                  ? "bg-selected border-line text-accent font-semibold"
+                  : "bg-selected border-line text-accent font-semibold";
 
                 return (
                   <div
                     key={b.name}
-                    className={`group w-full p-2.5 rounded-xl text-xs font-mono transition-all flex items-center justify-between border ${
+                    className={`group w-full p-2.5 rounded-control text-xs font-mono transition-all flex items-center justify-between border ${
                       isSelected
                         ? activeBorder
-                        : "bg-slate-900/60 border-slate-800/80 text-slate-300 hover:border-slate-700"
+                        : "bg-subtle border-line text-ink hover:border-line"
                     }`}
                   >
                     <button
                       onClick={() => setSelectedBucket(b.name)}
                       className="flex-1 text-left truncate flex items-center gap-2"
                     >
-                      <Folder className={`w-3.5 h-3.5 shrink-0 ${isSelected ? (isAws ? "text-amber-400" : "text-blue-400") : "text-slate-500"}`} />
+                      <Folder className={`w-3.5 h-3.5 shrink-0 ${isSelected ? (isAws ? "text-accent" : "text-accent") : "text-muted"}`} />
                       <span className="truncate">{b.name}</span>
                     </button>
                     <div className="flex items-center gap-2 shrink-0">
-                      <span className="text-[10px] text-slate-500 font-sans hidden sm:inline">
+                      <span className="text-[10px] text-muted font-sans hidden sm:inline">
                         {new Date(b.creationDate).toLocaleDateString()}
                       </span>
                       <button
@@ -378,7 +378,7 @@ export default function S3Page() {
                           handleDeleteBucket(b.name);
                         }}
                         title={`Delete ${b.name}`}
-                        className="p-1 text-slate-500 hover:text-rose-400 rounded transition-colors opacity-80 hover:opacity-100"
+                        className="p-1 text-muted hover:text-danger rounded transition-colors opacity-80 hover:opacity-100"
                       >
                         <Trash2 className="w-3.5 h-3.5" />
                       </button>
@@ -391,22 +391,22 @@ export default function S3Page() {
         </div>
 
         {/* Objects List */}
-        <div className="lg:col-span-2 bg-[#0d1322] border border-slate-800 rounded-2xl p-5 shadow-xl space-y-4">
-          <div className="flex flex-col sm:flex-row sm:items-center justify-between pb-3 border-b border-slate-800 gap-2">
-            <span className="text-xs font-bold text-slate-300 uppercase tracking-wider flex items-center gap-2">
-              <File className={`w-4 h-4 ${isAws ? "text-amber-400" : "text-blue-400"}`} />
+        <div className="lg:col-span-2 bg-surface border border-line rounded-panel p-5 space-y-4">
+          <div className="flex flex-col sm:flex-row sm:items-center justify-between pb-3 border-b border-line gap-2">
+            <span className="text-xs font-bold text-ink uppercase tracking-wider flex items-center gap-2">
+              <File className={`w-4 h-4 ${isAws ? "text-accent" : "text-accent"}`} />
               {selectedBucket ? `Objects in ${selectedBucket}` : "Select a bucket"}
             </span>
 
             {selectedBucket && (
               <div className="flex items-center gap-3">
-                <span className="text-xs text-slate-400">{objects.length} item(s)</span>
+                <span className="text-xs text-muted">{objects.length} item(s)</span>
                 <button
                   onClick={() => setIsUploadOpen(true)}
                   className={`flex items-center gap-1.5 px-3 py-1.5 rounded-lg text-xs font-semibold text-white transition-all ${
                     isAws
-                      ? "bg-amber-600 hover:bg-amber-500"
-                      : "bg-blue-600 hover:bg-blue-500"
+                      ? "bg-action hover:bg-action"
+                      : "bg-action hover:bg-action"
                   }`}
                 >
                   <UploadCloud className="w-3.5 h-3.5" />
@@ -417,20 +417,20 @@ export default function S3Page() {
           </div>
 
           {loadingObjects ? (
-            <div className="py-12 text-center text-xs text-slate-500 flex items-center justify-center gap-2">
-              <RefreshCw className="w-4 h-4 animate-spin text-emerald-400" />
+            <div className="py-12 text-center text-xs text-muted flex items-center justify-center gap-2">
+              <RefreshCw className="w-4 h-4 animate-spin text-success" />
               Fetching object contents...
             </div>
           ) : !selectedBucket ? (
-            <div className="py-12 text-center text-xs text-slate-500">
+            <div className="py-12 text-center text-xs text-muted">
               Select or create a bucket to view and manage stored objects.
             </div>
           ) : objects.length === 0 ? (
-            <div className="py-12 text-center text-xs text-slate-500 space-y-2">
+            <div className="py-12 text-center text-xs text-muted space-y-2">
               <p>This bucket is currently empty.</p>
               <button
                 onClick={() => setIsUploadOpen(true)}
-                className="text-xs font-semibold text-emerald-400 hover:underline inline-flex items-center gap-1"
+                className="text-xs font-semibold text-success hover:underline inline-flex items-center gap-1"
               >
                 <UploadCloud className="w-3.5 h-3.5" /> Upload an object
               </button>
@@ -438,7 +438,7 @@ export default function S3Page() {
           ) : (
             <div className="overflow-x-auto">
               <table className="w-full text-left text-xs">
-                <thead className="bg-slate-900/80 border-b border-slate-800 text-slate-400 uppercase font-semibold">
+                <thead className="bg-subtle border-b border-line text-muted uppercase font-semibold">
                   <tr>
                     <th className="px-4 py-2.5">Key / Object Path</th>
                     <th className="px-4 py-2.5">Size</th>
@@ -447,19 +447,19 @@ export default function S3Page() {
                     <th className="px-4 py-2.5 text-right">Actions</th>
                   </tr>
                 </thead>
-                <tbody className="divide-y divide-slate-800/60 font-mono">
+                <tbody className="divide-y divide-line font-mono">
                   {objects.map((obj) => (
-                    <tr key={obj.key} className="hover:bg-slate-900/40 transition-colors">
-                      <td className="px-4 py-3 text-slate-200 flex items-center gap-2">
-                        <File className="w-3.5 h-3.5 text-slate-500 shrink-0" />
+                    <tr key={obj.key} className="hover:bg-subtle transition-colors">
+                      <td className="px-4 py-3 text-ink flex items-center gap-2">
+                        <File className="w-3.5 h-3.5 text-muted shrink-0" />
                         <span className="truncate max-w-sm">{obj.key}</span>
                       </td>
-                      <td className="px-4 py-3 text-slate-400">{formatBytes(obj.size)}</td>
-                      <td className="px-4 py-3 text-slate-500 text-[11px]">
+                      <td className="px-4 py-3 text-muted">{formatBytes(obj.size)}</td>
+                      <td className="px-4 py-3 text-muted text-[11px]">
                         {new Date(obj.lastModified).toLocaleString()}
                       </td>
-                      <td className="px-4 py-3 text-slate-400 font-sans text-[11px]">
-                        <span className="px-2 py-0.5 rounded bg-slate-900 border border-slate-800">
+                      <td className="px-4 py-3 text-muted font-sans text-[11px]">
+                        <span className="px-2 py-0.5 rounded bg-subtle border border-line">
                           {obj.storageClass || "STANDARD"}
                         </span>
                       </td>
@@ -467,7 +467,7 @@ export default function S3Page() {
                         <button
                           onClick={() => handleDeleteObject(obj.key)}
                           title={`Delete ${obj.key}`}
-                          className="p-1 text-slate-500 hover:text-rose-400 transition-colors rounded"
+                          className="p-1 text-muted hover:text-danger transition-colors rounded"
                         >
                           <Trash2 className="w-3.5 h-3.5" />
                         </button>
@@ -484,22 +484,22 @@ export default function S3Page() {
       {/* Create Bucket Modal */}
       {isCreateBucketOpen && mounted && createPortal(
         <div
-          className="fixed inset-0 bg-slate-950/80 backdrop-blur-sm z-[9999] flex items-center justify-center p-4"
+          className="fixed inset-0 bg-black/40 backdrop-blur-sm z-[9999] flex items-center justify-center p-4"
           onClick={(e) => {
             if (e.target === e.currentTarget) setIsCreateBucketOpen(false);
           }}
         >
-          <div className="bg-[#0f172a] border border-slate-800 rounded-2xl w-full max-w-md p-6 shadow-2xl space-y-5">
-            <div className="flex items-center justify-between pb-3 border-b border-slate-800">
+          <div className="bg-surface border border-line rounded-panel w-full max-w-md p-6 shadow-2xl space-y-5">
+            <div className="flex items-center justify-between pb-3 border-b border-line">
               <div className="flex items-center gap-2">
-                <FolderLock className={`w-5 h-5 ${isAws ? "text-amber-400" : "text-blue-400"}`} />
-                <h3 className="font-bold text-slate-100 text-base">
+                <FolderLock className={`w-5 h-5 ${isAws ? "text-accent" : "text-accent"}`} />
+                <h3 className="font-bold text-ink text-base">
                   {isAws ? "Create S3 Bucket" : "Create Storage Bucket"}
                 </h3>
               </div>
               <button
                 onClick={() => setIsCreateBucketOpen(false)}
-                className="text-slate-400 hover:text-slate-100 p-1 hover:bg-slate-800 rounded-lg transition-colors"
+                className="text-muted hover:text-ink p-1 hover:bg-subtle rounded-lg transition-colors"
               >
                 <X className="w-5 h-5" />
               </button>
@@ -507,7 +507,7 @@ export default function S3Page() {
 
             <form onSubmit={handleCreateBucket} className="space-y-4">
               <div>
-                <label className="block text-xs font-semibold text-slate-300 mb-1.5">
+                <label className="block text-xs font-semibold text-ink mb-1.5">
                   Bucket Name
                 </label>
                 <input
@@ -518,9 +518,9 @@ export default function S3Page() {
                   pattern="[a-z0-9.-]+"
                   title="Bucket names must contain only lowercase letters, numbers, hyphens, and periods"
                   required
-                  className="w-full bg-slate-900 border border-slate-800 px-3.5 py-2 rounded-xl text-xs text-slate-200 focus:outline-none focus:border-emerald-500 font-mono"
+                  className="w-full bg-subtle border border-line px-3.5 py-2 rounded-control text-xs text-ink focus:outline-none focus:border-emerald-500 font-mono"
                 />
-                <span className="text-[11px] text-slate-500 mt-1 block">
+                <span className="text-[11px] text-muted mt-1 block">
                   Bucket names must be globally unique within Floci and use lowercase alphanumeric characters.
                 </span>
               </div>
@@ -529,17 +529,17 @@ export default function S3Page() {
                 <button
                   type="button"
                   onClick={() => setIsCreateBucketOpen(false)}
-                  className="px-4 py-2 text-xs text-slate-400 hover:text-slate-200 rounded-xl"
+                  className="px-4 py-2 text-xs text-muted hover:text-ink rounded-control"
                 >
                   Cancel
                 </button>
                 <button
                   type="submit"
                   disabled={actionLoading}
-                  className={`px-4 py-2 text-xs font-semibold text-white rounded-xl transition-colors flex items-center gap-1.5 ${
+                  className={`px-4 py-2 text-xs font-semibold text-white rounded-control transition-colors flex items-center gap-1.5 ${
                     isAws
-                      ? "bg-amber-600 hover:bg-amber-500"
-                      : "bg-blue-600 hover:bg-blue-500"
+                      ? "bg-action hover:bg-action"
+                      : "bg-action hover:bg-action"
                   }`}
                 >
                   {actionLoading ? <RefreshCw className="w-3.5 h-3.5 animate-spin" /> : <Plus className="w-3.5 h-3.5" />}
@@ -555,22 +555,22 @@ export default function S3Page() {
       {/* Upload Object Modal */}
       {isUploadOpen && mounted && createPortal(
         <div
-          className="fixed inset-0 bg-slate-950/80 backdrop-blur-sm z-[9999] flex items-center justify-center p-4"
+          className="fixed inset-0 bg-black/40 backdrop-blur-sm z-[9999] flex items-center justify-center p-4"
           onClick={(e) => {
             if (e.target === e.currentTarget) setIsUploadOpen(false);
           }}
         >
-          <div className="bg-[#0f172a] border border-slate-800 rounded-2xl w-full max-w-lg p-6 shadow-2xl space-y-5">
-            <div className="flex items-center justify-between pb-3 border-b border-slate-800">
+          <div className="bg-surface border border-line rounded-panel w-full max-w-lg p-6 shadow-2xl space-y-5">
+            <div className="flex items-center justify-between pb-3 border-b border-line">
               <div className="flex items-center gap-2">
-                <UploadCloud className={`w-5 h-5 ${isAws ? "text-amber-400" : "text-blue-400"}`} />
-                <h3 className="font-bold text-slate-100 text-base">
+                <UploadCloud className={`w-5 h-5 ${isAws ? "text-accent" : "text-accent"}`} />
+                <h3 className="font-bold text-ink text-base">
                   Upload to {selectedBucket}
                 </h3>
               </div>
               <button
                 onClick={() => setIsUploadOpen(false)}
-                className="text-slate-400 hover:text-slate-100 p-1 hover:bg-slate-800 rounded-lg transition-colors"
+                className="text-muted hover:text-ink p-1 hover:bg-subtle rounded-lg transition-colors"
               >
                 <X className="w-5 h-5" />
               </button>
@@ -578,7 +578,7 @@ export default function S3Page() {
 
             <form onSubmit={handleUploadObject} className="space-y-4">
               <div>
-                <label className="block text-xs font-semibold text-slate-300 mb-1.5">
+                <label className="block text-xs font-semibold text-ink mb-1.5">
                   Object Key (Path)
                 </label>
                 <input
@@ -587,25 +587,25 @@ export default function S3Page() {
                   value={uploadKey}
                   onChange={(e) => setUploadKey(e.target.value)}
                   required
-                  className="w-full bg-slate-900 border border-slate-800 px-3.5 py-2 rounded-xl text-xs text-slate-200 focus:outline-none focus:border-emerald-500 font-mono"
+                  className="w-full bg-subtle border border-line px-3.5 py-2 rounded-control text-xs text-ink focus:outline-none focus:border-emerald-500 font-mono"
                 />
               </div>
 
               <div>
-                <label className="block text-xs font-semibold text-slate-300 mb-1.5">
+                <label className="block text-xs font-semibold text-ink mb-1.5">
                   Choose File or Enter Text Payload
                 </label>
                 <input
                   type="file"
                   onChange={handleFileSelect}
-                  className="w-full text-xs text-slate-400 file:mr-3 file:py-1.5 file:px-3 file:rounded-lg file:border-0 file:text-xs file:font-semibold file:bg-slate-800 file:text-slate-200 hover:file:bg-slate-700 cursor-pointer mb-2"
+                  className="w-full text-xs text-muted file:mr-3 file:py-1.5 file:px-3 file:rounded-lg file:border-0 file:text-xs file:font-semibold file:bg-subtle file:text-ink hover:file:bg-slate-700 cursor-pointer mb-2"
                 />
                 <textarea
                   rows={5}
                   placeholder="Enter raw text, JSON, or payload contents..."
                   value={uploadContent}
                   onChange={(e) => setUploadContent(e.target.value)}
-                  className="w-full bg-slate-900 border border-slate-800 p-3 rounded-xl text-xs text-slate-200 focus:outline-none focus:border-emerald-500 font-mono"
+                  className="w-full bg-subtle border border-line p-3 rounded-control text-xs text-ink focus:outline-none focus:border-emerald-500 font-mono"
                 />
               </div>
 
@@ -613,17 +613,17 @@ export default function S3Page() {
                 <button
                   type="button"
                   onClick={() => setIsUploadOpen(false)}
-                  className="px-4 py-2 text-xs text-slate-400 hover:text-slate-200 rounded-xl"
+                  className="px-4 py-2 text-xs text-muted hover:text-ink rounded-control"
                 >
                   Cancel
                 </button>
                 <button
                   type="submit"
                   disabled={actionLoading}
-                  className={`px-4 py-2 text-xs font-semibold text-white rounded-xl transition-colors flex items-center gap-1.5 ${
+                  className={`px-4 py-2 text-xs font-semibold text-white rounded-control transition-colors flex items-center gap-1.5 ${
                     isAws
-                      ? "bg-amber-600 hover:bg-amber-500"
-                      : "bg-blue-600 hover:bg-blue-500"
+                      ? "bg-action hover:bg-action"
+                      : "bg-action hover:bg-action"
                   }`}
                 >
                   {actionLoading ? <RefreshCw className="w-3.5 h-3.5 animate-spin" /> : <UploadCloud className="w-3.5 h-3.5" />}

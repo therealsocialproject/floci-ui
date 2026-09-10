@@ -6,7 +6,8 @@ import { Sidebar, Header } from "@/components/Navbar";
 
 export const metadata: Metadata = {
   title: "Floci Console | Cloud Emulator Dashboard",
-  description: "Unified Management Console for Floci Local Cloud Emulator (AWS & GCP)",
+  description:
+    "Unified Management Console for Floci Local Cloud Emulator (AWS & GCP)",
 };
 
 export default function RootLayout({
@@ -16,13 +17,15 @@ export default function RootLayout({
 }>) {
   return (
     <html lang="en">
-      <body className="flex min-h-screen bg-[#090d16] text-slate-100 selection:bg-amber-500 selection:text-slate-950">
+      <body className="min-h-screen">
         <EndpointProvider>
           <CloudThemeProvider>
-            <Sidebar />
-            <div className="flex-1 flex flex-col min-w-0">
-              <Header />
-              <main className="flex-1 p-8 overflow-y-auto">{children}</main>
+            <Header />
+            <div className="console-workspace">
+              <Sidebar />
+              <main id="main-content" className="console-main">
+                {children}
+              </main>
             </div>
           </CloudThemeProvider>
         </EndpointProvider>
