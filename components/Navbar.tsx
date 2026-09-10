@@ -1,6 +1,7 @@
 "use client";
 
-import React, { useState } from "react";
+import React, { useState, useEffect } from "react";
+import { createPortal } from "react-dom";
 import Link from "next/link";
 import { usePathname } from "next/navigation";
 import {
@@ -138,6 +139,11 @@ export function Header() {
   const [isEnvModalOpen, setIsEnvModalOpen] = useState(false);
   const [newEnvName, setNewEnvName] = useState("");
   const [newEnvUrl, setNewEnvUrl] = useState("");
+  const [mounted, setMounted] = useState(false);
+
+  useEffect(() => {
+    setMounted(true);
+  }, []);
 
   const isAws = cloudMode === "aws";
 
@@ -258,9 +264,14 @@ export function Header() {
       </div>
 
       {/* Environments Management Modal */}
-      {isEnvModalOpen && (
-        <div className="fixed inset-0 bg-slate-950/80 backdrop-blur-sm z-50 flex items-center justify-center p-4">
-          <div className="bg-[#0f172a] border border-slate-800 rounded-2xl w-full max-w-lg p-6 shadow-2xl space-y-6">
+      {isEnvModalOpen && mounted && createPortal(
+        <div
+          className="fixed inset-0 bg-slate-950/80 backdrop-blur-sm z-[9999] flex items-center justify-center p-4 sm:p-6 overflow-y-auto"
+          onClick={(e) => {
+            if (e.target === e.currentTarget) setIsEnvModalOpen(false);
+          }}
+        >
+          <div className="bg-[#0f172a] border border-slate-800 rounded-2xl w-full max-w-lg p-6 shadow-2xl space-y-6 my-auto">
             <div className="flex items-center justify-between pb-3 border-b border-slate-800">
               <div className="flex items-center gap-2">
                 <Globe className="w-5 h-5 text-emerald-400" />
@@ -268,7 +279,8 @@ export function Header() {
               </div>
               <button
                 onClick={() => setIsEnvModalOpen(false)}
-                className="text-slate-400 hover:text-slate-100"
+                className="text-slate-400 hover:text-slate-100 p-1 hover:bg-slate-800 rounded-lg transition-colors"
+                title="Close modal"
               >
                 <X className="w-5 h-5" />
               </button>
@@ -349,7 +361,8 @@ export function Header() {
               </div>
             </form>
           </div>
-        </div>
+        </div>,
+        document.body
       )}
     </header>
   );
