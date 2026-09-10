@@ -23,6 +23,9 @@ interface EndpointContextType {
   selectEnvironment: (id: string) => void;
   addEnvironment: (name: string, url: string, provider?: CloudProvider) => void;
   removeEnvironment: (id: string) => void;
+  setProvider: (provider: CloudProvider) => void;
+  toggleProvider: () => void;
+  updateEnvironmentProvider: (id: string, provider: CloudProvider) => void;
   isConnected: boolean;
   isLoading: boolean;
   health: any;
@@ -39,9 +42,20 @@ export function EndpointProvider({ children }: { children: ReactNode }) {
   const [health, setHealth] = useState<any>(null);
 
   useEffect(() => {
+    // Check if there is a globally saved preferred provider (e.g. user toggled to GCP on localhost)
+    const savedLastProvider = (localStorage.getItem("floci_last_provider") as CloudProvider) || null;
+
     // Load environments from localStorage
     const savedEnvs = localStorage.getItem("floci_environments");
-    let initialEnvs = DEFAULT_ENVIRONMENTS;
+    let initialEnvs: CloudEnvironment[] = [
+      {
+        id: "local",
+        name: "Local Floci",
+        url: "http://localhost:4566",
+        provider: savedLastProvider || "aws",
+      },
+    ];
+
     if (savedEnvs) {
       try {
         const parsed = JSON.parse(savedEnvs);
@@ -56,15 +70,16 @@ export function EndpointProvider({ children }: { children: ReactNode }) {
               env.url?.toLowerCase().includes("gcp") ||
               env.url?.includes("159")
                 ? "gcp"
-                : "aws"),
+                : savedLastProvider || "aws"),
           }));
           initialEnvs = normalized;
-          setEnvironments(normalized);
         }
       } catch (e) {
         console.error("Failed to parse saved environments", e);
       }
     }
+
+    setEnvironments(initialEnvs);
 
     // Load active endpoint
     const savedEp = localStorage.getItem("floci_endpoint");
@@ -92,6 +107,35 @@ export function EndpointProvider({ children }: { children: ReactNode }) {
     const env = environments.find((e) => e.id === id);
     if (env) {
       setEndpoint(env.url);
+    }
+  };
+
+  const setProvider = (provider: CloudProvider) => {
+    localStorage.setItem("floci_last_provider", provider);
+    const updated = environments.map((env) => {
+      if (env.url === endpoint || env.id === currentEnvironment.id) {
+        return { ...env, provider };
+      }
+      return env;
+    });
+    saveEnvironments(updated);
+  };
+
+  const toggleProvider = () => {
+    const nextProvider: CloudProvider = currentEnvironment.provider === "aws" ? "gcp" : "aws";
+    setProvider(nextProvider);
+  };
+
+  const updateEnvironmentProvider = (id: string, provider: CloudProvider) => {
+    const updated = environments.map((env) => {
+      if (env.id === id) {
+        return { ...env, provider };
+      }
+      return env;
+    });
+    saveEnvironments(updated);
+    if (currentEnvironment.id === id) {
+      localStorage.setItem("floci_last_provider", provider);
     }
   };
 
@@ -168,6 +212,9 @@ export function EndpointProvider({ children }: { children: ReactNode }) {
         selectEnvironment,
         addEnvironment,
         removeEnvironment,
+        setProvider,
+        toggleProvider,
+        updateEnvironmentProvider,
         isConnected,
         isLoading,
         health,

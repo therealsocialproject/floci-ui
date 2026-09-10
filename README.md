@@ -4,51 +4,54 @@
 
 ---
 
-AWS Preview
-<img width="1728" height="872" alt="image" src="https://github.com/user-attachments/assets/21c5c0be-40e7-4131-a531-5be52412eab9" />
+## Previews
 
-GCP Preview
-<img width="1728" height="881" alt="image" src="https://github.com/user-attachments/assets/2c18ffed-ba79-4840-af0f-94646851c185" />
+### AWS Console View
+<img width="1728" alt="AWS Console View" src="https://github.com/user-attachments/assets/21c5c0be-40e7-4131-a531-5be52412eab9" />
 
+### Google Cloud Console View
+<img width="1728" alt="Google Cloud Console View" src="https://github.com/user-attachments/assets/2c18ffed-ba79-4840-af0f-94646851c185" />
 
-## 🌟 Key Features
+---
 
-* ☁️ **Dual Cloud Provider Views (AWS vs. Google Cloud)**:
+## Key Features
+
+* **Dual Cloud Provider Views (AWS vs. Google Cloud)**:
   * **AWS Console Mode**: Styled with AWS Console dark navy (`#232f3e`), signature AWS orange accents (`#ff9900`), region indicator (`us-east-1`), and standard AWS naming (*EC2, S3, IAM, DynamoDB*).
   * **GCP Console Mode**: Styled with Google Cloud Blue accents (`#1a73e8`), Project selector (`mock-project`), and GCP naming (*Compute Engine, Cloud Storage, IAM & Admin, Datastore*).
-  * Toggle between both views seamlessly with 1-click in the header.
+  * Toggle between both views seamlessly with 1-click in the header on any environment.
 
-* 🌐 **Zero Hardcoding & Custom Environment Manager**:
+* **Zero Hardcoding & Custom Environment Manager**:
   * Default out-of-the-box target: `http://localhost:4566`.
   * Add, name, edit, and delete custom emulator endpoints (e.g. `http://staging-vm:4566`, `http://qa-cluster:4566`) right inside the UI, persisted in browser storage.
 
-* 🖥️ **Compute & VM Manager**:
+* **Compute & VM Manager**:
   * View active and stopped simulated virtual machines / container instances.
   * Inspect IP addresses, security groups/firewall tags, instance profiles/service accounts, and workload tags.
   * Interactive controls to **Launch**, **Start**, **Stop**, and **Terminate** instances.
 
-* 📦 **Storage Explorer & Object Manager**:
+* **Storage Explorer & Object Manager**:
   * Browse S3 / GCS buckets and stored objects.
   * Inspect keys, human-readable file sizes, last modified timestamps, and storage tiers.
   * **Create and delete buckets**, plus **upload and delete objects** (file or text payload).
 
-* 👥 **Identity & Access (IAM)**:
+* **Identity & Access (IAM)**:
   * Inspect Roles, Service Accounts, Users, Groups, and Managed Policies.
   * Policy attachment counters and ARN details.
   * **Create and delete** Roles (with custom trust policies), Users, Groups, and Policies.
 
-* 🗄️ **NoSQL Database Explorer & Record Manager**:
+* **NoSQL Database Explorer & Record Manager**:
   * Browse DynamoDB tables / Datastore kinds.
   * Inspect key schemas and scanned records formatted in syntax-highlighted JSON.
   * **Create and delete tables** with custom primary key and sort key configurations.
   * **Insert JSON records** and **delete individual items** directly from the UI.
 
-* 🚀 **Universal Service Health Check**:
+* **Universal Service Health Check**:
   * Live status grid reporting all 80+ emulated cloud services (`ec2`, `s3`, `iam`, `lambda`, `kms`, `dynamodb`, `rds`, `sqs`, `sns`, etc.) directly from `/_localstack/health`.
 
 ---
 
-## 🐳 Quick Start with Docker
+## Quick Start with Docker
 
 Pull and run the prebuilt standalone container:
 
@@ -75,7 +78,7 @@ Visit [http://localhost:3000](http://localhost:3000).
 
 ---
 
-## 💻 Local Development
+## Local Development
 
 ### 1. Prerequisites
 * Node.js v18+ and npm.
@@ -98,7 +101,7 @@ Open [http://localhost:3000](http://localhost:3000) in your browser.
 
 ---
 
-## ⚙️ Environment Variables
+## Environment Variables
 
 | Variable | Default | Description |
 | :--- | :--- | :--- |
@@ -107,5 +110,5 @@ Open [http://localhost:3000](http://localhost:3000) in your browser.
 
 ---
 
-## 📄 License
+## License
 MIT License

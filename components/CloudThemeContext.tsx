@@ -7,6 +7,8 @@ export type CloudMode = "aws" | "gcp";
 
 interface CloudThemeContextType {
   cloudMode: CloudMode;
+  setCloudMode: (mode: CloudMode) => void;
+  toggleCloudMode: () => void;
   serviceLabels: {
     dashboard: string;
     ec2: string;
@@ -33,7 +35,7 @@ const CloudThemeContext = createContext<CloudThemeContextType | undefined>(
 );
 
 export function CloudThemeProvider({ children }: { children: ReactNode }) {
-  const { currentEnvironment } = useEndpoint();
+  const { currentEnvironment, setProvider, toggleProvider } = useEndpoint();
 
   // The active environment's provider strictly dictates the cloud console mode
   const cloudMode: CloudMode =
@@ -91,6 +93,8 @@ export function CloudThemeProvider({ children }: { children: ReactNode }) {
     <CloudThemeContext.Provider
       value={{
         cloudMode,
+        setCloudMode: setProvider,
+        toggleCloudMode: toggleProvider,
         serviceLabels,
         branding,
       }}

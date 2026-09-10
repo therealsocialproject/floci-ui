@@ -27,7 +27,7 @@ import { useCloudTheme } from "./CloudThemeContext";
 
 export function Sidebar() {
   const pathname = usePathname();
-  const { cloudMode, serviceLabels } = useCloudTheme();
+  const { cloudMode, serviceLabels, toggleCloudMode } = useCloudTheme();
 
   const isAws = cloudMode === "aws";
 
@@ -41,7 +41,21 @@ export function Sidebar() {
 
   return (
     <aside className="console-sidebar" aria-label="Service navigation">
-      <div className="sidebar-heading">{isAws ? "Services" : "Products"}</div>
+      <div className="sidebar-heading flex items-center justify-between">
+        <span>{isAws ? "Services" : "Products"}</span>
+        <button
+          type="button"
+          onClick={toggleCloudMode}
+          className={`px-1.5 py-0.5 rounded text-[9px] font-bold uppercase tracking-wider border cursor-pointer transition-colors ${
+            isAws
+              ? "bg-amber-500/10 text-amber-400 border-amber-500/30 hover:bg-amber-500/20"
+              : "bg-blue-500/10 text-blue-400 border-blue-500/30 hover:bg-blue-500/20"
+          }`}
+          title={`Click to switch to ${isAws ? "Google Cloud" : "AWS"}`}
+        >
+          {isAws ? "AWS" : "GCP"}
+        </button>
+      </div>
       <nav>
         {navItems.map(({ name, href, icon: Icon }) => (
           <Link
@@ -79,13 +93,14 @@ export function Header() {
     selectEnvironment,
     addEnvironment,
     removeEnvironment,
+    updateEnvironmentProvider,
     isConnected,
     isLoading,
     health,
     checkHealth,
   } = useEndpoint();
 
-  const { cloudMode, branding } = useCloudTheme();
+  const { cloudMode, branding, setCloudMode, serviceLabels } = useCloudTheme();
 
   const [isEnvModalOpen, setIsEnvModalOpen] = useState(false);
   const [newEnvName, setNewEnvName] = useState("");
@@ -93,7 +108,7 @@ export function Header() {
   const [newEnvProvider, setNewEnvProvider] = useState<"aws" | "gcp">("aws");
   const [mounted, setMounted] = useState(false);
   const [serviceSearch, setServiceSearch] = useState("");
-  const { serviceLabels } = useCloudTheme();
+
   const searchLinks = [
     { href: "/", name: serviceLabels.dashboard },
     { href: "/ec2", name: serviceLabels.ec2 },
@@ -156,6 +171,7 @@ export function Header() {
       >
         <Menu size={21} />
       </button>
+
       <Link href="/" className="cloud-wordmark" aria-label={branding.title}>
         {isAws ? (
           <span className="aws-wordmark">
@@ -176,11 +192,41 @@ export function Header() {
           </>
         )}
       </Link>
+
+      {/* 1-Click Cloud Provider Switcher */}
+      <div className="flex items-center bg-slate-900/90 border border-slate-700/60 p-0.5 rounded-lg text-xs shrink-0 mx-1">
+        <button
+          type="button"
+          onClick={() => setCloudMode("aws")}
+          className={`px-2 py-0.5 rounded font-bold text-[10px] tracking-wider uppercase transition-colors ${
+            isAws
+              ? "bg-amber-500 text-slate-950 shadow-sm"
+              : "text-slate-400 hover:text-slate-200"
+          }`}
+          title="Switch to AWS Console View"
+        >
+          AWS
+        </button>
+        <button
+          type="button"
+          onClick={() => setCloudMode("gcp")}
+          className={`px-2 py-0.5 rounded font-bold text-[10px] tracking-wider uppercase transition-colors ${
+            !isAws
+              ? "bg-blue-600 text-white shadow-sm"
+              : "text-slate-400 hover:text-slate-200"
+          }`}
+          title="Switch to Google Cloud View"
+        >
+          GCP
+        </button>
+      </div>
+
       <span className="header-divider" />
       <span className="header-scope">
         {isAws ? "Services" : branding.scopeValue}
         {isAws ? <Boxes size={16} /> : <Layers size={16} />}
       </span>
+
       <div className="console-search">
         <Search size={17} />
         <input
@@ -213,6 +259,7 @@ export function Header() {
           </div>
         )}
       </div>
+
       <div className="header-environment">
         <span
           className={`connection-dot ${isConnected ? "connected" : ""}`}
@@ -244,7 +291,9 @@ export function Header() {
           <option value="manage">+ Manage environments</option>
         </select>
       </div>
+
       {isAws && <span className="header-region">{branding.scopeValue}</span>}
+
       <button
         onClick={() => checkHealth()}
         className="header-icon"
@@ -253,6 +302,7 @@ export function Header() {
       >
         <RefreshCw size={17} className={isLoading ? "animate-spin" : ""} />
       </button>
+
       <button
         onClick={() => setIsEnvModalOpen(true)}
         className="header-icon"
@@ -303,15 +353,23 @@ export function Header() {
                     >
                       <div>
                         <div className="flex items-center gap-2">
-                          <span
-                            className={`px-1.5 py-0.5 rounded text-[9px] font-bold uppercase tracking-wider ${
+                          <button
+                            type="button"
+                            onClick={() =>
+                              updateEnvironmentProvider(
+                                env.id,
+                                env.provider === "aws" ? "gcp" : "aws",
+                              )
+                            }
+                            className={`px-1.5 py-0.5 rounded text-[9px] font-bold uppercase tracking-wider border cursor-pointer transition-colors ${
                               env.provider === "gcp"
-                                ? "bg-selected text-accent border border-line"
-                                : "bg-selected text-accent border border-line"
+                                ? "bg-blue-500/20 text-blue-400 border-blue-500/30 hover:bg-blue-500/30"
+                                : "bg-amber-500/20 text-amber-400 border-amber-500/30 hover:bg-amber-500/30"
                             }`}
+                            title="Click to switch between AWS and GCP"
                           >
-                            {env.provider || "AWS"}
-                          </span>
+                            {env.provider || "AWS"} ⟲
+                          </button>
                           <span className="font-semibold text-ink">
                             {env.name}
                           </span>
