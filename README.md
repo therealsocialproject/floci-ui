@@ -18,19 +18,23 @@
 * 🖥️ **Compute & VM Manager**:
   * View active and stopped simulated virtual machines / container instances.
   * Inspect IP addresses, security groups/firewall tags, instance profiles/service accounts, and workload tags.
-  * Interactive controls to **Start**, **Stop**, and **Terminate** instances.
+  * Interactive controls to **Launch**, **Start**, **Stop**, and **Terminate** instances.
 
-* 📦 **Storage Explorer**:
+* 📦 **Storage Explorer & Object Manager**:
   * Browse S3 / GCS buckets and stored objects.
   * Inspect keys, human-readable file sizes, last modified timestamps, and storage tiers.
+  * **Create and delete buckets**, plus **upload and delete objects** (file or text payload).
 
 * 👥 **Identity & Access (IAM)**:
   * Inspect Roles, Service Accounts, Users, Groups, and Managed Policies.
   * Policy attachment counters and ARN details.
+  * **Create and delete** Roles (with custom trust policies), Users, Groups, and Policies.
 
-* 🗄️ **NoSQL Database Explorer**:
+* 🗄️ **NoSQL Database Explorer & Record Manager**:
   * Browse DynamoDB tables / Datastore kinds.
   * Inspect key schemas and scanned records formatted in syntax-highlighted JSON.
+  * **Create and delete tables** with custom primary key and sort key configurations.
+  * **Insert JSON records** and **delete individual items** directly from the UI.
 
 * 🚀 **Universal Service Health Check**:
   * Live status grid reporting all 80+ emulated cloud services (`ec2`, `s3`, `iam`, `lambda`, `kms`, `dynamodb`, `rds`, `sqs`, `sns`, etc.) directly from `/_localstack/health`.

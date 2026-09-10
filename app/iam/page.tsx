@@ -1,6 +1,7 @@
 "use client";
 
 import React, { useState, useEffect } from "react";
+import { createPortal } from "react-dom";
 import {
   Users,
   RefreshCw,
@@ -8,6 +9,11 @@ import {
   Shield,
   UserCheck,
   Search,
+  Plus,
+  Trash2,
+  X,
+  AlertCircle,
+  CheckCircle2,
 } from "lucide-react";
 import { useEndpoint } from "@/components/EndpointProvider";
 import { useCloudTheme } from "@/components/CloudThemeContext";
@@ -25,9 +31,35 @@ export default function IAMPage() {
     policies: any[];
   }>({ roles: [], users: [], groups: [], policies: [] });
   const [loading, setLoading] = useState(true);
+  const [actionLoading, setActionLoading] = useState(false);
   const [search, setSearch] = useState("");
+  const [mounted, setMounted] = useState(false);
+
+  // Modals state
+  const [isCreateOpen, setIsCreateOpen] = useState(false);
+  const [nameInput, setNameInput] = useState("");
+  const [descriptionInput, setDescriptionInput] = useState("");
+  const [documentInput, setDocumentInput] = useState("");
+
+  // Notifications
+  const [errorMessage, setErrorMessage] = useState<string | null>(null);
+  const [successMessage, setSuccessMessage] = useState<string | null>(null);
 
   const isAws = cloudMode === "aws";
+
+  useEffect(() => {
+    setMounted(true);
+  }, []);
+
+  const showNotification = (msg: string, isError = false) => {
+    if (isError) {
+      setErrorMessage(msg);
+      setTimeout(() => setErrorMessage(null), 5000);
+    } else {
+      setSuccessMessage(msg);
+      setTimeout(() => setSuccessMessage(null), 4000);
+    }
+  };
 
   const fetchIAM = async () => {
     setLoading(true);
@@ -42,8 +74,9 @@ export default function IAMPage() {
           policies: json.data?.policies || [],
         });
       }
-    } catch (e) {
+    } catch (e: any) {
       console.error(e);
+      showNotification(e.message || "Failed to query IAM service", true);
     } finally {
       setLoading(false);
     }
@@ -55,6 +88,134 @@ export default function IAMPage() {
     }
   }, [endpoint, isConnected]);
 
+  const openCreateModal = () => {
+    setNameInput("");
+    setDescriptionInput("");
+    if (activeTab === "roles") {
+      setDocumentInput(
+        JSON.stringify(
+          {
+            Version: "2012-10-17",
+            Statement: [
+              {
+                Effect: "Allow",
+                Principal: { Service: "ec2.amazonaws.com" },
+                Action: "sts:AssumeRole",
+              },
+            ],
+          },
+          null,
+          2
+        )
+      );
+    } else if (activeTab === "policies") {
+      setDocumentInput(
+        JSON.stringify(
+          {
+            Version: "2012-10-17",
+            Statement: [
+              {
+                Effect: "Allow",
+                Action: "*",
+                Resource: "*",
+              },
+            ],
+          },
+          null,
+          2
+        )
+      );
+    } else {
+      setDocumentInput("");
+    }
+    setIsCreateOpen(true);
+  };
+
+  const handleCreate = async (e: React.FormEvent) => {
+    e.preventDefault();
+    if (!nameInput.trim()) return;
+
+    setActionLoading(true);
+    try {
+      let body: any = { endpoint };
+
+      if (activeTab === "roles") {
+        body.action = "create-role";
+        body.roleName = nameInput.trim();
+        body.description = descriptionInput.trim();
+        body.assumeRolePolicyDocument = documentInput.trim();
+      } else if (activeTab === "users") {
+        body.action = "create-user";
+        body.userName = nameInput.trim();
+      } else if (activeTab === "groups") {
+        body.action = "create-group";
+        body.groupName = nameInput.trim();
+      } else if (activeTab === "policies") {
+        body.action = "create-policy";
+        body.policyName = nameInput.trim();
+        body.description = descriptionInput.trim();
+        body.policyDocument = documentInput.trim();
+      }
+
+      const res = await fetch("/api/floci/iam", {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify(body),
+      });
+
+      const json = await res.json();
+      if (json.success) {
+        showNotification(json.message || `Created successfully`);
+        setIsCreateOpen(false);
+        await fetchIAM();
+      } else {
+        showNotification(json.error || `Failed to create`, true);
+      }
+    } catch (err: any) {
+      showNotification(err.message || "Network error", true);
+    } finally {
+      setActionLoading(false);
+    }
+  };
+
+  const handleDelete = async (item: any) => {
+    const identifier = item.roleName || item.userName || item.groupName || item.policyName;
+    if (!confirm(`Are you sure you want to delete '${identifier}'?`)) return;
+
+    try {
+      let body: any = { endpoint };
+      if (activeTab === "roles") {
+        body.action = "delete-role";
+        body.roleName = item.roleName;
+      } else if (activeTab === "users") {
+        body.action = "delete-user";
+        body.userName = item.userName;
+      } else if (activeTab === "groups") {
+        body.action = "delete-group";
+        body.groupName = item.groupName;
+      } else if (activeTab === "policies") {
+        body.action = "delete-policy";
+        body.policyArn = item.arn;
+      }
+
+      const res = await fetch("/api/floci/iam", {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify(body),
+      });
+
+      const json = await res.json();
+      if (json.success) {
+        showNotification(json.message || "Deleted successfully");
+        await fetchIAM();
+      } else {
+        showNotification(json.error || "Failed to delete", true);
+      }
+    } catch (err: any) {
+      showNotification(err.message || "Network error", true);
+    }
+  };
+
   const currentList = iamData[activeTab] || [];
   const filteredList = currentList.filter((item: any) => {
     const text = (item.roleName || item.userName || item.groupName || item.policyName || item.arn || "").toLowerCase();
@@ -65,8 +226,35 @@ export default function IAMPage() {
     ? "bg-amber-500 text-slate-950 shadow-sm"
     : "bg-blue-600 text-white shadow-sm";
 
+  const getCreateButtonLabel = () => {
+    if (activeTab === "roles") return isAws ? "Create Role" : "Create Service Account";
+    if (activeTab === "users") return isAws ? "Create User" : "Create Principal";
+    if (activeTab === "groups") return "Create Group";
+    return isAws ? "Create Policy" : "Create Permission";
+  };
+
   return (
     <div className="space-y-6 max-w-7xl mx-auto">
+      {/* Toast Notifications */}
+      {errorMessage && (
+        <div className="fixed top-20 right-6 z-50 flex items-center gap-2 bg-rose-950/90 border border-rose-500/50 text-rose-200 px-4 py-3 rounded-xl shadow-2xl backdrop-blur-md text-xs">
+          <AlertCircle className="w-4 h-4 text-rose-400 shrink-0" />
+          <span>{errorMessage}</span>
+          <button onClick={() => setErrorMessage(null)} className="ml-2 text-rose-400 hover:text-rose-100">
+            <X className="w-3.5 h-3.5" />
+          </button>
+        </div>
+      )}
+      {successMessage && (
+        <div className="fixed top-20 right-6 z-50 flex items-center gap-2 bg-emerald-950/90 border border-emerald-500/50 text-emerald-200 px-4 py-3 rounded-xl shadow-2xl backdrop-blur-md text-xs">
+          <CheckCircle2 className="w-4 h-4 text-emerald-400 shrink-0" />
+          <span>{successMessage}</span>
+          <button onClick={() => setSuccessMessage(null)} className="ml-2 text-emerald-400 hover:text-emerald-100">
+            <X className="w-3.5 h-3.5" />
+          </button>
+        </div>
+      )}
+
       {/* Header */}
       <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-4">
         <div>
@@ -76,19 +264,33 @@ export default function IAMPage() {
           </h2>
           <p className="text-sm text-slate-400 mt-1">
             {isAws
-              ? "Manage simulated IAM Roles, Users, Groups, and Managed Policies in Floci"
-              : "Manage Service Accounts, Principals, Roles, and Permissions in Floci"}
+              ? "Create and manage simulated IAM Roles, Users, Groups, and Policies in Floci"
+              : "Create and manage Service Accounts, Principals, Roles, and Permissions in Floci"}
           </p>
         </div>
 
-        <button
-          onClick={fetchIAM}
-          disabled={loading}
-          className="flex items-center gap-2 bg-slate-900 hover:bg-slate-800 text-slate-200 border border-slate-800 px-4 py-2 rounded-xl text-xs font-semibold transition-colors"
-        >
-          <RefreshCw className={`w-3.5 h-3.5 ${loading ? "animate-spin text-emerald-400" : ""}`} />
-          Refresh
-        </button>
+        <div className="flex items-center gap-2">
+          <button
+            onClick={openCreateModal}
+            className={`flex items-center gap-2 px-4 py-2 rounded-xl text-xs font-semibold text-white shadow-lg transition-all ${
+              isAws
+                ? "bg-amber-600 hover:bg-amber-500 shadow-amber-600/20"
+                : "bg-blue-600 hover:bg-blue-500 shadow-blue-600/20"
+            }`}
+          >
+            <Plus className="w-4 h-4" />
+            {getCreateButtonLabel()}
+          </button>
+
+          <button
+            onClick={fetchIAM}
+            disabled={loading}
+            className="flex items-center gap-2 bg-slate-900 hover:bg-slate-800 text-slate-200 border border-slate-800 px-4 py-2 rounded-xl text-xs font-semibold transition-colors"
+          >
+            <RefreshCw className={`w-3.5 h-3.5 ${loading ? "animate-spin text-emerald-400" : ""}`} />
+            Refresh
+          </button>
+        </div>
       </div>
 
       {/* Tabs and Search Bar */}
@@ -151,8 +353,14 @@ export default function IAMPage() {
           Loading IAM {activeTab}...
         </div>
       ) : filteredList.length === 0 ? (
-        <div className="bg-[#0d1322] border border-slate-800 rounded-2xl p-12 text-center text-slate-400">
-          No {activeTab} match your criteria.
+        <div className="bg-[#0d1322] border border-slate-800 rounded-2xl p-12 text-center text-slate-400 space-y-3">
+          <p>No {activeTab} match your criteria.</p>
+          <button
+            onClick={openCreateModal}
+            className="text-xs font-semibold text-emerald-400 hover:underline"
+          >
+            + {getCreateButtonLabel()}
+          </button>
         </div>
       ) : (
         <div className="bg-[#0d1322] border border-slate-800 rounded-2xl overflow-hidden shadow-xl">
@@ -163,6 +371,7 @@ export default function IAMPage() {
                 <th className="px-6 py-3.5">ARN / Identifier</th>
                 <th className="px-6 py-3.5">Created</th>
                 {activeTab === "policies" && <th className="px-6 py-3.5">Attachments</th>}
+                <th className="px-6 py-3.5 text-right">Actions</th>
               </tr>
             </thead>
             <tbody className="divide-y divide-slate-800/60 font-mono">
@@ -190,12 +399,123 @@ export default function IAMPage() {
                         </span>
                       </td>
                     )}
+                    <td className="px-6 py-3.5 text-right font-sans">
+                      <button
+                        onClick={() => handleDelete(item)}
+                        title={`Delete ${name}`}
+                        className="p-1 text-slate-500 hover:text-rose-400 rounded transition-colors"
+                      >
+                        <Trash2 className="w-3.5 h-3.5" />
+                      </button>
+                    </td>
                   </tr>
                 );
               })}
             </tbody>
           </table>
         </div>
+      )}
+
+      {/* Create Modal */}
+      {isCreateOpen && mounted && createPortal(
+        <div
+          className="fixed inset-0 bg-slate-950/80 backdrop-blur-sm z-[9999] flex items-center justify-center p-4"
+          onClick={(e) => {
+            if (e.target === e.currentTarget) setIsCreateOpen(false);
+          }}
+        >
+          <div className="bg-[#0f172a] border border-slate-800 rounded-2xl w-full max-w-lg p-6 shadow-2xl space-y-5">
+            <div className="flex items-center justify-between pb-3 border-b border-slate-800">
+              <div className="flex items-center gap-2">
+                <Users className={`w-5 h-5 ${isAws ? "text-amber-400" : "text-blue-400"}`} />
+                <h3 className="font-bold text-slate-100 text-base">
+                  {getCreateButtonLabel()}
+                </h3>
+              </div>
+              <button
+                onClick={() => setIsCreateOpen(false)}
+                className="text-slate-400 hover:text-slate-100 p-1 hover:bg-slate-800 rounded-lg transition-colors"
+              >
+                <X className="w-5 h-5" />
+              </button>
+            </div>
+
+            <form onSubmit={handleCreate} className="space-y-4">
+              <div>
+                <label className="block text-xs font-semibold text-slate-300 mb-1.5">
+                  {activeTab === "roles"
+                    ? "Role Name"
+                    : activeTab === "users"
+                    ? "User Name"
+                    : activeTab === "groups"
+                    ? "Group Name"
+                    : "Policy Name"}
+                </label>
+                <input
+                  type="text"
+                  placeholder="e.g. app-admin, read-only-service, lambda-runner"
+                  value={nameInput}
+                  onChange={(e) => setNameInput(e.target.value)}
+                  required
+                  className="w-full bg-slate-900 border border-slate-800 px-3.5 py-2 rounded-xl text-xs text-slate-200 focus:outline-none focus:border-emerald-500 font-mono"
+                />
+              </div>
+
+              {(activeTab === "roles" || activeTab === "policies") && (
+                <div>
+                  <label className="block text-xs font-semibold text-slate-300 mb-1.5">
+                    Description
+                  </label>
+                  <input
+                    type="text"
+                    placeholder="Short description of purpose"
+                    value={descriptionInput}
+                    onChange={(e) => setDescriptionInput(e.target.value)}
+                    className="w-full bg-slate-900 border border-slate-800 px-3.5 py-2 rounded-xl text-xs text-slate-200 focus:outline-none focus:border-emerald-500"
+                  />
+                </div>
+              )}
+
+              {(activeTab === "roles" || activeTab === "policies") && (
+                <div>
+                  <label className="block text-xs font-semibold text-slate-300 mb-1.5">
+                    {activeTab === "roles" ? "AssumeRole Trust Policy (JSON)" : "Policy Document (JSON)"}
+                  </label>
+                  <textarea
+                    rows={8}
+                    value={documentInput}
+                    onChange={(e) => setDocumentInput(e.target.value)}
+                    required
+                    className="w-full bg-slate-900 border border-slate-800 p-3 rounded-xl text-xs text-emerald-400 focus:outline-none focus:border-emerald-500 font-mono"
+                  />
+                </div>
+              )}
+
+              <div className="flex justify-end gap-2 pt-2">
+                <button
+                  type="button"
+                  onClick={() => setIsCreateOpen(false)}
+                  className="px-4 py-2 text-xs text-slate-400 hover:text-slate-200 rounded-xl"
+                >
+                  Cancel
+                </button>
+                <button
+                  type="submit"
+                  disabled={actionLoading}
+                  className={`px-4 py-2 text-xs font-semibold text-white rounded-xl transition-colors flex items-center gap-1.5 ${
+                    isAws
+                      ? "bg-amber-600 hover:bg-amber-500"
+                      : "bg-blue-600 hover:bg-blue-500"
+                  }`}
+                >
+                  {actionLoading ? <RefreshCw className="w-3.5 h-3.5 animate-spin" /> : <Plus className="w-3.5 h-3.5" />}
+                  Create
+                </button>
+              </div>
+            </form>
+          </div>
+        </div>,
+        document.body
       )}
     </div>
   );

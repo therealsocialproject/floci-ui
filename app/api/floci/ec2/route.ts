@@ -4,6 +4,8 @@ import {
   StartInstancesCommand,
   StopInstancesCommand,
   TerminateInstancesCommand,
+  RunInstancesCommand,
+  _InstanceType,
 } from "@aws-sdk/client-ec2";
 import { getEC2Client, resolveEndpoint } from "@/lib/floci-client";
 
@@ -64,11 +66,11 @@ export async function GET(request: NextRequest) {
 
 export async function POST(request: NextRequest) {
   const body = await request.json();
-  const { action, instanceId, endpoint } = body;
+  const { action, instanceId, endpoint, name, instanceType, workload, imageId } = body;
 
-  if (!instanceId || !action) {
+  if (!action) {
     return NextResponse.json(
-      { success: false, error: "Missing action or instanceId" },
+      { success: false, error: "Missing action" },
       { status: 400 }
     );
   }
@@ -76,6 +78,42 @@ export async function POST(request: NextRequest) {
   try {
     const client = getEC2Client(endpoint);
     let res: any;
+
+    if (action === "launch") {
+      const tags: { Key: string; Value: string }[] = [];
+      if (name && name.trim()) {
+        tags.push({ Key: "Name", Value: name.trim() });
+      }
+      if (workload && workload.trim()) {
+        tags.push({ Key: "Workload", Value: workload.trim() });
+      }
+
+      res = await client.send(
+        new RunInstancesCommand({
+          ImageId: imageId || "ami-12345678",
+          InstanceType: (instanceType || "t3.micro") as _InstanceType,
+          MinCount: 1,
+          MaxCount: 1,
+          TagSpecifications:
+            tags.length > 0
+              ? [
+                  {
+                    ResourceType: "instance",
+                    Tags: tags,
+                  },
+                ]
+              : undefined,
+        })
+      );
+      return NextResponse.json({ success: true, action, result: res });
+    }
+
+    if (!instanceId) {
+      return NextResponse.json(
+        { success: false, error: "Missing instanceId" },
+        { status: 400 }
+      );
+    }
 
     if (action === "start") {
       res = await client.send(new StartInstancesCommand({ InstanceIds: [instanceId] }));
