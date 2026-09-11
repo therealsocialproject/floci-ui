@@ -194,7 +194,7 @@ export function Header() {
       </Link>
 
       {/* 1-Click Cloud Provider Switcher */}
-      <div className="flex items-center bg-slate-900/90 border border-slate-700/60 p-0.5 rounded-lg text-xs shrink-0 mx-1">
+      <div className="provider-switch flex items-center bg-slate-900/90 border border-slate-700/60 p-0.5 rounded-lg text-xs shrink-0 mx-1">
         <button
           type="button"
           onClick={() => setCloudMode("aws")}
