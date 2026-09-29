@@ -24,6 +24,7 @@ import {
 } from "lucide-react";
 import { useEndpoint } from "./EndpointProvider";
 import { useCloudTheme } from "./CloudThemeContext";
+import { normalizeEndpointUrl } from "@/lib/endpoint-utils";
 
 export function Sidebar() {
   const pathname = usePathname();
@@ -98,6 +99,7 @@ export function Header() {
     isLoading,
     health,
     checkHealth,
+    probeEndpoint,
   } = useEndpoint();
 
   const { cloudMode, branding, setCloudMode, serviceLabels } = useCloudTheme();
@@ -106,6 +108,8 @@ export function Header() {
   const [newEnvName, setNewEnvName] = useState("");
   const [newEnvUrl, setNewEnvUrl] = useState("");
   const [newEnvProvider, setNewEnvProvider] = useState<"aws" | "gcp">("aws");
+  const [probeStatus, setProbeStatus] = useState<"idle" | "loading" | "success" | "error">("idle");
+  const [probeMessage, setProbeMessage] = useState("");
   const [mounted, setMounted] = useState(false);
   const [serviceSearch, setServiceSearch] = useState("");
 
@@ -125,11 +129,36 @@ export function Header() {
 
   const isAws = cloudMode === "aws";
 
+  const runProbe = async (urlToTest: string) => {
+    if (!urlToTest.trim()) {
+      setProbeStatus("idle");
+      setProbeMessage("");
+      return;
+    }
+    const clean = normalizeEndpointUrl(urlToTest);
+    setProbeStatus("loading");
+    setProbeMessage(`Testing connection to ${clean}...`);
+    const res = await probeEndpoint(clean);
+    if (res.success && res.data) {
+      setProbeStatus("success");
+      const numServices = res.data.services ? Object.keys(res.data.services).length : 0;
+      setProbeMessage(`Floci v${res.data.version || "2.1.0"} active · ${numServices} services online`);
+      if (clean.includes("159") || clean.includes(".51") || clean.toLowerCase().includes("gcp")) {
+        setNewEnvProvider("gcp");
+      } else if (clean.includes("151") || clean.includes(".50") || clean.toLowerCase().includes("aws")) {
+        setNewEnvProvider("aws");
+      }
+    } else {
+      setProbeStatus("error");
+      setProbeMessage(res.error || "Cannot reach endpoint. Check IP and port 4566.");
+    }
+  };
+
   const handleUrlChange = (url: string) => {
     setNewEnvUrl(url);
-    if (url.toLowerCase().includes("gcp") || url.includes("159")) {
+    if (url.toLowerCase().includes("gcp") || url.includes("159") || url.includes(".51")) {
       setNewEnvProvider("gcp");
-    } else if (url.toLowerCase().includes("aws") || url.includes("151")) {
+    } else if (url.toLowerCase().includes("aws") || url.includes("151") || url.includes(".50")) {
       setNewEnvProvider("aws");
     }
   };
@@ -152,9 +181,12 @@ export function Header() {
   const handleAddEnv = (e: React.FormEvent) => {
     e.preventDefault();
     if (!newEnvUrl.trim()) return;
-    addEnvironment(newEnvName, newEnvUrl, newEnvProvider);
+    const cleanUrl = normalizeEndpointUrl(newEnvUrl);
+    addEnvironment(newEnvName || cleanUrl, cleanUrl, newEnvProvider);
     setNewEnvName("");
     setNewEnvUrl("");
+    setProbeStatus("idle");
+    setProbeMessage("");
     setNewEnvProvider("aws");
     setIsEnvModalOpen(false);
   };
@@ -436,24 +468,64 @@ export function Header() {
                 <div className="grid grid-cols-1 sm:grid-cols-2 gap-2">
                   <input
                     type="text"
-                    placeholder="Name (e.g. Staging VM)"
+                    placeholder="Name (e.g. TSP AWS)"
                     value={newEnvName}
                     onChange={(e) => handleNameChange(e.target.value)}
                     className="bg-subtle border border-line px-3 py-1.5 rounded-control text-xs text-ink focus:outline-none focus:border-emerald-500"
                   />
-                  <input
-                    type="text"
-                    placeholder="URL (e.g. http://192.168.1.50:4566)"
-                    value={newEnvUrl}
-                    onChange={(e) => handleUrlChange(e.target.value)}
-                    className="bg-subtle border border-line px-3 py-1.5 rounded-control text-xs text-ink focus:outline-none focus:border-emerald-500 font-mono"
-                    required
-                  />
+                  <div className="flex gap-1.5">
+                    <input
+                      type="text"
+                      placeholder="IP or URL (e.g. 10.75.75.50)"
+                      value={newEnvUrl}
+                      onChange={(e) => handleUrlChange(e.target.value)}
+                      onBlur={() => {
+                        if (newEnvUrl.trim()) runProbe(newEnvUrl);
+                      }}
+                      className="bg-subtle border border-line px-3 py-1.5 rounded-control text-xs text-ink focus:outline-none focus:border-emerald-500 font-mono flex-1"
+                      required
+                    />
+                    <button
+                      type="button"
+                      onClick={() => runProbe(newEnvUrl)}
+                      disabled={!newEnvUrl.trim() || probeStatus === "loading"}
+                      className="px-2.5 py-1 text-[11px] font-semibold bg-subtle hover:bg-line border border-line text-ink rounded-control transition-colors disabled:opacity-50 shrink-0"
+                      title="Probe and detect endpoint health"
+                    >
+                      {probeStatus === "loading" ? "Probing..." : "Test"}
+                    </button>
+                  </div>
                 </div>
+
+                {probeStatus !== "idle" && (
+                  <div
+                    className={`text-[11px] px-2.5 py-1.5 rounded-md flex items-center gap-1.5 ${
+                      probeStatus === "loading"
+                        ? "text-muted bg-subtle"
+                        : probeStatus === "success"
+                          ? "text-emerald-400 bg-emerald-950/40 border border-emerald-500/30"
+                          : "text-rose-400 bg-rose-950/40 border border-rose-500/30"
+                    }`}
+                  >
+                    {probeStatus === "loading" && <RefreshCw className="animate-spin w-3 h-3 shrink-0" />}
+                    {probeStatus === "success" && <span className="font-bold shrink-0">✓</span>}
+                    {probeStatus === "error" && <span className="font-bold shrink-0">⚠</span>}
+                    <span className="truncate">{probeMessage}</span>
+                  </div>
+                )}
+
+                <p className="text-[10px] text-muted">
+                  Tip: Bare IPs automatically default to port 4566 (e.g. <code>10.75.75.50</code> → <code>http://10.75.75.50:4566</code>).
+                </p>
+
                 <div className="flex justify-end gap-2 pt-2">
                   <button
                     type="button"
-                    onClick={() => setIsEnvModalOpen(false)}
+                    onClick={() => {
+                      setProbeStatus("idle");
+                      setProbeMessage("");
+                      setIsEnvModalOpen(false);
+                    }}
                     className="px-4 py-1.5 text-xs text-muted hover:text-ink rounded-control"
                   >
                     Cancel

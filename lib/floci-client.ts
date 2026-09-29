@@ -4,15 +4,13 @@ import { IAMClient } from "@aws-sdk/client-iam";
 import { DynamoDBClient } from "@aws-sdk/client-dynamodb";
 import { KMSClient } from "@aws-sdk/client-kms";
 
-export const DEFAULT_FLOCI_ENDPOINT = process.env.FLOCI_ENDPOINT || "http://localhost:4566";
+import { normalizeEndpointUrl } from "./endpoint-utils";
+
+export const DEFAULT_FLOCI_ENDPOINT = process.env.FLOCI_ENDPOINT || "http://10.75.75.50:4566";
 
 export function resolveEndpoint(reqEndpoint?: string | null): string {
   if (reqEndpoint && reqEndpoint.trim() !== "") {
-    let ep = reqEndpoint.trim();
-    if (!ep.startsWith("http://") && !ep.startsWith("https://")) {
-      ep = `http://${ep}`;
-    }
-    return ep;
+    return normalizeEndpointUrl(reqEndpoint);
   }
   return DEFAULT_FLOCI_ENDPOINT;
 }
