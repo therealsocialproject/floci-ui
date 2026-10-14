@@ -3,6 +3,10 @@ import { S3Client } from "@aws-sdk/client-s3";
 import { IAMClient } from "@aws-sdk/client-iam";
 import { DynamoDBClient } from "@aws-sdk/client-dynamodb";
 import { KMSClient } from "@aws-sdk/client-kms";
+import { SQSClient } from "@aws-sdk/client-sqs";
+import { LambdaClient } from "@aws-sdk/client-lambda";
+import { CloudWatchLogsClient } from "@aws-sdk/client-cloudwatch-logs";
+import { SecretsManagerClient } from "@aws-sdk/client-secrets-manager";
 
 import { normalizeEndpointUrl } from "./endpoint-utils";
 
@@ -61,6 +65,38 @@ export function getKMSClient(endpoint?: string): KMSClient {
   });
 }
 
+export function getSQSClient(endpoint?: string): SQSClient {
+  return new SQSClient({
+    endpoint: resolveEndpoint(endpoint),
+    region: "us-east-1",
+    credentials: mockCredentials,
+  });
+}
+
+export function getLambdaClient(endpoint?: string): LambdaClient {
+  return new LambdaClient({
+    endpoint: resolveEndpoint(endpoint),
+    region: "us-east-1",
+    credentials: mockCredentials,
+  });
+}
+
+export function getCloudWatchLogsClient(endpoint?: string): CloudWatchLogsClient {
+  return new CloudWatchLogsClient({
+    endpoint: resolveEndpoint(endpoint),
+    region: "us-east-1",
+    credentials: mockCredentials,
+  });
+}
+
+export function getSecretsManagerClient(endpoint?: string): SecretsManagerClient {
+  return new SecretsManagerClient({
+    endpoint: resolveEndpoint(endpoint),
+    region: "us-east-1",
+    credentials: mockCredentials,
+  });
+}
+
 export interface FlociHealthResponse {
   services: Record<string, string>;
   edition?: string;
@@ -70,9 +106,16 @@ export interface FlociHealthResponse {
 
 export async function fetchFlociHealth(endpoint?: string): Promise<FlociHealthResponse> {
   const ep = resolveEndpoint(endpoint);
-  const res = await fetch(`${ep}/_localstack/health`, {
-    cache: "no-store",
-  });
+  try {
+    const res = await fetch(`${ep}/_floci/health`, { cache: "no-store" });
+    if (res.ok) {
+      return await res.json();
+    }
+  } catch {
+    // fallback to _localstack/health
+  }
+
+  const res = await fetch(`${ep}/_localstack/health`, { cache: "no-store" });
   if (!res.ok) {
     throw new Error(`Floci health check failed with status ${res.status}`);
   }

@@ -14,9 +14,11 @@ import {
   X,
   AlertCircle,
   CheckCircle2,
+  Code,
 } from "lucide-react";
 import { useEndpoint } from "@/components/EndpointProvider";
 import { useCloudTheme } from "@/components/CloudThemeContext";
+import { ResourceDrawer } from "@/components/ResourceDrawer";
 
 type IAMTab = "roles" | "users" | "groups" | "policies";
 
@@ -24,6 +26,7 @@ export default function IAMPage() {
   const { endpoint, isConnected } = useEndpoint();
   const { cloudMode, serviceLabels } = useCloudTheme();
   const [activeTab, setActiveTab] = useState<IAMTab>("roles");
+  const [inspectItem, setInspectItem] = useState<any>(null);
   const [iamData, setIamData] = useState<{
     roles: any[];
     users: any[];
@@ -400,13 +403,22 @@ export default function IAMPage() {
                       </td>
                     )}
                     <td className="px-6 py-3.5 text-right font-sans">
-                      <button
-                        onClick={() => handleDelete(item)}
-                        title={`Delete ${name}`}
-                        className="p-1 text-muted hover:text-danger rounded transition-colors"
-                      >
-                        <Trash2 className="w-3.5 h-3.5" />
-                      </button>
+                      <div className="flex items-center justify-end gap-1">
+                        <button
+                          onClick={() => setInspectItem(item)}
+                          title={`Inspect ${name} JSON`}
+                          className="p-1 text-muted hover:text-ink rounded transition-colors cursor-pointer"
+                        >
+                          <Code className="w-3.5 h-3.5" />
+                        </button>
+                        <button
+                          onClick={() => handleDelete(item)}
+                          title={`Delete ${name}`}
+                          className="p-1 text-muted hover:text-danger rounded transition-colors"
+                        >
+                          <Trash2 className="w-3.5 h-3.5" />
+                        </button>
+                      </div>
                     </td>
                   </tr>
                 );
@@ -517,6 +529,15 @@ export default function IAMPage() {
         </div>,
         document.body
       )}
+      {/* Resource Inspection Drawer */}
+      <ResourceDrawer
+        isOpen={Boolean(inspectItem)}
+        onClose={() => setInspectItem(null)}
+        title={inspectItem?.roleName || inspectItem?.userName || inspectItem?.groupName || inspectItem?.policyName || "IAM Resource"}
+        subtitle={inspectItem?.arn}
+        badge={`IAM ${activeTab}`}
+        data={inspectItem}
+      />
     </div>
   );
 }

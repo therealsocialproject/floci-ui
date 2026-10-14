@@ -13,9 +13,11 @@ import {
   X,
   AlertCircle,
   CheckCircle2,
+  Code,
 } from "lucide-react";
 import { useEndpoint } from "@/components/EndpointProvider";
 import { useCloudTheme } from "@/components/CloudThemeContext";
+import { ResourceDrawer } from "@/components/ResourceDrawer";
 
 export default function S3Page() {
   const { endpoint, isConnected } = useEndpoint();
@@ -23,6 +25,7 @@ export default function S3Page() {
   const [buckets, setBuckets] = useState<any[]>([]);
   const [selectedBucket, setSelectedBucket] = useState<string | null>(null);
   const [objects, setObjects] = useState<any[]>([]);
+  const [inspectData, setInspectData] = useState<any>(null);
   const [loadingBuckets, setLoadingBuckets] = useState(true);
   const [loadingObjects, setLoadingObjects] = useState(false);
   const [mounted, setMounted] = useState(false);
@@ -375,6 +378,21 @@ export default function S3Page() {
                       <button
                         onClick={(e) => {
                           e.stopPropagation();
+                          setInspectData({
+                            bucketName: b.name,
+                            creationDate: b.creationDate,
+                            objectsCount: objects.length,
+                            objects: objects,
+                          });
+                        }}
+                        title="Inspect Bucket JSON"
+                        className="p-1 text-muted hover:text-ink rounded transition-colors opacity-80 hover:opacity-100 cursor-pointer"
+                      >
+                        <Code className="w-3.5 h-3.5" />
+                      </button>
+                      <button
+                        onClick={(e) => {
+                          e.stopPropagation();
                           handleDeleteBucket(b.name);
                         }}
                         title={`Delete ${b.name}`}
@@ -635,6 +653,15 @@ export default function S3Page() {
         </div>,
         document.body
       )}
+      {/* Resource Inspection Drawer */}
+      <ResourceDrawer
+        isOpen={Boolean(inspectData)}
+        onClose={() => setInspectData(null)}
+        title={inspectData?.bucketName || "Bucket Details"}
+        subtitle={`S3 Bucket • Created ${inspectData?.creationDate ? new Date(inspectData.creationDate).toLocaleDateString() : ""}`}
+        badge="S3 Storage"
+        data={inspectData}
+      />
     </div>
   );
 }

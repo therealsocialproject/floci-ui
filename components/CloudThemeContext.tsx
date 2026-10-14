@@ -15,6 +15,10 @@ interface CloudThemeContextType {
     s3: string;
     iam: string;
     dynamodb: string;
+    sqs: string;
+    lambda: string;
+    logs: string;
+    secrets: string;
     kms: string;
     instances: string;
     buckets: string;
@@ -58,7 +62,11 @@ export function CloudThemeProvider({ children }: { children: ReactNode }) {
         s3: "S3",
         iam: "IAM",
         dynamodb: "DynamoDB",
-        kms: "KMS",
+        sqs: "Simple Queue Service (SQS)",
+        lambda: "Lambda",
+        logs: "CloudWatch Logs",
+        secrets: "Secrets Manager",
+        kms: "Key Management Service (KMS)",
         instances: "EC2 Instances",
         buckets: "S3 Buckets",
         roles: "IAM Roles & Policies",
@@ -70,6 +78,10 @@ export function CloudThemeProvider({ children }: { children: ReactNode }) {
         s3: "Cloud Storage",
         iam: "IAM & Admin",
         dynamodb: "Datastore / NoSQL",
+        sqs: "Cloud Pub/Sub",
+        lambda: "Cloud Functions",
+        logs: "Cloud Logging",
+        secrets: "Secret Manager",
         kms: "Cloud KMS",
         instances: "VM Instances",
         buckets: "Storage Buckets",

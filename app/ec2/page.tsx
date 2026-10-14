@@ -17,9 +17,11 @@ import {
   X,
   AlertCircle,
   CheckCircle2,
+  Code,
 } from "lucide-react";
 import { useEndpoint } from "@/components/EndpointProvider";
 import { useCloudTheme } from "@/components/CloudThemeContext";
+import { ResourceDrawer } from "@/components/ResourceDrawer";
 
 export default function EC2Page() {
   const { endpoint, isConnected } = useEndpoint();
@@ -28,6 +30,7 @@ export default function EC2Page() {
   const [loading, setLoading] = useState(true);
   const [actionLoading, setActionLoading] = useState<string | null>(null);
   const [mounted, setMounted] = useState(false);
+  const [inspectInstance, setInspectInstance] = useState<any>(null);
 
   // Launch modal state
   const [isLaunchModalOpen, setIsLaunchModalOpen] = useState(false);
@@ -337,6 +340,13 @@ export default function EC2Page() {
                             </button>
                           )}
                           <button
+                            onClick={() => setInspectInstance(inst)}
+                            title="Inspect Instance JSON"
+                            className="p-1.5 rounded-lg bg-subtle hover:bg-subtle text-muted hover:text-ink border border-line transition-colors cursor-pointer"
+                          >
+                            <Code className="w-3.5 h-3.5" />
+                          </button>
+                          <button
                             onClick={() => handleAction("terminate", inst.instanceId)}
                             disabled={actionLoading !== null}
                             title="Delete / Terminate VM"
@@ -354,6 +364,16 @@ export default function EC2Page() {
           </div>
         </div>
       )}
+
+      {/* Resource Inspection Drawer */}
+      <ResourceDrawer
+        isOpen={Boolean(inspectInstance)}
+        onClose={() => setInspectInstance(null)}
+        title={inspectInstance?.tags?.Name || inspectInstance?.instanceId || "EC2 Instance"}
+        subtitle={inspectInstance?.instanceId}
+        badge={inspectInstance?.instanceType}
+        data={inspectInstance}
+      />
 
       {/* Launch Instance Modal */}
       {isLaunchModalOpen && mounted && createPortal(

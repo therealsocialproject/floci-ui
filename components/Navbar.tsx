@@ -21,6 +21,11 @@ import {
   Menu,
   Search,
   ChevronRight,
+  MessageSquare,
+  Zap,
+  FileText,
+  KeyRound,
+  ShieldCheck,
 } from "lucide-react";
 import { useEndpoint } from "./EndpointProvider";
 import { useCloudTheme } from "./CloudThemeContext";
@@ -35,9 +40,14 @@ export function Sidebar() {
   const navItems = [
     { name: serviceLabels.dashboard, href: "/", icon: LayoutDashboard },
     { name: serviceLabels.ec2, href: "/ec2", icon: Server },
+    { name: serviceLabels.lambda, href: "/lambda", icon: Zap },
     { name: serviceLabels.s3, href: "/s3", icon: FolderLock },
-    { name: serviceLabels.iam, href: "/iam", icon: Users },
     { name: serviceLabels.dynamodb, href: "/dynamodb", icon: Database },
+    { name: serviceLabels.sqs, href: "/sqs", icon: MessageSquare },
+    { name: serviceLabels.logs, href: "/logs", icon: FileText },
+    { name: serviceLabels.iam, href: "/iam", icon: Users },
+    { name: serviceLabels.secrets, href: "/secrets", icon: KeyRound },
+    { name: serviceLabels.kms, href: "/kms", icon: ShieldCheck },
   ];
 
   return (
@@ -80,7 +90,7 @@ export function Sidebar() {
         </div>
       </div>
       <div className="sidebar-footer">
-        <span className="emulator-dot" /> Floci emulator<span>v1.1.0</span>
+        <span className="emulator-dot" /> Floci emulator<span>v1.2.0</span>
       </div>
     </aside>
   );
@@ -116,9 +126,14 @@ export function Header() {
   const searchLinks = [
     { href: "/", name: serviceLabels.dashboard },
     { href: "/ec2", name: serviceLabels.ec2 },
+    { href: "/lambda", name: serviceLabels.lambda },
     { href: "/s3", name: serviceLabels.s3 },
-    { href: "/iam", name: serviceLabels.iam },
     { href: "/dynamodb", name: serviceLabels.dynamodb },
+    { href: "/sqs", name: serviceLabels.sqs },
+    { href: "/logs", name: serviceLabels.logs },
+    { href: "/iam", name: serviceLabels.iam },
+    { href: "/secrets", name: serviceLabels.secrets },
+    { href: "/kms", name: serviceLabels.kms },
   ].filter((item) =>
     item.name.toLowerCase().includes(serviceSearch.toLowerCase()),
   );

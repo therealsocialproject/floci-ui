@@ -17,6 +17,7 @@ import {
 } from "lucide-react";
 import { useEndpoint } from "@/components/EndpointProvider";
 import { useCloudTheme } from "@/components/CloudThemeContext";
+import { ResourceDrawer } from "@/components/ResourceDrawer";
 
 export default function DynamoDBPage() {
   const { endpoint, isConnected } = useEndpoint();
@@ -29,6 +30,7 @@ export default function DynamoDBPage() {
   const [loadingItems, setLoadingItems] = useState(false);
   const [actionLoading, setActionLoading] = useState(false);
   const [mounted, setMounted] = useState(false);
+  const [inspectTable, setInspectTable] = useState<any>(null);
 
   // Modals state
   const [isCreateTableOpen, setIsCreateTableOpen] = useState(false);
@@ -390,16 +392,28 @@ export default function DynamoDBPage() {
                       <TableIcon className={`w-3.5 h-3.5 shrink-0 ${isSelected ? (isAws ? "text-accent" : "text-accent") : "text-muted"}`} />
                       <span className="truncate">{tbl}</span>
                     </button>
-                    <button
-                      onClick={(e) => {
-                        e.stopPropagation();
-                        handleDeleteTable(tbl);
-                      }}
-                      title={`Delete table ${tbl}`}
-                      className="p-1 text-muted hover:text-danger rounded transition-colors opacity-80 hover:opacity-100"
-                    >
-                      <Trash2 className="w-3.5 h-3.5" />
-                    </button>
+                    <div className="flex items-center gap-1 shrink-0">
+                      <button
+                        onClick={(e) => {
+                          e.stopPropagation();
+                          setInspectTable(selectedTable === tbl && tableDetails ? tableDetails : { TableName: tbl });
+                        }}
+                        title={`Inspect table ${tbl}`}
+                        className="p-1 text-muted hover:text-ink rounded transition-colors opacity-80 hover:opacity-100 cursor-pointer"
+                      >
+                        <Code2 className="w-3.5 h-3.5" />
+                      </button>
+                      <button
+                        onClick={(e) => {
+                          e.stopPropagation();
+                          handleDeleteTable(tbl);
+                        }}
+                        title={`Delete table ${tbl}`}
+                        className="p-1 text-muted hover:text-danger rounded transition-colors opacity-80 hover:opacity-100"
+                      >
+                        <Trash2 className="w-3.5 h-3.5" />
+                      </button>
+                    </div>
                   </div>
                 );
               })}
@@ -733,6 +747,15 @@ export default function DynamoDBPage() {
         </div>,
         document.body
       )}
+      {/* Resource Inspection Drawer */}
+      <ResourceDrawer
+        isOpen={Boolean(inspectTable)}
+        onClose={() => setInspectTable(null)}
+        title={inspectTable?.TableName || inspectTable?.tableName || "DynamoDB Table"}
+        subtitle={inspectTable?.TableArn}
+        badge="DynamoDB"
+        data={inspectTable}
+      />
     </div>
   );
 }
