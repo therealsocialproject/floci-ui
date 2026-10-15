@@ -26,6 +26,7 @@ import {
   FileText,
   KeyRound,
   ShieldCheck,
+  Network,
 } from "lucide-react";
 import { useEndpoint } from "./EndpointProvider";
 import { useCloudTheme } from "./CloudThemeContext";
@@ -41,8 +42,10 @@ export function Sidebar() {
     { name: serviceLabels.dashboard, href: "/", icon: LayoutDashboard },
     { name: serviceLabels.ec2, href: "/ec2", icon: Server },
     { name: serviceLabels.lambda, href: "/lambda", icon: Zap },
+    { name: serviceLabels.apigateway, href: "/apigateway", icon: Network },
     { name: serviceLabels.s3, href: "/s3", icon: FolderLock },
     { name: serviceLabels.dynamodb, href: "/dynamodb", icon: Database },
+    { name: serviceLabels.rds, href: "/rds", icon: Database },
     { name: serviceLabels.sqs, href: "/sqs", icon: MessageSquare },
     { name: serviceLabels.logs, href: "/logs", icon: FileText },
     { name: serviceLabels.iam, href: "/iam", icon: Users },
@@ -90,7 +93,7 @@ export function Sidebar() {
         </div>
       </div>
       <div className="sidebar-footer">
-        <span className="emulator-dot" /> Floci emulator<span>v1.2.0</span>
+        <span className="emulator-dot" /> Floci emulator<span>v1.3.0</span>
       </div>
     </aside>
   );

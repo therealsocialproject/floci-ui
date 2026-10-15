@@ -7,6 +7,9 @@ import { SQSClient } from "@aws-sdk/client-sqs";
 import { LambdaClient } from "@aws-sdk/client-lambda";
 import { CloudWatchLogsClient } from "@aws-sdk/client-cloudwatch-logs";
 import { SecretsManagerClient } from "@aws-sdk/client-secrets-manager";
+import { RDSClient } from "@aws-sdk/client-rds";
+import { APIGatewayClient } from "@aws-sdk/client-api-gateway";
+import { ApiGatewayV2Client } from "@aws-sdk/client-apigatewayv2";
 
 import { normalizeEndpointUrl } from "./endpoint-utils";
 
@@ -91,6 +94,30 @@ export function getCloudWatchLogsClient(endpoint?: string): CloudWatchLogsClient
 
 export function getSecretsManagerClient(endpoint?: string): SecretsManagerClient {
   return new SecretsManagerClient({
+    endpoint: resolveEndpoint(endpoint),
+    region: "us-east-1",
+    credentials: mockCredentials,
+  });
+}
+
+export function getRDSClient(endpoint?: string): RDSClient {
+  return new RDSClient({
+    endpoint: resolveEndpoint(endpoint),
+    region: "us-east-1",
+    credentials: mockCredentials,
+  });
+}
+
+export function getAPIGatewayClient(endpoint?: string): APIGatewayClient {
+  return new APIGatewayClient({
+    endpoint: resolveEndpoint(endpoint),
+    region: "us-east-1",
+    credentials: mockCredentials,
+  });
+}
+
+export function getAPIGatewayV2Client(endpoint?: string): ApiGatewayV2Client {
+  return new ApiGatewayV2Client({
     endpoint: resolveEndpoint(endpoint),
     region: "us-east-1",
     credentials: mockCredentials,

@@ -20,6 +20,8 @@ interface CloudThemeContextType {
     logs: string;
     secrets: string;
     kms: string;
+    rds: string;
+    apigateway: string;
     instances: string;
     buckets: string;
     roles: string;
@@ -67,6 +69,8 @@ export function CloudThemeProvider({ children }: { children: ReactNode }) {
         logs: "CloudWatch Logs",
         secrets: "Secrets Manager",
         kms: "Key Management Service (KMS)",
+        rds: "Relational Database Service (RDS)",
+        apigateway: "API Gateway",
         instances: "EC2 Instances",
         buckets: "S3 Buckets",
         roles: "IAM Roles & Policies",
@@ -83,6 +87,8 @@ export function CloudThemeProvider({ children }: { children: ReactNode }) {
         logs: "Cloud Logging",
         secrets: "Secret Manager",
         kms: "Cloud KMS",
+        rds: "Cloud SQL",
+        apigateway: "API Gateway / Endpoints",
         instances: "VM Instances",
         buckets: "Storage Buckets",
         roles: "Service Accounts & Roles",

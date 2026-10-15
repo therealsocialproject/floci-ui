@@ -15,6 +15,13 @@ import {
   AlertCircle,
   CheckCircle2,
   Code,
+  Eye,
+  EyeOff,
+  Copy,
+  Check,
+  Lock,
+  Unlock,
+  Key,
 } from "lucide-react";
 import { useEndpoint } from "@/components/EndpointProvider";
 import { useCloudTheme } from "@/components/CloudThemeContext";
@@ -43,6 +50,17 @@ export default function IAMPage() {
   const [nameInput, setNameInput] = useState("");
   const [descriptionInput, setDescriptionInput] = useState("");
   const [documentInput, setDocumentInput] = useState("");
+  const [initialPasswordInput, setInitialPasswordInput] = useState("");
+  const [createInitialKey, setCreateInitialKey] = useState(false);
+
+  // User Credentials Modal state
+  const [selectedUserForCreds, setSelectedUserForCreds] = useState<string | null>(null);
+  const [userCreds, setUserCreds] = useState<{ userName: string; hasPassword: boolean; accessKeys: any[] } | null>(null);
+  const [loadingCreds, setLoadingCreds] = useState(false);
+  const [credsPasswordInput, setCredsPasswordInput] = useState("");
+  const [showPassword, setShowPassword] = useState(false);
+  const [newlyCreatedKey, setNewlyCreatedKey] = useState<{ accessKeyId: string; secretAccessKey: string } | null>(null);
+  const [copiedKey, setCopiedKey] = useState(false);
 
   // Notifications
   const [errorMessage, setErrorMessage] = useState<string | null>(null);
@@ -94,6 +112,8 @@ export default function IAMPage() {
   const openCreateModal = () => {
     setNameInput("");
     setDescriptionInput("");
+    setInitialPasswordInput("");
+    setCreateInitialKey(false);
     if (activeTab === "roles") {
       setDocumentInput(
         JSON.stringify(
@@ -134,6 +154,143 @@ export default function IAMPage() {
     setIsCreateOpen(true);
   };
 
+  const openCredentialsModal = async (userName: string) => {
+    setSelectedUserForCreds(userName);
+    setCredsPasswordInput("");
+    setNewlyCreatedKey(null);
+    setLoadingCreds(true);
+    try {
+      const res = await fetch(
+        `/api/floci/iam?endpoint=${encodeURIComponent(endpoint)}&resource=credentials&userName=${encodeURIComponent(userName)}`
+      );
+      const json = await res.json();
+      if (json.success) {
+        setUserCreds(json.data?.credentials || null);
+      } else {
+        showNotification(json.error || "Failed to load credentials", true);
+      }
+    } catch (err: any) {
+      showNotification(err.message || "Failed to load credentials", true);
+    } finally {
+      setLoadingCreds(false);
+    }
+  };
+
+  const handleSetPassword = async (e: React.FormEvent) => {
+    e.preventDefault();
+    if (!selectedUserForCreds || !credsPasswordInput) return;
+    setActionLoading(true);
+    try {
+      const res = await fetch("/api/floci/iam", {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({
+          endpoint,
+          action: "set-password",
+          userName: selectedUserForCreds,
+          password: credsPasswordInput,
+        }),
+      });
+      const json = await res.json();
+      if (json.success) {
+        showNotification(json.message);
+        setCredsPasswordInput("");
+        await openCredentialsModal(selectedUserForCreds);
+      } else {
+        showNotification(json.error || "Failed to set password", true);
+      }
+    } catch (err: any) {
+      showNotification(err.message, true);
+    } finally {
+      setActionLoading(false);
+    }
+  };
+
+  const handleDeletePassword = async () => {
+    if (!selectedUserForCreds) return;
+    if (!confirm(`Remove console password for user '${selectedUserForCreds}'?`)) return;
+    setActionLoading(true);
+    try {
+      const res = await fetch("/api/floci/iam", {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({
+          endpoint,
+          action: "delete-password",
+          userName: selectedUserForCreds,
+        }),
+      });
+      const json = await res.json();
+      if (json.success) {
+        showNotification(json.message);
+        await openCredentialsModal(selectedUserForCreds);
+      } else {
+        showNotification(json.error || "Failed to remove password", true);
+      }
+    } catch (err: any) {
+      showNotification(err.message, true);
+    } finally {
+      setActionLoading(false);
+    }
+  };
+
+  const handleCreateAccessKey = async () => {
+    if (!selectedUserForCreds) return;
+    setActionLoading(true);
+    try {
+      const res = await fetch("/api/floci/iam", {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({
+          endpoint,
+          action: "create-access-key",
+          userName: selectedUserForCreds,
+        }),
+      });
+      const json = await res.json();
+      if (json.success && json.accessKey) {
+        setNewlyCreatedKey(json.accessKey);
+        showNotification("New access key created");
+        await openCredentialsModal(selectedUserForCreds);
+      } else {
+        showNotification(json.error || "Failed to create access key", true);
+      }
+    } catch (err: any) {
+      showNotification(err.message, true);
+    } finally {
+      setActionLoading(false);
+    }
+  };
+
+  const handleDeleteAccessKey = async (accessKeyId: string) => {
+    if (!selectedUserForCreds) return;
+    if (!confirm(`Delete access key '${accessKeyId}'?`)) return;
+    setActionLoading(true);
+    try {
+      const res = await fetch("/api/floci/iam", {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({
+          endpoint,
+          action: "delete-access-key",
+          userName: selectedUserForCreds,
+          accessKeyId,
+        }),
+      });
+      const json = await res.json();
+      if (json.success) {
+        showNotification(json.message);
+        await openCredentialsModal(selectedUserForCreds);
+      } else {
+        showNotification(json.error || "Failed to delete access key", true);
+      }
+    } catch (err: any) {
+      showNotification(err.message, true);
+    } finally {
+      setActionLoading(false);
+    }
+  };
+
   const handleCreate = async (e: React.FormEvent) => {
     e.preventDefault();
     if (!nameInput.trim()) return;
@@ -150,6 +307,12 @@ export default function IAMPage() {
       } else if (activeTab === "users") {
         body.action = "create-user";
         body.userName = nameInput.trim();
+        if (initialPasswordInput.trim()) {
+          body.password = initialPasswordInput.trim();
+        }
+        if (createInitialKey) {
+          body.createAccessKey = true;
+        }
       } else if (activeTab === "groups") {
         body.action = "create-group";
         body.groupName = nameInput.trim();
@@ -170,6 +333,11 @@ export default function IAMPage() {
       if (json.success) {
         showNotification(json.message || `Created successfully`);
         setIsCreateOpen(false);
+        if (json.data?.initialKey) {
+          setNewlyCreatedKey(json.data.initialKey);
+          setSelectedUserForCreds(nameInput.trim());
+          await openCredentialsModal(nameInput.trim());
+        }
         await fetchIAM();
       } else {
         showNotification(json.error || `Failed to create`, true);
@@ -404,6 +572,15 @@ export default function IAMPage() {
                     )}
                     <td className="px-6 py-3.5 text-right font-sans">
                       <div className="flex items-center justify-end gap-1">
+                        {activeTab === "users" && (
+                          <button
+                            onClick={() => openCredentialsModal(name)}
+                            title={`Manage credentials & password for ${name}`}
+                            className="p-1 text-muted hover:text-amber-400 rounded transition-colors cursor-pointer"
+                          >
+                            <KeyRound className="w-3.5 h-3.5" />
+                          </button>
+                        )}
                         <button
                           onClick={() => setInspectItem(item)}
                           title={`Inspect ${name} JSON`}
@@ -503,6 +680,32 @@ export default function IAMPage() {
                 </div>
               )}
 
+              {activeTab === "users" && (
+                <div className="space-y-3 pt-1 border-t border-line">
+                  <div>
+                    <label className="block text-xs font-semibold text-ink mb-1.5">
+                      Console Password <span className="text-muted font-normal">(Optional)</span>
+                    </label>
+                    <input
+                      type="password"
+                      placeholder="e.g. MySecurePassword123!"
+                      value={initialPasswordInput}
+                      onChange={(e) => setInitialPasswordInput(e.target.value)}
+                      className="w-full bg-subtle border border-line px-3.5 py-2 rounded-control text-xs text-ink focus:outline-none focus:border-emerald-500 font-mono"
+                    />
+                  </div>
+                  <label className="flex items-center gap-2 text-xs text-ink cursor-pointer">
+                    <input
+                      type="checkbox"
+                      checked={createInitialKey}
+                      onChange={(e) => setCreateInitialKey(e.target.checked)}
+                      className="rounded border-line text-emerald-500 focus:ring-0"
+                    />
+                    <span>Generate Programmatic Access Key immediately</span>
+                  </label>
+                </div>
+              )}
+
               <div className="flex justify-end gap-2 pt-2">
                 <button
                   type="button"
@@ -525,6 +728,191 @@ export default function IAMPage() {
                 </button>
               </div>
             </form>
+          </div>
+        </div>,
+        document.body
+      )}
+
+      {/* User Security Credentials Modal */}
+      {selectedUserForCreds && mounted && createPortal(
+        <div
+          className="fixed inset-0 bg-black/50 backdrop-blur-sm z-[9999] flex items-center justify-center p-4"
+          onClick={(e) => {
+            if (e.target === e.currentTarget) setSelectedUserForCreds(null);
+          }}
+        >
+          <div className="bg-surface border border-line rounded-panel w-full max-w-xl p-6 shadow-2xl space-y-6 max-h-[90vh] overflow-y-auto">
+            {/* Modal Header */}
+            <div className="flex items-center justify-between pb-4 border-b border-line">
+              <div className="flex items-center gap-2.5">
+                <div className="p-2 rounded-lg bg-amber-500/10 border border-amber-500/20 text-amber-400">
+                  <KeyRound className="w-5 h-5" />
+                </div>
+                <div>
+                  <h3 className="font-bold text-ink text-base">Security Credentials</h3>
+                  <p className="text-xs text-muted font-mono">{selectedUserForCreds}</p>
+                </div>
+              </div>
+              <button
+                onClick={() => setSelectedUserForCreds(null)}
+                className="text-muted hover:text-ink p-1 hover:bg-subtle rounded-lg transition-colors cursor-pointer"
+              >
+                <X className="w-5 h-5" />
+              </button>
+            </div>
+
+            {loadingCreds ? (
+              <div className="py-8 text-center text-muted">
+                <RefreshCw className="w-5 h-5 animate-spin mx-auto text-amber-400 mb-2" />
+                Loading credentials...
+              </div>
+            ) : (
+              <div className="space-y-6">
+                {/* Newly Created Key Alert */}
+                {newlyCreatedKey && (
+                  <div className="p-4 rounded-panel bg-emerald-500/10 border border-emerald-500/30 text-emerald-400 space-y-2">
+                    <div className="flex items-center gap-2 font-bold text-xs">
+                      <CheckCircle2 className="w-4 h-4 text-emerald-400 shrink-0" />
+                      <span>New Access Key Created!</span>
+                    </div>
+                    <p className="text-[11px] text-muted-foreground">
+                      Save this Secret Access Key now. It will never be shown again.
+                    </p>
+                    <div className="space-y-1.5 font-mono text-xs pt-1">
+                      <div className="flex items-center justify-between bg-black/40 p-2 rounded border border-border">
+                        <span className="text-muted-foreground text-[11px]">Access Key ID:</span>
+                        <span className="text-ink font-semibold">{newlyCreatedKey.accessKeyId}</span>
+                      </div>
+                      <div className="flex items-center justify-between bg-black/40 p-2 rounded border border-border">
+                        <span className="text-muted-foreground text-[11px]">Secret Access Key:</span>
+                        <div className="flex items-center gap-2">
+                          <span className="text-amber-300 font-semibold">{newlyCreatedKey.secretAccessKey}</span>
+                          <button
+                            type="button"
+                            onClick={() => {
+                              navigator.clipboard.writeText(newlyCreatedKey.secretAccessKey);
+                              setCopiedKey(true);
+                              setTimeout(() => setCopiedKey(false), 2000);
+                            }}
+                            className="p-1 hover:bg-white/10 rounded text-muted-foreground hover:text-ink"
+                            title="Copy secret key"
+                          >
+                            {copiedKey ? <Check className="w-3.5 h-3.5 text-emerald-400" /> : <Copy className="w-3.5 h-3.5" />}
+                          </button>
+                        </div>
+                      </div>
+                    </div>
+                  </div>
+                )}
+
+                {/* Console Password Management */}
+                <div className="p-4 rounded-panel bg-subtle border border-line space-y-3">
+                  <div className="flex items-center justify-between">
+                    <div className="flex items-center gap-2">
+                      <Lock className="w-4 h-4 text-accent" />
+                      <span className="text-xs font-bold text-ink">Console Password</span>
+                    </div>
+                    <span
+                      className={`px-2 py-0.5 rounded text-[10px] font-semibold uppercase tracking-wider border ${
+                        userCreds?.hasPassword
+                          ? "bg-emerald-500/10 text-emerald-400 border-emerald-500/30"
+                          : "bg-muted/20 text-muted border-line"
+                      }`}
+                    >
+                      {userCreds?.hasPassword ? "Configured" : "Not Set"}
+                    </span>
+                  </div>
+
+                  <form onSubmit={handleSetPassword} className="space-y-2.5 pt-1">
+                    <div className="relative">
+                      <input
+                        type={showPassword ? "text" : "password"}
+                        placeholder={userCreds?.hasPassword ? "Enter new password to change..." : "Enter console password..."}
+                        value={credsPasswordInput}
+                        onChange={(e) => setCredsPasswordInput(e.target.value)}
+                        className="w-full bg-surface border border-line px-3.5 py-2 pr-10 rounded-control text-xs text-ink focus:outline-none focus:border-amber-400 font-mono"
+                      />
+                      <button
+                        type="button"
+                        onClick={() => setShowPassword(!showPassword)}
+                        className="absolute right-2.5 top-1/2 -translate-y-1/2 text-muted hover:text-ink p-1"
+                      >
+                        {showPassword ? <EyeOff className="w-3.5 h-3.5" /> : <Eye className="w-3.5 h-3.5" />}
+                      </button>
+                    </div>
+
+                    <div className="flex items-center justify-between pt-1">
+                      {userCreds?.hasPassword ? (
+                        <button
+                          type="button"
+                          onClick={handleDeletePassword}
+                          disabled={actionLoading}
+                          className="text-[11px] text-rose-400 hover:text-rose-300 font-medium hover:underline"
+                        >
+                          Remove Password
+                        </button>
+                      ) : <span />}
+
+                      <button
+                        type="submit"
+                        disabled={actionLoading || !credsPasswordInput.trim()}
+                        className="px-3 py-1.5 text-xs font-semibold bg-action text-white rounded-control hover:opacity-90 disabled:opacity-50 transition-opacity"
+                      >
+                        {userCreds?.hasPassword ? "Update Password" : "Set Password"}
+                      </button>
+                    </div>
+                  </form>
+                </div>
+
+                {/* Access Keys Management */}
+                <div className="p-4 rounded-panel bg-subtle border border-line space-y-3">
+                  <div className="flex items-center justify-between">
+                    <div className="flex items-center gap-2">
+                      <Key className="w-4 h-4 text-accent" />
+                      <span className="text-xs font-bold text-ink">Access Keys (CLI / SDK)</span>
+                    </div>
+                    <button
+                      type="button"
+                      onClick={handleCreateAccessKey}
+                      disabled={actionLoading}
+                      className="px-2.5 py-1 text-[11px] font-semibold bg-emerald-500/10 text-emerald-400 hover:bg-emerald-500/20 border border-emerald-500/30 rounded-control flex items-center gap-1 transition-colors"
+                    >
+                      <Plus className="w-3 h-3" /> Create Access Key
+                    </button>
+                  </div>
+
+                  {userCreds?.accessKeys && userCreds.accessKeys.length > 0 ? (
+                    <div className="space-y-2 pt-1 font-mono text-xs">
+                      {userCreds.accessKeys.map((k: any) => (
+                        <div
+                          key={k.accessKeyId}
+                          className="flex items-center justify-between p-2.5 bg-surface border border-line rounded-control"
+                        >
+                          <div>
+                            <div className="text-ink font-bold">{k.accessKeyId}</div>
+                            <div className="text-[10px] text-muted font-sans">
+                              Created: {k.createDate ? new Date(k.createDate).toLocaleDateString() : "-"} • Status:{" "}
+                              <span className="text-emerald-400">{k.status}</span>
+                            </div>
+                          </div>
+                          <button
+                            type="button"
+                            onClick={() => handleDeleteAccessKey(k.accessKeyId)}
+                            disabled={actionLoading}
+                            title="Delete access key"
+                            className="p-1.5 text-muted hover:text-rose-400 hover:bg-rose-500/10 rounded transition-colors"
+                          >
+                            <Trash2 className="w-3.5 h-3.5" />
+                          </button>
+                        </div>
+                      ))}
+                    </div>
+                  ) : (
+                    <p className="text-xs text-muted pt-1">No access keys configured for this user.</p>
+                  )}
+                </div>
+              </div>
+            )}
           </div>
         </div>,
         document.body
