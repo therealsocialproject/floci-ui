@@ -3,6 +3,7 @@ import "./globals.css";
 import { EndpointProvider } from "@/components/EndpointProvider";
 import { CloudThemeProvider } from "@/components/CloudThemeContext";
 import { Sidebar, Header } from "@/components/Navbar";
+import { ReleaseAnnouncementModal } from "@/components/ReleaseAnnouncementModal";
 
 export const metadata: Metadata = {
   title: "Floci Console | Cloud Emulator Dashboard",
@@ -27,6 +28,7 @@ export default function RootLayout({
                 {children}
               </main>
             </div>
+            <ReleaseAnnouncementModal />
           </CloudThemeProvider>
         </EndpointProvider>
       </body>

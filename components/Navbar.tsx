@@ -27,10 +27,12 @@ import {
   KeyRound,
   ShieldCheck,
   Network,
+  Sparkles,
 } from "lucide-react";
 import { useEndpoint } from "./EndpointProvider";
 import { useCloudTheme } from "./CloudThemeContext";
 import { normalizeEndpointUrl } from "@/lib/endpoint-utils";
+import { openUiChangelog } from "./ReleaseAnnouncementModal";
 
 export function Sidebar() {
   const pathname = usePathname();
@@ -92,8 +94,19 @@ export function Sidebar() {
           Local cloud environment<small>Powered by Floci</small>
         </div>
       </div>
-      <div className="sidebar-footer">
-        <span className="emulator-dot" /> Floci emulator<span>v1.3.0</span>
+      <div className="sidebar-footer flex items-center justify-between">
+        <div className="flex items-center gap-1.5">
+          <span className="emulator-dot" /> Floci emulator
+        </div>
+        <button
+          type="button"
+          onClick={openUiChangelog}
+          className="px-1.5 py-0.5 rounded text-[10px] font-semibold bg-primary/10 text-primary border border-primary/20 hover:bg-primary/20 transition-colors flex items-center gap-1 cursor-pointer"
+          title="What's New in v1.3.0 (Click to view changelog)"
+        >
+          <Sparkles size={10} />
+          <span>v1.3.0</span>
+        </button>
       </div>
     </aside>
   );
@@ -130,8 +143,10 @@ export function Header() {
     { href: "/", name: serviceLabels.dashboard },
     { href: "/ec2", name: serviceLabels.ec2 },
     { href: "/lambda", name: serviceLabels.lambda },
+    { href: "/apigateway", name: serviceLabels.apigateway },
     { href: "/s3", name: serviceLabels.s3 },
     { href: "/dynamodb", name: serviceLabels.dynamodb },
+    { href: "/rds", name: serviceLabels.rds },
     { href: "/sqs", name: serviceLabels.sqs },
     { href: "/logs", name: serviceLabels.logs },
     { href: "/iam", name: serviceLabels.iam },
