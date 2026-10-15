@@ -12,6 +12,13 @@ import {
   DeleteGroupCommand,
   CreatePolicyCommand,
   DeletePolicyCommand,
+  GetLoginProfileCommand,
+  CreateLoginProfileCommand,
+  UpdateLoginProfileCommand,
+  DeleteLoginProfileCommand,
+  ListAccessKeysCommand,
+  CreateAccessKeyCommand,
+  DeleteAccessKeyCommand,
 } from "@aws-sdk/client-iam";
 import { getIAMClient, resolveEndpoint } from "@/lib/floci-client";
 
@@ -69,6 +76,39 @@ export async function GET(request: NextRequest) {
         })) || [];
     }
 
+    if (resource === "credentials") {
+      const userName = searchParams.get("userName");
+      if (!userName) {
+        return NextResponse.json({ success: false, error: "userName is required for credentials" }, { status: 400 });
+      }
+      let hasPassword = false;
+      try {
+        const loginProfile = await client.send(new GetLoginProfileCommand({ UserName: userName }));
+        hasPassword = !!loginProfile.LoginProfile;
+      } catch (e: any) {
+        hasPassword = false;
+      }
+
+      let accessKeys: any[] = [];
+      try {
+        const keysRes = await client.send(new ListAccessKeysCommand({ UserName: userName }));
+        accessKeys =
+          keysRes.AccessKeyMetadata?.map((k) => ({
+            accessKeyId: k.AccessKeyId,
+            status: k.Status,
+            createDate: k.CreateDate,
+          })) || [];
+      } catch (e: any) {
+        accessKeys = [];
+      }
+
+      result.credentials = {
+        userName,
+        hasPassword,
+        accessKeys,
+      };
+    }
+
     return NextResponse.json({
       success: true,
       endpoint: resolveEndpoint(endpoint),
@@ -92,12 +132,50 @@ export async function POST(request: NextRequest) {
     const client = getIAMClient(endpoint);
 
     if (action === "create-user") {
-      const { userName } = body;
+      const { userName, password, createAccessKey } = body;
       if (!userName || !userName.trim()) {
         return NextResponse.json({ success: false, error: "userName is required" }, { status: 400 });
       }
       const res = await client.send(new CreateUserCommand({ UserName: userName.trim() }));
-      return NextResponse.json({ success: true, message: `User '${userName}' created`, data: res.User });
+      let initialKey = null;
+      let passwordCreated = false;
+
+      if (password && password.trim()) {
+        try {
+          await client.send(
+            new CreateLoginProfileCommand({
+              UserName: userName.trim(),
+              Password: password.trim(),
+              PasswordResetRequired: false,
+            })
+          );
+          passwordCreated = true;
+        } catch (e: any) {
+          console.warn("Could not create initial login profile:", e.message);
+        }
+      }
+
+      if (createAccessKey) {
+        try {
+          const keyRes = await client.send(new CreateAccessKeyCommand({ UserName: userName.trim() }));
+          initialKey = {
+            accessKeyId: keyRes.AccessKey?.AccessKeyId,
+            secretAccessKey: keyRes.AccessKey?.SecretAccessKey,
+          };
+        } catch (e: any) {
+          console.warn("Could not create initial access key:", e.message);
+        }
+      }
+
+      return NextResponse.json({
+        success: true,
+        message: `User '${userName}' created`,
+        data: {
+          ...res.User,
+          passwordCreated,
+          initialKey,
+        },
+      });
     }
 
     if (action === "delete-user") {
@@ -105,8 +183,95 @@ export async function POST(request: NextRequest) {
       if (!userName) {
         return NextResponse.json({ success: false, error: "userName is required" }, { status: 400 });
       }
+
+      // 1. Delete login profile if present to avoid DeleteConflict
+      try {
+        await client.send(new DeleteLoginProfileCommand({ UserName: userName }));
+      } catch (e) {
+        // Ignore if no login profile
+      }
+
+      // 2. Delete access keys if present
+      try {
+        const keysRes = await client.send(new ListAccessKeysCommand({ UserName: userName }));
+        for (const k of keysRes.AccessKeyMetadata || []) {
+          if (k.AccessKeyId) {
+            await client.send(new DeleteAccessKeyCommand({ UserName: userName, AccessKeyId: k.AccessKeyId }));
+          }
+        }
+      } catch (e) {
+        // Ignore
+      }
+
       await client.send(new DeleteUserCommand({ UserName: userName }));
       return NextResponse.json({ success: true, message: `User '${userName}' deleted` });
+    }
+
+    if (action === "set-password") {
+      const { userName, password } = body;
+      if (!userName || !password) {
+        return NextResponse.json({ success: false, error: "userName and password are required" }, { status: 400 });
+      }
+
+      try {
+        await client.send(
+          new CreateLoginProfileCommand({
+            UserName: userName,
+            Password: password,
+            PasswordResetRequired: false,
+          })
+        );
+      } catch (err: any) {
+        if (err.name === "EntityAlreadyExistsException" || err.message?.includes("already exists")) {
+          await client.send(
+            new UpdateLoginProfileCommand({
+              UserName: userName,
+              Password: password,
+              PasswordResetRequired: false,
+            })
+          );
+        } else {
+          throw err;
+        }
+      }
+
+      return NextResponse.json({ success: true, message: `Password for '${userName}' set successfully` });
+    }
+
+    if (action === "delete-password") {
+      const { userName } = body;
+      if (!userName) {
+        return NextResponse.json({ success: false, error: "userName is required" }, { status: 400 });
+      }
+      await client.send(new DeleteLoginProfileCommand({ UserName: userName }));
+      return NextResponse.json({ success: true, message: `Password for '${userName}' removed` });
+    }
+
+    if (action === "create-access-key") {
+      const { userName } = body;
+      if (!userName) {
+        return NextResponse.json({ success: false, error: "userName is required" }, { status: 400 });
+      }
+      const res = await client.send(new CreateAccessKeyCommand({ UserName: userName }));
+      return NextResponse.json({
+        success: true,
+        message: `Access key generated for '${userName}'`,
+        accessKey: {
+          accessKeyId: res.AccessKey?.AccessKeyId,
+          secretAccessKey: res.AccessKey?.SecretAccessKey,
+          status: res.AccessKey?.Status,
+          createDate: res.AccessKey?.CreateDate,
+        },
+      });
+    }
+
+    if (action === "delete-access-key") {
+      const { userName, accessKeyId } = body;
+      if (!userName || !accessKeyId) {
+        return NextResponse.json({ success: false, error: "userName and accessKeyId are required" }, { status: 400 });
+      }
+      await client.send(new DeleteAccessKeyCommand({ UserName: userName, AccessKeyId: accessKeyId }));
+      return NextResponse.json({ success: true, message: `Access key '${accessKeyId}' deleted` });
     }
 
     if (action === "create-role") {

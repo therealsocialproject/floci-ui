@@ -15,7 +15,13 @@ interface CloudThemeContextType {
     s3: string;
     iam: string;
     dynamodb: string;
+    sqs: string;
+    lambda: string;
+    logs: string;
+    secrets: string;
     kms: string;
+    rds: string;
+    apigateway: string;
     instances: string;
     buckets: string;
     roles: string;
@@ -35,7 +41,7 @@ const CloudThemeContext = createContext<CloudThemeContextType | undefined>(
 );
 
 export function CloudThemeProvider({ children }: { children: ReactNode }) {
-  const { currentEnvironment, setProvider, toggleProvider } = useEndpoint();
+  const { currentEnvironment, switchProvider } = useEndpoint();
 
   // The active environment's provider strictly dictates the cloud console mode
   const cloudMode: CloudMode =
@@ -44,6 +50,10 @@ export function CloudThemeProvider({ children }: { children: ReactNode }) {
   useEffect(() => {
     document.documentElement.dataset.cloud = cloudMode;
   }, [cloudMode]);
+
+  const toggleCloudMode = () => {
+    switchProvider(cloudMode === "aws" ? "gcp" : "aws");
+  };
 
   const isAws = cloudMode === "aws";
 
@@ -54,7 +64,13 @@ export function CloudThemeProvider({ children }: { children: ReactNode }) {
         s3: "S3",
         iam: "IAM",
         dynamodb: "DynamoDB",
-        kms: "KMS",
+        sqs: "Simple Queue Service (SQS)",
+        lambda: "Lambda",
+        logs: "CloudWatch Logs",
+        secrets: "Secrets Manager",
+        kms: "Key Management Service (KMS)",
+        rds: "Relational Database Service (RDS)",
+        apigateway: "API Gateway",
         instances: "EC2 Instances",
         buckets: "S3 Buckets",
         roles: "IAM Roles & Policies",
@@ -66,7 +82,13 @@ export function CloudThemeProvider({ children }: { children: ReactNode }) {
         s3: "Cloud Storage",
         iam: "IAM & Admin",
         dynamodb: "Datastore / NoSQL",
+        sqs: "Cloud Pub/Sub",
+        lambda: "Cloud Functions",
+        logs: "Cloud Logging",
+        secrets: "Secret Manager",
         kms: "Cloud KMS",
+        rds: "Cloud SQL",
+        apigateway: "API Gateway / Endpoints",
         instances: "VM Instances",
         buckets: "Storage Buckets",
         roles: "Service Accounts & Roles",
@@ -93,8 +115,8 @@ export function CloudThemeProvider({ children }: { children: ReactNode }) {
     <CloudThemeContext.Provider
       value={{
         cloudMode,
-        setCloudMode: setProvider,
-        toggleCloudMode: toggleProvider,
+        setCloudMode: switchProvider,
+        toggleCloudMode,
         serviceLabels,
         branding,
       }}

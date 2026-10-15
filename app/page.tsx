@@ -12,6 +12,12 @@ import {
   Activity,
   Search,
   CheckCircle2,
+  MessageSquare,
+  Zap,
+  FileText,
+  KeyRound,
+  ShieldCheck,
+  Network,
 } from "lucide-react";
 import { useEndpoint } from "@/components/EndpointProvider";
 import { useCloudTheme } from "@/components/CloudThemeContext";
@@ -28,6 +34,13 @@ export default function DashboardPage() {
     iamPolicies: 0,
     iamTotal: 0,
     dynamodb: 0,
+    sqs: 0,
+    lambda: 0,
+    logs: 0,
+    secrets: 0,
+    kms: 0,
+    rds: 0,
+    apigateway: 0,
   });
   const [isLoadingCounts, setIsLoadingCounts] = useState(true);
 
@@ -42,19 +55,18 @@ export default function DashboardPage() {
     const fetchCounts = async () => {
       setIsLoadingCounts(true);
       try {
-        const [ec2Res, s3Res, iamRes, ddbRes] = await Promise.allSettled([
-          fetch(`/api/floci/ec2?endpoint=${encodeURIComponent(endpoint)}`).then(
-            (r) => r.json(),
-          ),
-          fetch(`/api/floci/s3?endpoint=${encodeURIComponent(endpoint)}`).then(
-            (r) => r.json(),
-          ),
-          fetch(`/api/floci/iam?endpoint=${encodeURIComponent(endpoint)}`).then(
-            (r) => r.json(),
-          ),
-          fetch(
-            `/api/floci/dynamodb?endpoint=${encodeURIComponent(endpoint)}`,
-          ).then((r) => r.json()),
+        const [ec2Res, s3Res, iamRes, ddbRes, sqsRes, lambdaRes, logsRes, secRes, kmsRes, rdsRes, apigwRes] = await Promise.allSettled([
+          fetch(`/api/floci/ec2?endpoint=${encodeURIComponent(endpoint)}`).then((r) => r.json()),
+          fetch(`/api/floci/s3?endpoint=${encodeURIComponent(endpoint)}`).then((r) => r.json()),
+          fetch(`/api/floci/iam?endpoint=${encodeURIComponent(endpoint)}`).then((r) => r.json()),
+          fetch(`/api/floci/dynamodb?endpoint=${encodeURIComponent(endpoint)}`).then((r) => r.json()),
+          fetch(`/api/floci/sqs?endpoint=${encodeURIComponent(endpoint)}`).then((r) => r.json()),
+          fetch(`/api/floci/lambda?endpoint=${encodeURIComponent(endpoint)}`).then((r) => r.json()),
+          fetch(`/api/floci/logs?endpoint=${encodeURIComponent(endpoint)}`).then((r) => r.json()),
+          fetch(`/api/floci/secrets?endpoint=${encodeURIComponent(endpoint)}`).then((r) => r.json()),
+          fetch(`/api/floci/kms?endpoint=${encodeURIComponent(endpoint)}`).then((r) => r.json()),
+          fetch(`/api/floci/rds?endpoint=${encodeURIComponent(endpoint)}`).then((r) => r.json()),
+          fetch(`/api/floci/apigateway?endpoint=${encodeURIComponent(endpoint)}`).then((r) => r.json()),
         ]);
 
         const rolesCount =
@@ -72,22 +84,20 @@ export default function DashboardPage() {
         const totalIdentities = rolesCount + usersCount;
 
         setCounts({
-          ec2:
-            ec2Res.status === "fulfilled" && ec2Res.value?.success
-              ? ec2Res.value.count
-              : 0,
-          s3:
-            s3Res.status === "fulfilled" && s3Res.value?.success
-              ? s3Res.value.count
-              : 0,
+          ec2: ec2Res.status === "fulfilled" && ec2Res.value?.success ? ec2Res.value.count : 0,
+          s3: s3Res.status === "fulfilled" && s3Res.value?.success ? s3Res.value.count : 0,
           iamRoles: rolesCount,
           iamUsers: usersCount,
           iamPolicies: policiesCount,
           iamTotal: totalIdentities > 0 ? totalIdentities : policiesCount,
-          dynamodb:
-            ddbRes.status === "fulfilled" && ddbRes.value?.success
-              ? ddbRes.value.count
-              : 0,
+          dynamodb: ddbRes.status === "fulfilled" && ddbRes.value?.success ? ddbRes.value.count : 0,
+          sqs: sqsRes.status === "fulfilled" && sqsRes.value?.queues ? sqsRes.value.queues.length : 0,
+          lambda: lambdaRes.status === "fulfilled" && lambdaRes.value?.functions ? lambdaRes.value.functions.length : 0,
+          logs: logsRes.status === "fulfilled" && logsRes.value?.logGroups ? logsRes.value.logGroups.length : 0,
+          secrets: secRes.status === "fulfilled" && secRes.value?.secrets ? secRes.value.secrets.length : 0,
+          kms: kmsRes.status === "fulfilled" && kmsRes.value?.keys ? kmsRes.value.keys.length : 0,
+          rds: rdsRes.status === "fulfilled" && rdsRes.value?.count !== undefined ? rdsRes.value.count : 0,
+          apigateway: apigwRes.status === "fulfilled" && apigwRes.value?.count !== undefined ? apigwRes.value.count : 0,
         });
       } catch (e) {
         console.error("Failed to load counts", e);
@@ -118,12 +128,60 @@ export default function DashboardPage() {
       category: "Compute",
     },
     {
+      href: "/lambda",
+      name: serviceLabels.lambda,
+      label: "Functions",
+      count: counts.lambda,
+      icon: Zap,
+      category: "Compute",
+    },
+    {
+      href: "/apigateway",
+      name: serviceLabels.apigateway,
+      label: "APIs",
+      count: counts.apigateway,
+      icon: Network,
+      category: "Networking",
+    },
+    {
       href: "/s3",
       name: serviceLabels.s3,
       label: "Buckets",
       count: counts.s3,
       icon: FolderLock,
       category: "Storage",
+    },
+    {
+      href: "/dynamodb",
+      name: serviceLabels.dynamodb,
+      label: isAws ? "Tables" : "Entities",
+      count: counts.dynamodb,
+      icon: Database,
+      category: "Database",
+    },
+    {
+      href: "/rds",
+      name: serviceLabels.rds,
+      label: isAws ? "Databases" : "Cloud SQL",
+      count: counts.rds,
+      icon: Database,
+      category: "Database",
+    },
+    {
+      href: "/sqs",
+      name: serviceLabels.sqs,
+      label: "Queues",
+      count: counts.sqs,
+      icon: MessageSquare,
+      category: "Messaging",
+    },
+    {
+      href: "/logs",
+      name: serviceLabels.logs,
+      label: "Log Groups",
+      count: counts.logs,
+      icon: FileText,
+      category: "Observability",
     },
     {
       href: "/iam",
@@ -134,12 +192,20 @@ export default function DashboardPage() {
       category: "Security",
     },
     {
-      href: "/dynamodb",
-      name: serviceLabels.dynamodb,
-      label: isAws ? "Tables" : "Entities",
-      count: counts.dynamodb,
-      icon: Database,
-      category: "Database",
+      href: "/secrets",
+      name: serviceLabels.secrets,
+      label: "Secrets",
+      count: counts.secrets,
+      icon: KeyRound,
+      category: "Security",
+    },
+    {
+      href: "/kms",
+      name: serviceLabels.kms,
+      label: "Keys",
+      count: counts.kms,
+      icon: ShieldCheck,
+      category: "Security",
     },
   ];
   const routes: Record<string, string> = {
@@ -147,6 +213,15 @@ export default function DashboardPage() {
     s3: "/s3",
     iam: "/iam",
     dynamodb: "/dynamodb",
+    sqs: "/sqs",
+    lambda: "/lambda",
+    logs: "/logs",
+    secretsmanager: "/secrets",
+    kms: "/kms",
+    rds: "/rds",
+    docdb: "/rds",
+    apigateway: "/apigateway",
+    apigatewayv2: "/apigateway",
   };
   const runningCount = serviceEntries.filter(
     ([, status]) => status === "running" || status === "available",
