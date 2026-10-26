@@ -1,6 +1,6 @@
 # Floci Web UI (`floci-ui`)
 
-[![Release](https://img.shields.io/badge/version-v1.3.0-blue.svg)](https://github.com/therealsocialproject/floci-ui/releases)
+[![Release](https://img.shields.io/badge/version-v1.4.0-blue.svg)](https://github.com/therealsocialproject/floci-ui/releases)
 [![License: MIT](https://img.shields.io/badge/License-MIT-green.svg)](https://opensource.org/licenses/MIT)
 [![Container Image](https://img.shields.io/badge/ghcr.io-therealsocialproject%2Ffloci--ui-blue?logo=docker)](https://github.com/therealsocialproject/floci-ui/pkgs/container/floci-ui)
 
@@ -71,17 +71,27 @@ Learn more about Floci at [floci.io](https://floci.io) or explore the [Floci Git
 * **Create and delete tables** with custom partition and sort key configurations.
 * **Insert JSON items** and **delete individual records** directly from the UI.
 
-### 9. Message Queues (`/sqs`)
+### 9. Notification Service & Pub/Sub (`/sns`)
+* **Topic Management**: Create Standard or FIFO topics, view topic ARNs, and manage topic attributes.
+* **Subscriptions**: Subscribe endpoints (SQS queues, Lambda functions, Email addresses, HTTP/S webhooks) directly to topics.
+* **Interactive Message Publisher**: Dispatch test messages with custom subjects, JSON payloads, and FIFO group/deduplication IDs.
+
+### 10. Systems Manager Parameter Store (`/ssm`)
+* **Hierarchical Parameter Storage**: Manage parameters organized in path hierarchies (`/app/environment/key`).
+* **Multi-Type Support**: Seamlessly create and edit `String`, `StringList`, and encrypted `SecureString` parameters.
+* **Security & Transparency**: Mask/reveal secret parameter values on demand, 1-click clipboard copying, and inspect full version histories (`v1`, `v2`, etc.).
+
+### 11. Message Queues (`/sqs`)
 * Browse standard and FIFO message queues, queue URLs, and approximate message counters.
 * **Queue Operations**: Create standard or FIFO queues, purge queues, and delete queues.
 * **Message Testing**: Send messages with custom delay seconds and message bodies directly from the console.
 
-### 10. Observability & Log Groups (`/logs`)
+### 12. Observability & Log Groups (`/logs`)
 * Browse CloudWatch Log Groups, retention policies, and stored byte counts.
 * **Stream & Event Explorer**: Inspect log streams and drill down into individual log events with search filters and timestamps.
 * Create and delete log groups.
 
-### 11. Security & Identity (`/iam`)
+### 13. Security & Identity (`/iam`)
 * Inspect Roles, Service Accounts, Users, Groups, and Managed Policies.
 * **User Security Credentials Management**:
   * Set, update, or remove console login passwords using Floci's `CreateLoginProfile` and `ChangePassword` APIs.
@@ -89,16 +99,16 @@ Learn more about Floci at [floci.io](https://floci.io) or explore the [Floci Git
   * Conflict-free user deletion with automated cascade cleanup of login profiles and access keys.
 * **Role & Policy Management**: Create and delete Roles with custom trust policies, Users, Groups, and Policies.
 
-### 12. Secrets Manager (`/secrets`)
+### 14. Secrets Manager (`/secrets`)
 * Browse stored application secrets, secret types, and ARNs.
 * **Secret Values**: Securely view and toggle visibility for secret strings (plaintext or JSON).
 * Create and delete secrets.
 
-### 13. Key Management Service (`/kms`)
+### 15. Key Management Service (`/kms`)
 * Browse Customer Managed Keys and AWS Managed Keys, aliases, key states (`Enabled`/`Disabled`), and key specs.
 * **Key Lifecycle Operations**: Create symmetric encryption keys, toggle key enabled/disabled status, and inspect key ARNs.
 
-### 14. Universal Resource Drawer (`ResourceDrawer`)
+### 16. Universal Resource Drawer (`ResourceDrawer`)
 * Consistent slide-out drawer accessible on every resource across all services.
 * Multiple view modes: **JSON Tree**, **Formatted Properties Table**, and **Raw Text** with one-click clipboard copying.
 

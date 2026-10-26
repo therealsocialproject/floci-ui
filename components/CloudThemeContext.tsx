@@ -22,6 +22,8 @@ interface CloudThemeContextType {
     kms: string;
     rds: string;
     apigateway: string;
+    sns: string;
+    ssm: string;
     instances: string;
     buckets: string;
     roles: string;
@@ -71,6 +73,8 @@ export function CloudThemeProvider({ children }: { children: ReactNode }) {
         kms: "Key Management Service (KMS)",
         rds: "Relational Database Service (RDS)",
         apigateway: "API Gateway",
+        sns: "Simple Notification Service (SNS)",
+        ssm: "Systems Manager Parameter Store",
         instances: "EC2 Instances",
         buckets: "S3 Buckets",
         roles: "IAM Roles & Policies",
@@ -89,6 +93,8 @@ export function CloudThemeProvider({ children }: { children: ReactNode }) {
         kms: "Cloud KMS",
         rds: "Cloud SQL",
         apigateway: "API Gateway / Endpoints",
+        sns: "Pub/Sub Topics",
+        ssm: "Runtime Config & Parameters",
         instances: "VM Instances",
         buckets: "Storage Buckets",
         roles: "Service Accounts & Roles",

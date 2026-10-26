@@ -10,6 +10,8 @@ import { SecretsManagerClient } from "@aws-sdk/client-secrets-manager";
 import { RDSClient } from "@aws-sdk/client-rds";
 import { APIGatewayClient } from "@aws-sdk/client-api-gateway";
 import { ApiGatewayV2Client } from "@aws-sdk/client-apigatewayv2";
+import { SNSClient } from "@aws-sdk/client-sns";
+import { SSMClient } from "@aws-sdk/client-ssm";
 
 import { normalizeEndpointUrl } from "./endpoint-utils";
 
@@ -118,6 +120,22 @@ export function getAPIGatewayClient(endpoint?: string): APIGatewayClient {
 
 export function getAPIGatewayV2Client(endpoint?: string): ApiGatewayV2Client {
   return new ApiGatewayV2Client({
+    endpoint: resolveEndpoint(endpoint),
+    region: "us-east-1",
+    credentials: mockCredentials,
+  });
+}
+
+export function getSNSClient(endpoint?: string): SNSClient {
+  return new SNSClient({
+    endpoint: resolveEndpoint(endpoint),
+    region: "us-east-1",
+    credentials: mockCredentials,
+  });
+}
+
+export function getSSMClient(endpoint?: string): SSMClient {
+  return new SSMClient({
     endpoint: resolveEndpoint(endpoint),
     region: "us-east-1",
     credentials: mockCredentials,

@@ -27,6 +27,8 @@ import {
   KeyRound,
   ShieldCheck,
   Network,
+  Radio,
+  SlidersHorizontal,
   Sparkles,
 } from "lucide-react";
 import { useEndpoint } from "./EndpointProvider";
@@ -48,7 +50,9 @@ export function Sidebar() {
     { name: serviceLabels.s3, href: "/s3", icon: FolderLock },
     { name: serviceLabels.dynamodb, href: "/dynamodb", icon: Database },
     { name: serviceLabels.rds, href: "/rds", icon: Database },
+    { name: serviceLabels.sns, href: "/sns", icon: Radio },
     { name: serviceLabels.sqs, href: "/sqs", icon: MessageSquare },
+    { name: serviceLabels.ssm, href: "/ssm", icon: SlidersHorizontal },
     { name: serviceLabels.logs, href: "/logs", icon: FileText },
     { name: serviceLabels.iam, href: "/iam", icon: Users },
     { name: serviceLabels.secrets, href: "/secrets", icon: KeyRound },
@@ -147,7 +151,9 @@ export function Header() {
     { href: "/s3", name: serviceLabels.s3 },
     { href: "/dynamodb", name: serviceLabels.dynamodb },
     { href: "/rds", name: serviceLabels.rds },
+    { href: "/sns", name: serviceLabels.sns },
     { href: "/sqs", name: serviceLabels.sqs },
+    { href: "/ssm", name: serviceLabels.ssm },
     { href: "/logs", name: serviceLabels.logs },
     { href: "/iam", name: serviceLabels.iam },
     { href: "/secrets", name: serviceLabels.secrets },

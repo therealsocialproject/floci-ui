@@ -16,10 +16,12 @@ import {
   Info,
   Layers,
   ArrowUpCircle,
+  Radio,
+  SlidersHorizontal,
 } from "lucide-react";
 import { useEndpoint } from "./EndpointProvider";
 
-export const CURRENT_UI_VERSION = "1.3.0";
+export const CURRENT_UI_VERSION = "1.4.0";
 export const LATEST_FLOCI_BACKEND_VERSION = "2.3.0";
 
 export function openUiChangelog() {
@@ -126,7 +128,7 @@ export function ReleaseAnnouncementModal() {
                     Floci Web UI Has Been Upgraded!
                   </h2>
                   <p className="text-xs text-muted">
-                    We've added native database consoles, in-browser API testing tools, and expanded IAM credential security.
+                    We've added native consoles for SNS Pub/Sub messaging and Systems Manager (SSM) Parameter Store, plus integrated version tracking.
                   </p>
                 </div>
                 <button
@@ -140,38 +142,56 @@ export function ReleaseAnnouncementModal() {
 
               {/* Feature Highlights Grid */}
               <div className="space-y-3.5">
-                {/* RDS Console */}
+                {/* SNS Pub/Sub Console */}
+                <div className="p-4 rounded-panel bg-subtle border border-line flex items-start gap-3.5">
+                  <div className="p-2 rounded-lg bg-amber-500/10 border border-amber-500/20 text-amber-400 shrink-0">
+                    <Radio className="w-5 h-5" />
+                  </div>
+                  <div className="space-y-1">
+                    <div className="flex items-center gap-2">
+                      <span className="text-xs font-bold text-ink">Simple Notification Service (SNS)</span>
+                      <span className="px-1.5 py-0.2 rounded text-[9px] font-semibold bg-amber-500/10 text-amber-400 border border-amber-500/20">
+                        New Service
+                      </span>
+                    </div>
+                    <p className="text-xs text-muted leading-relaxed">
+                      Create Standard and FIFO pub/sub topics, configure cross-service subscriptions (SQS, Lambda, Email, HTTP/S), and publish test events with subject headers, group IDs, and JSON payloads.
+                    </p>
+                  </div>
+                </div>
+
+                {/* SSM Parameter Store */}
+                <div className="p-4 rounded-panel bg-subtle border border-line flex items-start gap-3.5">
+                  <div className="p-2 rounded-lg bg-emerald-500/10 border border-emerald-500/20 text-emerald-400 shrink-0">
+                    <SlidersHorizontal className="w-5 h-5" />
+                  </div>
+                  <div className="space-y-1">
+                    <div className="flex items-center gap-2">
+                      <span className="text-xs font-bold text-ink">Systems Manager (SSM) Parameter Store</span>
+                      <span className="px-1.5 py-0.2 rounded text-[9px] font-semibold bg-emerald-500/10 text-emerald-400 border border-emerald-500/20">
+                        New Service
+                      </span>
+                    </div>
+                    <p className="text-xs text-muted leading-relaxed">
+                      Hierarchical configuration management supporting <code>String</code>, <code>StringList</code>, and <code>SecureString</code>. Inspect version history, toggle secret masking, and create or update parameters dynamically.
+                    </p>
+                  </div>
+                </div>
+
+                {/* RDS & API Gateway Console */}
                 <div className="p-4 rounded-panel bg-subtle border border-line flex items-start gap-3.5">
                   <div className="p-2 rounded-lg bg-blue-500/10 border border-blue-500/20 text-blue-400 shrink-0">
                     <Database className="w-5 h-5" />
                   </div>
                   <div className="space-y-1">
                     <div className="flex items-center gap-2">
-                      <span className="text-xs font-bold text-ink">RDS & DocumentDB Console</span>
+                      <span className="text-xs font-bold text-ink">RDS Databases & API Gateway Explorer</span>
                       <span className="px-1.5 py-0.2 rounded text-[9px] font-semibold bg-blue-500/10 text-blue-400 border border-blue-500/20">
-                        New Service
+                        Included
                       </span>
                     </div>
                     <p className="text-xs text-muted leading-relaxed">
-                      Multi-tab database management for <strong>DB Instances</strong>, <strong>Aurora & DocDB Clusters</strong>, and <strong>Snapshots</strong>. Create PostgreSQL, MySQL, and MariaDB instances, trigger reboots, capture snapshots, and delete instances directly from the console.
-                    </p>
-                  </div>
-                </div>
-
-                {/* API Gateway Explorer */}
-                <div className="p-4 rounded-panel bg-subtle border border-line flex items-start gap-3.5">
-                  <div className="p-2 rounded-lg bg-emerald-500/10 border border-emerald-500/20 text-emerald-400 shrink-0">
-                    <Network className="w-5 h-5" />
-                  </div>
-                  <div className="space-y-1">
-                    <div className="flex items-center gap-2">
-                      <span className="text-xs font-bold text-ink">API Gateway & Request Tester</span>
-                      <span className="px-1.5 py-0.2 rounded text-[9px] font-semibold bg-emerald-500/10 text-emerald-400 border border-emerald-500/20">
-                        New Explorer
-                      </span>
-                    </div>
-                    <p className="text-xs text-muted leading-relaxed">
-                      Unified support for <strong>REST APIs (v1)</strong> and <strong>HTTP APIs (v2)</strong>. Includes an integrated in-browser tester with method selectors (GET, POST, PUT, DELETE), custom stages, headers, JSON body payloads, and live response telemetry.
+                      Multi-tab database management for DB instances, clusters, and snapshots, plus unified REST & HTTP API Explorer with live in-browser testing.
                     </p>
                   </div>
                 </div>

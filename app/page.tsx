@@ -18,6 +18,8 @@ import {
   KeyRound,
   ShieldCheck,
   Network,
+  Radio,
+  SlidersHorizontal,
 } from "lucide-react";
 import { useEndpoint } from "@/components/EndpointProvider";
 import { useCloudTheme } from "@/components/CloudThemeContext";
@@ -41,6 +43,8 @@ export default function DashboardPage() {
     kms: 0,
     rds: 0,
     apigateway: 0,
+    sns: 0,
+    ssm: 0,
   });
   const [isLoadingCounts, setIsLoadingCounts] = useState(true);
 
@@ -55,7 +59,7 @@ export default function DashboardPage() {
     const fetchCounts = async () => {
       setIsLoadingCounts(true);
       try {
-        const [ec2Res, s3Res, iamRes, ddbRes, sqsRes, lambdaRes, logsRes, secRes, kmsRes, rdsRes, apigwRes] = await Promise.allSettled([
+        const [ec2Res, s3Res, iamRes, ddbRes, sqsRes, lambdaRes, logsRes, secRes, kmsRes, rdsRes, apigwRes, snsRes, ssmRes] = await Promise.allSettled([
           fetch(`/api/floci/ec2?endpoint=${encodeURIComponent(endpoint)}`).then((r) => r.json()),
           fetch(`/api/floci/s3?endpoint=${encodeURIComponent(endpoint)}`).then((r) => r.json()),
           fetch(`/api/floci/iam?endpoint=${encodeURIComponent(endpoint)}`).then((r) => r.json()),
@@ -67,6 +71,8 @@ export default function DashboardPage() {
           fetch(`/api/floci/kms?endpoint=${encodeURIComponent(endpoint)}`).then((r) => r.json()),
           fetch(`/api/floci/rds?endpoint=${encodeURIComponent(endpoint)}`).then((r) => r.json()),
           fetch(`/api/floci/apigateway?endpoint=${encodeURIComponent(endpoint)}`).then((r) => r.json()),
+          fetch(`/api/floci/sns?endpoint=${encodeURIComponent(endpoint)}`).then((r) => r.json()),
+          fetch(`/api/floci/ssm?endpoint=${encodeURIComponent(endpoint)}`).then((r) => r.json()),
         ]);
 
         const rolesCount =
@@ -98,6 +104,8 @@ export default function DashboardPage() {
           kms: kmsRes.status === "fulfilled" && kmsRes.value?.keys ? kmsRes.value.keys.length : 0,
           rds: rdsRes.status === "fulfilled" && rdsRes.value?.count !== undefined ? rdsRes.value.count : 0,
           apigateway: apigwRes.status === "fulfilled" && apigwRes.value?.count !== undefined ? apigwRes.value.count : 0,
+          sns: snsRes.status === "fulfilled" && snsRes.value?.topics ? snsRes.value.topics.length : 0,
+          ssm: ssmRes.status === "fulfilled" && ssmRes.value?.parameters ? ssmRes.value.parameters.length : 0,
         });
       } catch (e) {
         console.error("Failed to load counts", e);
@@ -168,12 +176,28 @@ export default function DashboardPage() {
       category: "Database",
     },
     {
+      href: "/sns",
+      name: serviceLabels.sns,
+      label: isAws ? "Topics" : "Topics",
+      count: counts.sns,
+      icon: Radio,
+      category: "Messaging",
+    },
+    {
       href: "/sqs",
       name: serviceLabels.sqs,
       label: "Queues",
       count: counts.sqs,
       icon: MessageSquare,
       category: "Messaging",
+    },
+    {
+      href: "/ssm",
+      name: serviceLabels.ssm,
+      label: "Parameters",
+      count: counts.ssm,
+      icon: SlidersHorizontal,
+      category: "Management",
     },
     {
       href: "/logs",
@@ -220,6 +244,8 @@ export default function DashboardPage() {
     kms: "/kms",
     rds: "/rds",
     docdb: "/rds",
+    sns: "/sns",
+    ssm: "/ssm",
     apigateway: "/apigateway",
     apigatewayv2: "/apigateway",
   };
