@@ -24,6 +24,7 @@ interface CloudThemeContextType {
     apigateway: string;
     sns: string;
     ssm: string;
+    cloudformation: string;
     instances: string;
     buckets: string;
     roles: string;
@@ -75,6 +76,7 @@ export function CloudThemeProvider({ children }: { children: ReactNode }) {
         apigateway: "API Gateway",
         sns: "Simple Notification Service (SNS)",
         ssm: "Systems Manager Parameter Store",
+        cloudformation: "CloudFormation Stacks",
         instances: "EC2 Instances",
         buckets: "S3 Buckets",
         roles: "IAM Roles & Policies",
@@ -95,6 +97,7 @@ export function CloudThemeProvider({ children }: { children: ReactNode }) {
         apigateway: "API Gateway / Endpoints",
         sns: "Pub/Sub Topics",
         ssm: "Runtime Config & Parameters",
+        cloudformation: "Cloud Deployment Manager",
         instances: "VM Instances",
         buckets: "Storage Buckets",
         roles: "Service Accounts & Roles",

@@ -12,6 +12,7 @@ import { APIGatewayClient } from "@aws-sdk/client-api-gateway";
 import { ApiGatewayV2Client } from "@aws-sdk/client-apigatewayv2";
 import { SNSClient } from "@aws-sdk/client-sns";
 import { SSMClient } from "@aws-sdk/client-ssm";
+import { CloudFormationClient } from "@aws-sdk/client-cloudformation";
 
 import { normalizeEndpointUrl } from "./endpoint-utils";
 
@@ -136,6 +137,14 @@ export function getSNSClient(endpoint?: string): SNSClient {
 
 export function getSSMClient(endpoint?: string): SSMClient {
   return new SSMClient({
+    endpoint: resolveEndpoint(endpoint),
+    region: "us-east-1",
+    credentials: mockCredentials,
+  });
+}
+
+export function getCloudFormationClient(endpoint?: string): CloudFormationClient {
+  return new CloudFormationClient({
     endpoint: resolveEndpoint(endpoint),
     region: "us-east-1",
     credentials: mockCredentials,

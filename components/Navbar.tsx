@@ -57,6 +57,7 @@ export function Sidebar() {
     { name: serviceLabels.iam, href: "/iam", icon: Users },
     { name: serviceLabels.secrets, href: "/secrets", icon: KeyRound },
     { name: serviceLabels.kms, href: "/kms", icon: ShieldCheck },
+    { name: serviceLabels.cloudformation, href: "/cloudformation", icon: Boxes },
   ];
 
   return (
@@ -106,10 +107,10 @@ export function Sidebar() {
           type="button"
           onClick={openUiChangelog}
           className="px-1.5 py-0.5 rounded text-[10px] font-semibold bg-primary/10 text-primary border border-primary/20 hover:bg-primary/20 transition-colors flex items-center gap-1 cursor-pointer"
-          title="What's New in v1.3.0 (Click to view changelog)"
+          title="What's New in v1.5.0 (Click to view changelog)"
         >
           <Sparkles size={10} />
-          <span>v1.3.0</span>
+          <span>v1.5.0</span>
         </button>
       </div>
     </aside>
@@ -158,6 +159,7 @@ export function Header() {
     { href: "/iam", name: serviceLabels.iam },
     { href: "/secrets", name: serviceLabels.secrets },
     { href: "/kms", name: serviceLabels.kms },
+    { href: "/cloudformation", name: serviceLabels.cloudformation },
   ].filter((item) =>
     item.name.toLowerCase().includes(serviceSearch.toLowerCase()),
   );

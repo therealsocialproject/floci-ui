@@ -18,11 +18,12 @@ import {
   ArrowUpCircle,
   Radio,
   SlidersHorizontal,
+  Server,
 } from "lucide-react";
 import { useEndpoint } from "./EndpointProvider";
 
-export const CURRENT_UI_VERSION = "1.4.0";
-export const LATEST_FLOCI_BACKEND_VERSION = "2.3.0";
+export const CURRENT_UI_VERSION = "1.5.0";
+export const LATEST_FLOCI_BACKEND_VERSION = "2.4.0";
 
 export function openUiChangelog() {
   if (typeof window !== "undefined") {
@@ -142,20 +143,38 @@ export function ReleaseAnnouncementModal() {
 
               {/* Feature Highlights Grid */}
               <div className="space-y-3.5">
-                {/* SNS Pub/Sub Console */}
+                {/* CloudFormation Stacks */}
                 <div className="p-4 rounded-panel bg-subtle border border-line flex items-start gap-3.5">
                   <div className="p-2 rounded-lg bg-amber-500/10 border border-amber-500/20 text-amber-400 shrink-0">
-                    <Radio className="w-5 h-5" />
+                    <Layers className="w-5 h-5" />
                   </div>
                   <div className="space-y-1">
                     <div className="flex items-center gap-2">
-                      <span className="text-xs font-bold text-ink">Simple Notification Service (SNS)</span>
+                      <span className="text-xs font-bold text-ink">CloudFormation Infrastructure Stacks</span>
                       <span className="px-1.5 py-0.2 rounded text-[9px] font-semibold bg-amber-500/10 text-amber-400 border border-amber-500/20">
                         New Service
                       </span>
                     </div>
                     <p className="text-xs text-muted leading-relaxed">
-                      Create Standard and FIFO pub/sub topics, configure cross-service subscriptions (SQS, Lambda, Email, HTTP/S), and publish test events with subject headers, group IDs, and JSON payloads.
+                      Deploy and orchestrate cloud resources with YAML/JSON templates powered by Floci v2.4's decentralized engine. Track provisioned resources, live stack events, and parameters.
+                    </p>
+                  </div>
+                </div>
+
+                {/* EC2 Cloud Features & Web Console */}
+                <div className="p-4 rounded-panel bg-subtle border border-line flex items-start gap-3.5">
+                  <div className="p-2 rounded-lg bg-blue-500/10 border border-blue-500/20 text-blue-400 shrink-0">
+                    <Server className="w-5 h-5" />
+                  </div>
+                  <div className="space-y-1">
+                    <div className="flex items-center gap-2">
+                      <span className="text-xs font-bold text-ink">EC2 Cloud Console, Firewall & Resizing</span>
+                      <span className="px-1.5 py-0.2 rounded text-[9px] font-semibold bg-blue-500/10 text-blue-400 border border-blue-500/20">
+                        Enhanced
+                      </span>
+                    </div>
+                    <p className="text-xs text-muted leading-relaxed">
+                      Interactive web SSH console, live security group firewall rule editor with quick presets, instant VM instance type resizing, AMI snapshots, and EBS volumes.
                     </p>
                   </div>
                 </div>
@@ -169,11 +188,11 @@ export function ReleaseAnnouncementModal() {
                     <div className="flex items-center gap-2">
                       <span className="text-xs font-bold text-ink">Systems Manager (SSM) Parameter Store</span>
                       <span className="px-1.5 py-0.2 rounded text-[9px] font-semibold bg-emerald-500/10 text-emerald-400 border border-emerald-500/20">
-                        New Service
+                        Included
                       </span>
                     </div>
                     <p className="text-xs text-muted leading-relaxed">
-                      Hierarchical configuration management supporting <code>String</code>, <code>StringList</code>, and <code>SecureString</code>. Inspect version history, toggle secret masking, and create or update parameters dynamically.
+                      Hierarchical configuration management supporting <code>String</code>, <code>StringList</code>, and <code>SecureString</code> with version history and secret masking.
                     </p>
                   </div>
                 </div>
@@ -344,30 +363,30 @@ export function ReleaseAnnouncementModal() {
 
               <div className="space-y-3 text-xs">
                 <div className="p-3 bg-subtle rounded-panel border border-line space-y-1">
-                  <span className="font-bold text-ink">IAM Enhancements</span>
+                  <span className="font-bold text-ink">CloudFormation Engine v2.4</span>
                   <p className="text-muted text-[11px]">
-                    Added <code>ChangePassword</code> API emulation for console users, account properties & aliases, and request context condition variable resolution.
+                    Major decentralization and template engine upgrade supporting 163+ resource types: <code>AWS::EC2::PrefixList</code>, <code>AWS::WAFv2::IPSet</code>, Route53 RecordSetGroup, and RDS associated roles.
                   </p>
                 </div>
 
                 <div className="p-3 bg-subtle rounded-panel border border-line space-y-1">
-                  <span className="font-bold text-ink">API Gateway (v1 & v2)</span>
+                  <span className="font-bold text-ink">CloudWatch Alarms & Monitoring</span>
                   <p className="text-muted text-[11px]">
-                    Stricter model validation, standardized payload transformations, stage variable forwarding to Lambda, and multi-value header normalization.
+                    Recorded alarm history and served <code>DescribeAlarmHistory</code>, composite alarm lifecycle management, and metric state evaluation.
                   </p>
                 </div>
 
                 <div className="p-3 bg-subtle rounded-panel border border-line space-y-1">
-                  <span className="font-bold text-ink">RDS & Database Emulation</span>
+                  <span className="font-bold text-ink">AWS Backup & Storage Enhancements</span>
                   <p className="text-muted text-[11px]">
-                    Added IAM role associations (<code>AddRoleToDBInstance</code>), engine version verification, Redshift Spectrum queries, and snapshot scheduling.
+                    Added <code>CreateLogicallyAirGappedBackupVault</code>, DynamoDB PITR / table backup restore parity, and S3 Vectors resources.
                   </p>
                 </div>
 
                 <div className="p-3 bg-subtle rounded-panel border border-line space-y-1">
-                  <span className="font-bold text-ink">S3 & Lambda Parity</span>
+                  <span className="font-bold text-ink">API Gateway v2 & CloudFront</span>
                   <p className="text-muted text-[11px]">
-                    Added <code>partNumber</code> parameter support for multipart object retrieval, durable function invokes, and async queue reliability.
+                    VPC link integrations routed directly to Cloud Map service instances, signed Lambda function URLs under OAC, and execute-api custom origin handling.
                   </p>
                 </div>
               </div>
