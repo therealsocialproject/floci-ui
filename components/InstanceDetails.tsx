@@ -5,24 +5,48 @@ import { X, Terminal, HardDrive, Shield } from "lucide-react";
 
 type Props = {
   instance: any;
-  isAws: boolean;
+  isAws?: boolean;
+  cloudMode?: string;
   onClose: () => void;
   onConnect: () => void;
   onSecurityGroup: (group: any) => void;
   onVolumes: () => void;
 };
 
-export function InstanceDetails({ instance, isAws, onClose, onConnect, onSecurityGroup, onVolumes }: Props) {
+export function InstanceDetails({ instance, isAws = true, cloudMode, onClose, onConnect, onSecurityGroup, onVolumes }: Props) {
+  const mode = cloudMode || (isAws ? "aws" : "gcp");
   const [tab, setTab] = useState("Description");
   const tabs = ["Description", "Security", "Networking", "Storage", "Tags"];
+
+  const instanceTypeLabel =
+    mode === "azure" ? "VM size" : mode === "oci" ? "Shape" : mode === "gcp" ? "Machine type" : "Instance type";
+  const imageIdLabel =
+    mode === "azure" ? "OS Image" : mode === "oci" ? "Image OCID" : mode === "gcp" ? "Image ID" : "AMI ID";
+  const networkGroupLabel =
+    mode === "azure"
+      ? "Network security groups (NSG)"
+      : mode === "oci"
+        ? "Security lists / NSG"
+        : mode === "gcp"
+          ? "Firewall rules"
+          : "Security groups";
+  const storageLabel =
+    mode === "azure"
+      ? "Manage disks"
+      : mode === "oci"
+        ? "Manage block volumes"
+        : mode === "gcp"
+          ? "Manage disks"
+          : "Manage volumes";
+
   const fields: Record<string, Array<[string, unknown]>> = {
     Description: [
       ["Instance ID", instance.instanceId], ["Instance state", instance.state],
-      [isAws ? "Instance type" : "Machine type", instance.tags?.MachineType || instance.instanceType],
+      [instanceTypeLabel, instance.tags?.MachineType || instance.instanceType],
       ["Public IPv4 address", instance.publicIp], ["Private IPv4 address", instance.privateIp],
       ["Public DNS", instance.publicDns], ["Private DNS", instance.privateDns],
       ["Availability zone", instance.availabilityZone], ["VPC ID", instance.vpcId],
-      ["Subnet ID", instance.subnetId], [isAws ? "AMI ID" : "Image ID", instance.imageId],
+      ["Subnet ID", instance.subnetId], [imageIdLabel, instance.imageId],
       ["Key pair name", instance.keyName], ["Platform", instance.platform],
       ["Architecture", instance.architecture],
       ["Launch time", instance.launchTime ? new Date(instance.launchTime).toLocaleString() : null],
@@ -50,8 +74,8 @@ export function InstanceDetails({ instance, isAws, onClose, onConnect, onSecurit
       </div>
       <div id="instance-details-content" role="tabpanel" aria-labelledby={`instance-tab-${tab}`} tabIndex={0} className="instance-details-content">
         {fields[tab] && <div className="instance-detail-card"><h3>{tab === "Description" ? "Instance details" : tab}</h3><dl className="instance-detail-fields">{fields[tab].map(([label, value]) => <div key={label}><dt>{label}</dt><dd>{value == null || value === "" || value === "-" ? "—" : String(value)}</dd></div>)}</dl></div>}
-        {tab === "Security" && <div className="instance-detail-security"><h3>{isAws ? "Security groups" : "Firewall rules"}</h3>{instance.securityGroups?.length ? instance.securityGroups.map((group: any) => <button className="instance-connect" key={group.groupId} onClick={() => onSecurityGroup(group)}><Shield size={14} />{group.groupName} ({group.groupId})</button>) : <p>No security groups reported.</p>}</div>}
-        {tab === "Storage" && <><div className="instance-storage-heading"><h3>Block devices ({instance.blockDeviceMappings?.length || 0})</h3><button className="instance-connect" onClick={onVolumes}><HardDrive size={14} />{isAws ? "Manage volumes" : "Manage disks"}</button></div>{instance.blockDeviceMappings?.length ? <div className="overflow-x-auto"><table><thead><tr><th>Device name</th><th>Volume ID</th><th>Status</th><th>Delete on termination</th></tr></thead><tbody>{instance.blockDeviceMappings.map((device: any) => <tr key={device.DeviceName}><td>{device.DeviceName}</td><td>{device.Ebs?.VolumeId || "—"}</td><td>{device.Ebs?.Status || "—"}</td><td>{device.Ebs?.DeleteOnTermination == null ? "—" : device.Ebs.DeleteOnTermination ? "Yes" : "No"}</td></tr>)}</tbody></table></div> : <p>No block devices reported by this instance.</p>}</>}
+        {tab === "Security" && <div className="instance-detail-security"><h3>{networkGroupLabel}</h3>{instance.securityGroups?.length ? instance.securityGroups.map((group: any) => <button className="instance-connect" key={group.groupId} onClick={() => onSecurityGroup(group)}><Shield size={14} />{group.groupName} ({group.groupId})</button>) : <p>No security groups reported.</p>}</div>}
+        {tab === "Storage" && <><div className="instance-storage-heading"><h3>Block devices ({instance.blockDeviceMappings?.length || 0})</h3><button className="instance-connect" onClick={onVolumes}><HardDrive size={14} />{storageLabel}</button></div>{instance.blockDeviceMappings?.length ? <div className="overflow-x-auto"><table><thead><tr><th>Device name</th><th>Volume ID</th><th>Status</th><th>Delete on termination</th></tr></thead><tbody>{instance.blockDeviceMappings.map((device: any) => <tr key={device.DeviceName}><td>{device.DeviceName}</td><td>{device.Ebs?.VolumeId || "—"}</td><td>{device.Ebs?.Status || "—"}</td><td>{device.Ebs?.DeleteOnTermination == null ? "—" : device.Ebs.DeleteOnTermination ? "Yes" : "No"}</td></tr>)}</tbody></table></div> : <p>No block devices reported by this instance.</p>}</>}
         {tab === "Tags" && (Object.keys(instance.tags || {}).length ? <div className="overflow-x-auto"><table><thead><tr><th>Key</th><th>Value</th></tr></thead><tbody>{Object.entries(instance.tags).map(([key, value]) => <tr key={key}><td>{key}</td><td>{String(value)}</td></tr>)}</tbody></table></div> : <p>No tags on this instance.</p>)}
       </div>
     </section>

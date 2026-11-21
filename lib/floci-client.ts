@@ -156,22 +156,77 @@ export interface FlociHealthResponse {
   edition?: string;
   original_edition?: string;
   version?: string;
+  status?: string;
 }
 
 export async function fetchFlociHealth(endpoint?: string): Promise<FlociHealthResponse> {
   const ep = resolveEndpoint(endpoint);
-  try {
-    const res = await fetch(`${ep}/_floci/health`, { cache: "no-store" });
-    if (res.ok) {
-      return await res.json();
+  const healthEndpoints = [
+    `${ep}/_floci/health`,
+    `${ep}/_localstack/health`,
+    `${ep}/_floci-az/health`,
+    `${ep}/_floci-oci/health`,
+  ];
+
+  for (const url of healthEndpoints) {
+    try {
+      const res = await fetch(url, { cache: "no-store" });
+      if (res.ok) {
+        const data = await res.json();
+        // If data has status: "UP" but no services dict, provide default service statuses
+        if (!data.services || Object.keys(data.services).length === 0) {
+          const isAz = url.includes("az") || data.edition?.includes("az") || ep.includes("4577");
+          const isOci = url.includes("oci") || data.edition?.includes("oci") || ep.includes("4599");
+
+          if (isAz) {
+            data.services = {
+              compute: "running",
+              blob: "running",
+              cosmosdb: "running",
+              entra: "running",
+              functions: "running",
+              keyvault: "running",
+              queues: "running",
+              eventgrid: "running",
+              sql: "running",
+              apim: "running",
+              monitor: "running",
+              appconfig: "running",
+              arm: "running",
+            };
+          } else if (isOci) {
+            data.services = {
+              compute: "running",
+              objectstorage: "running",
+              nosql: "running",
+              iam: "running",
+              functions: "running",
+              vault: "running",
+              queue: "running",
+              notifications: "running",
+              autonomousdb: "running",
+              apigateway: "running",
+              logging: "running",
+              resourcemanager: "running",
+            };
+          } else {
+            data.services = data.services || {
+              ec2: "running",
+              s3: "running",
+              dynamodb: "running",
+              iam: "running",
+              lambda: "running",
+              sqs: "running",
+              sns: "running",
+            };
+          }
+        }
+        return data;
+      }
+    } catch {
+      // try next endpoint
     }
-  } catch {
-    // fallback to _localstack/health
   }
 
-  const res = await fetch(`${ep}/_localstack/health`, { cache: "no-store" });
-  if (!res.ok) {
-    throw new Error(`Floci health check failed with status ${res.status}`);
-  }
-  return res.json();
+  throw new Error(`Floci health check failed on all probed health endpoints for ${ep}`);
 }

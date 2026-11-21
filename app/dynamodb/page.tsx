@@ -312,11 +312,21 @@ export default function DynamoDBPage() {
       <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-4">
         <div>
           <h2 className="text-2xl font-semibold text-ink flex items-center gap-3">
-            <Database className={`w-6 h-6 ${isAws ? "text-accent" : "text-accent"}`} />
-            {isAws ? "DynamoDB NoSQL Explorer" : "Datastore & NoSQL Explorer"}
+            <Database className="w-6 h-6 text-accent" />
+            {cloudMode === "azure"
+              ? "Azure Cosmos DB Explorer"
+              : cloudMode === "oci"
+              ? "OCI NoSQL Tables Explorer"
+              : isAws
+              ? "DynamoDB NoSQL Explorer"
+              : "Datastore & NoSQL Explorer"}
           </h2>
           <p className="text-sm text-muted mt-1">
-            {isAws
+            {cloudMode === "azure"
+              ? "Create containers, manage partition keys, insert and query Azure Cosmos DB items"
+              : cloudMode === "oci"
+              ? "Create tables, manage primary keys, insert and query OCI NoSQL documents"
+              : isAws
               ? "Create tables, manage composite keys, insert and query DynamoDB items"
               : "Create entities, manage partition keys, and manage NoSQL documents in Floci"}
           </p>
@@ -325,14 +335,14 @@ export default function DynamoDBPage() {
         <div className="flex items-center gap-2">
           <button
             onClick={() => setIsCreateTableOpen(true)}
-            className={`flex items-center gap-2 px-4 py-2 rounded-control text-xs font-semibold text-white transition-all ${
-              isAws
-                ? "bg-action hover:bg-action shadow-amber-600/20"
-                : "bg-action hover:bg-action shadow-blue-600/20"
-            }`}
+            className="flex items-center gap-2 px-4 py-2 rounded-control text-xs font-semibold text-white bg-action hover:bg-action transition-all"
           >
             <Plus className="w-4 h-4" />
-            {isAws ? "Create Table" : "Create Entity"}
+            {cloudMode === "azure"
+              ? "Create Container"
+              : cloudMode === "gcp"
+              ? "Create Entity"
+              : "Create Table"}
           </button>
 
           <button
@@ -351,8 +361,8 @@ export default function DynamoDBPage() {
         <div className="bg-surface border border-line rounded-panel p-5 space-y-3">
           <div className="flex items-center justify-between pb-3 border-b border-line">
             <span className="text-xs font-bold text-ink uppercase tracking-wider flex items-center gap-2">
-              <TableIcon className={`w-4 h-4 ${isAws ? "text-accent" : "text-accent"}`} />
-              {isAws ? "Tables" : "Entities"} ({tables.length})
+              <TableIcon className="w-4 h-4 text-accent" />
+              {serviceLabels.tables} ({tables.length})
             </span>
           </div>
 
@@ -551,9 +561,15 @@ export default function DynamoDBPage() {
           <div className="bg-surface border border-line rounded-panel w-full max-w-md p-6 shadow-2xl space-y-5">
             <div className="flex items-center justify-between pb-3 border-b border-line">
               <div className="flex items-center gap-2">
-                <Database className={`w-5 h-5 ${isAws ? "text-accent" : "text-accent"}`} />
+                <Database className="w-5 h-5 text-accent" />
                 <h3 className="font-bold text-ink text-base">
-                  {isAws ? "Create DynamoDB Table" : "Create Datastore Entity"}
+                  {cloudMode === "azure"
+                    ? "Create Cosmos DB Container"
+                    : cloudMode === "oci"
+                    ? "Create OCI NoSQL Table"
+                    : isAws
+                    ? "Create DynamoDB Table"
+                    : "Create Datastore Entity"}
                 </h3>
               </div>
               <button
@@ -567,7 +583,7 @@ export default function DynamoDBPage() {
             <form onSubmit={handleCreateTable} className="space-y-4">
               <div>
                 <label className="block text-xs font-semibold text-ink mb-1.5">
-                  Table Name
+                  {cloudMode === "azure" ? "Container / Collection Name" : cloudMode === "gcp" ? "Entity Kind" : "Table Name"}
                 </label>
                 <input
                   type="text"

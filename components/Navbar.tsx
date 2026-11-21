@@ -31,7 +31,7 @@ import {
   SlidersHorizontal,
   Sparkles,
 } from "lucide-react";
-import { useEndpoint } from "./EndpointProvider";
+import { useEndpoint, CloudProvider, detectCloudProvider } from "./EndpointProvider";
 import { useCloudTheme } from "./CloudThemeContext";
 import { normalizeEndpointUrl } from "@/lib/endpoint-utils";
 import { openUiChangelog } from "./ReleaseAnnouncementModal";
@@ -63,18 +63,30 @@ export function Sidebar() {
   return (
     <aside className="console-sidebar" aria-label="Service navigation">
       <div className="sidebar-heading flex items-center justify-between">
-        <span>{isAws ? "Services" : "Products"}</span>
+        <span>
+          {cloudMode === "aws"
+            ? "Services"
+            : cloudMode === "gcp"
+              ? "Products"
+              : cloudMode === "azure"
+                ? "Navigate"
+                : "Core Services"}
+        </span>
         <button
           type="button"
           onClick={toggleCloudMode}
           className={`px-1.5 py-0.5 rounded text-[9px] font-bold uppercase tracking-wider border cursor-pointer transition-colors ${
-            isAws
+            cloudMode === "aws"
               ? "bg-amber-500/10 text-amber-400 border-amber-500/30 hover:bg-amber-500/20"
-              : "bg-blue-500/10 text-blue-400 border-blue-500/30 hover:bg-blue-500/20"
+              : cloudMode === "gcp"
+                ? "bg-blue-500/10 text-blue-400 border-blue-500/30 hover:bg-blue-500/20"
+                : cloudMode === "azure"
+                  ? "bg-sky-500/10 text-sky-400 border-sky-500/30 hover:bg-sky-500/20"
+                  : "bg-rose-500/10 text-rose-400 border-rose-500/30 hover:bg-rose-500/20"
           }`}
-          title={`Click to switch to ${isAws ? "Google Cloud" : "AWS"}`}
+          title="Click to cycle cloud provider: AWS → GCP → Azure → OCI"
         >
-          {isAws ? "AWS" : "GCP"}
+          {cloudMode.toUpperCase()} ⟲
         </button>
       </div>
       <nav>
@@ -91,7 +103,13 @@ export function Sidebar() {
         ))}
       </nav>
       <div className="sidebar-section-label">
-        {isAws ? "RESOURCE MANAGEMENT" : "YOUR WORKSPACE"}
+        {cloudMode === "aws"
+          ? "RESOURCE MANAGEMENT"
+          : cloudMode === "gcp"
+            ? "YOUR WORKSPACE"
+            : cloudMode === "azure"
+              ? "FAVORITES & RESOURCES"
+              : "COMPARTMENT SCOPE"}
       </div>
       <div className="sidebar-note">
         <Layers size={17} />
@@ -138,7 +156,7 @@ export function Header() {
   const [isEnvModalOpen, setIsEnvModalOpen] = useState(false);
   const [newEnvName, setNewEnvName] = useState("");
   const [newEnvUrl, setNewEnvUrl] = useState("");
-  const [newEnvProvider, setNewEnvProvider] = useState<"aws" | "gcp">("aws");
+  const [newEnvProvider, setNewEnvProvider] = useState<CloudProvider>("aws");
   const [probeStatus, setProbeStatus] = useState<"idle" | "loading" | "success" | "error">("idle");
   const [probeMessage, setProbeMessage] = useState("");
   const [mounted, setMounted] = useState(false);
@@ -184,39 +202,21 @@ export function Header() {
       setProbeStatus("success");
       const numServices = res.data.services ? Object.keys(res.data.services).length : 0;
       setProbeMessage(`Floci v${res.data.version || "2.1.0"} active · ${numServices} services online`);
-      if (clean.includes("159") || clean.includes(".51") || clean.toLowerCase().includes("gcp")) {
-        setNewEnvProvider("gcp");
-      } else if (clean.includes("151") || clean.includes(".50") || clean.toLowerCase().includes("aws")) {
-        setNewEnvProvider("aws");
-      }
+      setNewEnvProvider(detectCloudProvider(newEnvName, clean));
     } else {
       setProbeStatus("error");
-      setProbeMessage(res.error || "Cannot reach endpoint. Check IP and port 4566.");
+      setProbeMessage(res.error || "Cannot reach endpoint. Check address and port.");
     }
   };
 
   const handleUrlChange = (url: string) => {
     setNewEnvUrl(url);
-    if (url.toLowerCase().includes("gcp") || url.includes("159") || url.includes(".51")) {
-      setNewEnvProvider("gcp");
-    } else if (url.toLowerCase().includes("aws") || url.includes("151") || url.includes(".50")) {
-      setNewEnvProvider("aws");
-    }
+    setNewEnvProvider(detectCloudProvider(newEnvName, url));
   };
 
   const handleNameChange = (name: string) => {
     setNewEnvName(name);
-    if (
-      name.toLowerCase().includes("gcp") ||
-      name.toLowerCase().includes("google")
-    ) {
-      setNewEnvProvider("gcp");
-    } else if (
-      name.toLowerCase().includes("aws") ||
-      name.toLowerCase().includes("amazon")
-    ) {
-      setNewEnvProvider("aws");
-    }
+    setNewEnvProvider(detectCloudProvider(name, newEnvUrl));
   };
 
   const handleAddEnv = (e: React.FormEvent) => {
@@ -246,12 +246,13 @@ export function Header() {
       </button>
 
       <Link href="/" className="cloud-wordmark" aria-label={branding.title}>
-        {isAws ? (
+        {cloudMode === "aws" && (
           <span className="aws-wordmark">
             aws
             <span />
           </span>
-        ) : (
+        )}
+        {cloudMode === "gcp" && (
           <>
             <span className="google-wordmark">
               <b>G</b>
@@ -264,15 +265,34 @@ export function Header() {
             <span>Cloud</span>
           </>
         )}
+        {cloudMode === "azure" && (
+          <span className="azure-wordmark flex items-center gap-2">
+            <svg className="w-5 h-5 shrink-0" viewBox="0 0 24 24" fill="none">
+              <rect x="2" y="2" width="9" height="9" fill="#f25022" />
+              <rect x="13" y="2" width="9" height="9" fill="#7fba00" />
+              <rect x="2" y="13" width="9" height="9" fill="#00a4ef" />
+              <rect x="13" y="13" width="9" height="9" fill="#ffb900" />
+            </svg>
+            <span className="font-semibold text-white tracking-tight text-lg">Microsoft Azure</span>
+          </span>
+        )}
+        {cloudMode === "oci" && (
+          <span className="oci-wordmark flex items-center gap-2">
+            <span className="font-black text-[#c74634] tracking-wider text-xs px-1.5 py-0.5 rounded bg-white/10 border border-[#c74634]/40 font-mono">
+              ORACLE
+            </span>
+            <span className="font-semibold text-white tracking-tight text-lg">Cloud</span>
+          </span>
+        )}
       </Link>
 
-      {/* 1-Click Cloud Provider Switcher */}
-      <div className="provider-switch flex items-center bg-slate-900/90 border border-slate-700/60 p-0.5 rounded-lg text-xs shrink-0 mx-1">
+      {/* 1-Click Multi-Cloud Provider Switcher */}
+      <div className="provider-switch flex items-center bg-slate-900/90 border border-slate-700/60 p-0.5 rounded-lg text-xs shrink-0 mx-1 gap-0.5">
         <button
           type="button"
           onClick={() => setCloudMode("aws")}
           className={`px-2 py-0.5 rounded font-bold text-[10px] tracking-wider uppercase transition-colors ${
-            isAws
+            cloudMode === "aws"
               ? "bg-amber-500 text-slate-950 shadow-sm"
               : "text-slate-400 hover:text-slate-200"
           }`}
@@ -284,7 +304,7 @@ export function Header() {
           type="button"
           onClick={() => setCloudMode("gcp")}
           className={`px-2 py-0.5 rounded font-bold text-[10px] tracking-wider uppercase transition-colors ${
-            !isAws
+            cloudMode === "gcp"
               ? "bg-blue-600 text-white shadow-sm"
               : "text-slate-400 hover:text-slate-200"
           }`}
@@ -292,12 +312,36 @@ export function Header() {
         >
           GCP
         </button>
+        <button
+          type="button"
+          onClick={() => setCloudMode("azure")}
+          className={`px-2 py-0.5 rounded font-bold text-[10px] tracking-wider uppercase transition-colors ${
+            cloudMode === "azure"
+              ? "bg-[#0078d4] text-white shadow-sm"
+              : "text-slate-400 hover:text-slate-200"
+          }`}
+          title="Switch to Microsoft Azure View"
+        >
+          Azure
+        </button>
+        <button
+          type="button"
+          onClick={() => setCloudMode("oci")}
+          className={`px-2 py-0.5 rounded font-bold text-[10px] tracking-wider uppercase transition-colors ${
+            cloudMode === "oci"
+              ? "bg-[#c74634] text-white shadow-sm"
+              : "text-slate-400 hover:text-slate-200"
+          }`}
+          title="Switch to Oracle Cloud View"
+        >
+          OCI
+        </button>
       </div>
 
       <span className="header-divider" />
       <span className="header-scope">
-        {isAws ? "Services" : branding.scopeValue}
-        {isAws ? <Boxes size={16} /> : <Layers size={16} />}
+        {cloudMode === "aws" ? "Services" : branding.scopeValue}
+        {cloudMode === "aws" ? <Boxes size={16} /> : <Layers size={16} />}
       </span>
 
       <div className="console-search">
@@ -305,7 +349,13 @@ export function Header() {
         <input
           aria-label="Search services"
           placeholder={
-            isAws ? "Search services" : "Search products and resources"
+            cloudMode === "aws"
+              ? "Search services"
+              : cloudMode === "gcp"
+                ? "Search products and resources"
+                : cloudMode === "azure"
+                  ? "Search resources, services, and docs"
+                  : "Search resources, services, documentation"
           }
           value={serviceSearch}
           onChange={(e) => setServiceSearch(e.target.value)}
@@ -365,7 +415,9 @@ export function Header() {
         </select>
       </div>
 
-      {isAws && <span className="header-region">{branding.scopeValue}</span>}
+      <span className="header-region">
+        {branding.scopeValue}
+      </span>
 
       <button
         onClick={() => checkHealth()}
@@ -428,20 +480,24 @@ export function Header() {
                         <div className="flex items-center gap-2">
                           <button
                             type="button"
-                            onClick={() =>
-                              updateEnvironmentProvider(
-                                env.id,
-                                env.provider === "aws" ? "gcp" : "aws",
-                              )
-                            }
+                            onClick={() => {
+                              const order: CloudProvider[] = ["aws", "gcp", "azure", "oci"];
+                              const curr = order.indexOf(env.provider || "aws");
+                              const next = order[(curr + 1) % order.length];
+                              updateEnvironmentProvider(env.id, next);
+                            }}
                             className={`px-1.5 py-0.5 rounded text-[9px] font-bold uppercase tracking-wider border cursor-pointer transition-colors ${
-                              env.provider === "gcp"
-                                ? "bg-blue-500/20 text-blue-400 border-blue-500/30 hover:bg-blue-500/30"
-                                : "bg-amber-500/20 text-amber-400 border-amber-500/30 hover:bg-amber-500/30"
+                              env.provider === "azure"
+                                ? "bg-sky-500/20 text-sky-400 border-sky-500/30 hover:bg-sky-500/30"
+                                : env.provider === "oci"
+                                  ? "bg-rose-500/20 text-rose-400 border-rose-500/30 hover:bg-rose-500/30"
+                                  : env.provider === "gcp"
+                                    ? "bg-blue-500/20 text-blue-400 border-blue-500/30 hover:bg-blue-500/30"
+                                    : "bg-amber-500/20 text-amber-400 border-amber-500/30 hover:bg-amber-500/30"
                             }`}
-                            title="Click to switch between AWS and GCP"
+                            title="Click to cycle provider: AWS → GCP → Azure → OCI"
                           >
-                            {env.provider || "AWS"} ⟲
+                            {(env.provider || "AWS").toUpperCase()} ⟲
                           </button>
                           <span className="font-semibold text-ink">
                             {env.name}
@@ -482,28 +538,26 @@ export function Header() {
                     Add New Endpoint
                   </span>
                   <div className="flex items-center gap-1 bg-subtle p-0.5 rounded-lg border border-line text-[11px]">
-                    <button
-                      type="button"
-                      onClick={() => setNewEnvProvider("aws")}
-                      className={`px-2.5 py-0.5 rounded-md font-semibold transition-colors ${
-                        newEnvProvider === "aws"
-                          ? "bg-action text-slate-950 font-bold"
-                          : "text-muted hover:text-ink"
-                      }`}
-                    >
-                      AWS
-                    </button>
-                    <button
-                      type="button"
-                      onClick={() => setNewEnvProvider("gcp")}
-                      className={`px-2.5 py-0.5 rounded-md font-semibold transition-colors ${
-                        newEnvProvider === "gcp"
-                          ? "bg-action text-white font-bold"
-                          : "text-muted hover:text-ink"
-                      }`}
-                    >
-                      GCP
-                    </button>
+                    {(["aws", "gcp", "azure", "oci"] as const).map((prov) => (
+                      <button
+                        key={prov}
+                        type="button"
+                        onClick={() => setNewEnvProvider(prov)}
+                        className={`px-2 py-0.5 rounded-md font-semibold transition-colors uppercase ${
+                          newEnvProvider === prov
+                            ? prov === "aws"
+                              ? "bg-amber-500 text-slate-950 font-bold"
+                              : prov === "gcp"
+                                ? "bg-blue-600 text-white font-bold"
+                                : prov === "azure"
+                                  ? "bg-[#0078d4] text-white font-bold"
+                                  : "bg-[#c74634] text-white font-bold"
+                            : "text-muted hover:text-ink"
+                        }`}
+                      >
+                        {prov}
+                      </button>
+                    ))}
                   </div>
                 </div>
                 <div className="grid grid-cols-1 sm:grid-cols-2 gap-2">

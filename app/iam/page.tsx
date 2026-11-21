@@ -393,16 +393,44 @@ export default function IAMPage() {
     return text.includes(search.toLowerCase());
   });
 
-  const tabActiveClass = isAws
-    ? "bg-action text-slate-950 shadow-sm"
-    : "bg-action text-white shadow-sm";
+  const tabActiveClass = "bg-action text-white shadow-sm";
 
   const getCreateButtonLabel = () => {
-    if (activeTab === "roles") return isAws ? "Create Role" : "Create Service Account";
-    if (activeTab === "users") return isAws ? "Create User" : "Create Principal";
+    if (activeTab === "roles") {
+      if (cloudMode === "azure") return "Create Role Definition";
+      if (cloudMode === "oci") return "Create Policy / Role";
+      if (cloudMode === "gcp") return "Create Service Account";
+      return "Create Role";
+    }
+    if (activeTab === "users") {
+      if (cloudMode === "azure") return "Create App Principal / User";
+      if (cloudMode === "oci") return "Create User";
+      if (cloudMode === "gcp") return "Create Principal";
+      return "Create User";
+    }
     if (activeTab === "groups") return "Create Group";
+    if (cloudMode === "azure") return "Create Role Assignment";
+    if (cloudMode === "oci") return "Create Policy";
     return isAws ? "Create Policy" : "Create Permission";
   };
+
+  const iamTitle =
+    cloudMode === "azure"
+      ? "Microsoft Entra ID & RBAC"
+      : cloudMode === "oci"
+      ? "OCI Identity & Access Management"
+      : isAws
+      ? "IAM Access & Permissions"
+      : "IAM & Admin Console";
+
+  const iamSubtitle =
+    cloudMode === "azure"
+      ? "Manage Azure Entra ID users, enterprise application principals, role definitions, and access assignments"
+      : cloudMode === "oci"
+      ? "Manage OCI IAM compartments, user principals, security groups, and compartment policies"
+      : isAws
+      ? "Create and manage simulated IAM Roles, Users, Groups, and Policies in Floci"
+      : "Create and manage Service Accounts, Principals, Roles, and Permissions in Floci";
 
   return (
     <div className="space-y-6 resource-page">
@@ -430,24 +458,18 @@ export default function IAMPage() {
       <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-4">
         <div>
           <h2 className="text-2xl font-semibold text-ink flex items-center gap-3">
-            <Users className={`w-6 h-6 ${isAws ? "text-accent" : "text-accent"}`} />
-            {isAws ? "IAM Access & Permissions" : "IAM & Admin Console"}
+            <Users className="w-6 h-6 text-accent" />
+            {iamTitle}
           </h2>
           <p className="text-sm text-muted mt-1">
-            {isAws
-              ? "Create and manage simulated IAM Roles, Users, Groups, and Policies in Floci"
-              : "Create and manage Service Accounts, Principals, Roles, and Permissions in Floci"}
+            {iamSubtitle}
           </p>
         </div>
 
         <div className="flex items-center gap-2">
           <button
             onClick={openCreateModal}
-            className={`flex items-center gap-2 px-4 py-2 rounded-control text-xs font-semibold text-white transition-all ${
-              isAws
-                ? "bg-action hover:bg-action shadow-amber-600/20"
-                : "bg-action hover:bg-action shadow-blue-600/20"
-            }`}
+            className="flex items-center gap-2 px-4 py-2 rounded-control text-xs font-semibold text-white bg-action hover:bg-action transition-all"
           >
             <Plus className="w-4 h-4" />
             {getCreateButtonLabel()}
@@ -474,7 +496,13 @@ export default function IAMPage() {
             }`}
           >
             <Shield className="w-3.5 h-3.5" />
-            {isAws ? "Roles" : "Roles / Service Accounts"} ({iamData.roles.length})
+            {cloudMode === "azure"
+              ? "Roles / App Roles"
+              : cloudMode === "oci"
+              ? "Roles"
+              : isAws
+              ? "Roles"
+              : "Roles / Service Accounts"} ({iamData.roles.length})
           </button>
           <button
             onClick={() => setActiveTab("users")}
@@ -483,7 +511,13 @@ export default function IAMPage() {
             }`}
           >
             <UserCheck className="w-3.5 h-3.5" />
-            {isAws ? "Users" : "Principals"} ({iamData.users.length})
+            {cloudMode === "azure"
+              ? "Users / Principals"
+              : cloudMode === "oci"
+              ? "Users"
+              : isAws
+              ? "Users"
+              : "Principals"} ({iamData.users.length})
           </button>
           <button
             onClick={() => setActiveTab("groups")}
@@ -501,7 +535,13 @@ export default function IAMPage() {
             }`}
           >
             <KeyRound className="w-3.5 h-3.5" />
-            {isAws ? "Policies" : "Permissions"} ({iamData.policies.length})
+            {cloudMode === "azure"
+              ? "Role Definitions"
+              : cloudMode === "oci"
+              ? "Compartment Policies"
+              : isAws
+              ? "Policies"
+              : "Permissions"} ({iamData.policies.length})
           </button>
         </div>
 

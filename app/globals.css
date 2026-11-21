@@ -21,6 +21,26 @@
   --header-bg: #fff;
   --header-text: #3c4043;
 }
+:root[data-cloud="azure"] {
+  --background: #f0f2f5;
+  --foreground: #181818;
+  --accent: #0078d4;
+  --action: #0078d4;
+  --selected: #e6f2fb;
+  --panel-radius: 4px;
+  --header-bg: #0078d4;
+  --header-text: #fff;
+}
+:root[data-cloud="oci"] {
+  --background: #f7f6f4;
+  --foreground: #161513;
+  --accent: #c74634;
+  --action: #c74634;
+  --selected: #fbeee9;
+  --panel-radius: 6px;
+  --header-bg: #161513;
+  --header-text: #f7f6f5;
+}
 * {
   box-sizing: border-box;
 }

@@ -35,9 +35,25 @@ export default function EC2Page() {
   // Launch modal state
   const [isLaunchModalOpen, setIsLaunchModalOpen] = useState(false);
   const [instanceName, setInstanceName] = useState("");
-  const [instanceType, setInstanceType] = useState(cloudMode === "gcp" ? "e2-micro" : "t3.micro");
+  const [instanceType, setInstanceType] = useState(
+    cloudMode === "azure"
+      ? "Standard_B1s"
+      : cloudMode === "oci"
+      ? "VM.Standard.E4.Flex"
+      : cloudMode === "gcp"
+      ? "e2-micro"
+      : "t3.micro"
+  );
   const [workloadTag, setWorkloadTag] = useState("web-server");
-  const [imageId, setImageId] = useState("ami-12345678");
+  const [imageId, setImageId] = useState(
+    cloudMode === "azure"
+      ? "Ubuntu2204"
+      : cloudMode === "oci"
+      ? "ocid1.image.oc1..sample"
+      : cloudMode === "gcp"
+      ? "debian-11"
+      : "ami-12345678"
+  );
 
   // Notifications
   const [errorMessage, setErrorMessage] = useState<string | null>(null);
@@ -143,9 +159,41 @@ export default function EC2Page() {
     }
   };
 
-  const instanceTypes = isAws
-    ? ["t3.nano", "t3.micro", "t3.small", "t3.medium", "t3.large", "c5.large", "m5.large"]
-    : ["e2-micro", "e2-small", "e2-medium", "n1-standard-1", "n1-standard-2", "c2-standard-4"];
+  const instanceTypes =
+    cloudMode === "azure"
+      ? ["Standard_B1s", "Standard_B2s", "Standard_D2s_v3", "Standard_D4s_v3", "Standard_F2s_v2"]
+      : cloudMode === "oci"
+      ? ["VM.Standard.E4.Flex", "VM.Standard.A1.Flex", "VM.Standard2.1", "VM.Standard2.2", "VM.Standard3.Flex"]
+      : cloudMode === "gcp"
+      ? ["e2-micro", "e2-small", "e2-medium", "n1-standard-1", "n1-standard-2", "c2-standard-4"]
+      : ["t3.nano", "t3.micro", "t3.small", "t3.medium", "t3.large", "c5.large", "m5.large"];
+
+  const ec2Title =
+    cloudMode === "azure"
+      ? "Azure Virtual Machines"
+      : cloudMode === "oci"
+      ? "OCI Compute Instances"
+      : isAws
+      ? "EC2 Compute Instances"
+      : "Compute Engine VM Instances";
+
+  const ec2Subtitle =
+    cloudMode === "azure"
+      ? "Launch and manage simulated Azure virtual machines, sizes, and network interfaces"
+      : cloudMode === "oci"
+      ? "Launch and manage simulated OCI compute shapes, compartments, and VNICs"
+      : isAws
+      ? "Launch and manage virtual machines and containerized EC2 instances running in Floci"
+      : "Launch and manage simulated GCE compute nodes, machine types, and attached service accounts";
+
+  const launchButtonLabel =
+    cloudMode === "azure"
+      ? "Create Virtual Machine"
+      : cloudMode === "oci"
+      ? "Create Compute Instance"
+      : isAws
+      ? "Launch Instance"
+      : "Create VM Instance";
 
   return (
     <div className="space-y-6 resource-page">
@@ -173,27 +221,21 @@ export default function EC2Page() {
       <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-4">
         <div>
           <h2 className="text-2xl font-semibold text-ink flex items-center gap-3">
-            <Server className={`w-6 h-6 ${isAws ? "text-accent" : "text-accent"}`} />
-            {isAws ? "EC2 Compute Instances" : "Compute Engine VM Instances"}
+            <Server className="w-6 h-6 text-accent" />
+            {ec2Title}
           </h2>
           <p className="text-sm text-muted mt-1">
-            {isAws
-              ? "Launch and manage virtual machines and containerized EC2 instances running in Floci"
-              : "Launch and manage simulated GCE compute nodes, machine types, and attached service accounts"}
+            {ec2Subtitle}
           </p>
         </div>
 
         <div className="flex items-center gap-2">
           <button
             onClick={() => setIsLaunchModalOpen(true)}
-            className={`flex items-center gap-2 px-4 py-2 rounded-control text-xs font-semibold text-white transition-all ${
-              isAws
-                ? "bg-action hover:bg-action shadow-amber-600/20"
-                : "bg-action hover:bg-action shadow-blue-600/20"
-            }`}
+            className="flex items-center gap-2 px-4 py-2 rounded-control text-xs font-semibold text-white bg-action hover:bg-action transition-all"
           >
             <Plus className="w-4 h-4" />
-            {isAws ? "Launch Instance" : "Create VM Instance"}
+            {launchButtonLabel}
           </button>
 
           <button
@@ -218,13 +260,11 @@ export default function EC2Page() {
           <Server className="w-10 h-10 mx-auto text-muted" />
           <p className="font-semibold text-ink">No {serviceLabels.instances} found</p>
           <p className="text-xs text-muted max-w-sm mx-auto">
-            Click &apos;{isAws ? "Launch Instance" : "Create VM Instance"}&apos; to deploy your first simulated virtual machine.
+            Click &apos;{launchButtonLabel}&apos; to deploy your first simulated virtual machine.
           </p>
           <button
             onClick={() => setIsLaunchModalOpen(true)}
-            className={`inline-flex items-center gap-1.5 px-4 py-2 rounded-control text-xs font-semibold text-white transition-all ${
-              isAws ? "bg-action hover:bg-action" : "bg-action hover:bg-action"
-            }`}
+            className="inline-flex items-center gap-1.5 px-4 py-2 rounded-control text-xs font-semibold text-white bg-action hover:bg-action transition-all"
           >
             <Plus className="w-3.5 h-3.5" /> Launch Now
           </button>
@@ -235,11 +275,35 @@ export default function EC2Page() {
             <table className="w-full text-left text-xs">
               <thead className="bg-subtle border-b border-line text-muted uppercase tracking-wider font-semibold">
                 <tr>
-                  <th className="px-6 py-3.5">{isAws ? "Instance ID / Name" : "VM Name / ID"}</th>
+                  <th className="px-6 py-3.5">
+                    {cloudMode === "azure"
+                      ? "VM Name / ID"
+                      : cloudMode === "oci"
+                      ? "Instance Name / OCID"
+                      : isAws
+                      ? "Instance ID / Name"
+                      : "VM Name / ID"}
+                  </th>
                   <th className="px-6 py-3.5">Status</th>
-                  <th className="px-6 py-3.5">{isAws ? "Instance Type" : "Machine Type"}</th>
+                  <th className="px-6 py-3.5">
+                    {cloudMode === "azure"
+                      ? "VM Size"
+                      : cloudMode === "oci"
+                      ? "Shape"
+                      : isAws
+                      ? "Instance Type"
+                      : "Machine Type"}
+                  </th>
                   <th className="px-6 py-3.5">Network Interfaces</th>
-                  <th className="px-6 py-3.5">{isAws ? "Security / IAM" : "Firewall / Identity"}</th>
+                  <th className="px-6 py-3.5">
+                    {cloudMode === "azure"
+                      ? "NSG / Managed Identity"
+                      : cloudMode === "oci"
+                      ? "Security Lists / IAM"
+                      : isAws
+                      ? "Security / IAM"
+                      : "Firewall / Identity"}
+                  </th>
                   <th className="px-6 py-3.5 text-right">Actions</th>
                 </tr>
               </thead>
@@ -386,9 +450,9 @@ export default function EC2Page() {
           <div className="bg-surface border border-line rounded-panel w-full max-w-md p-6 shadow-2xl space-y-5">
             <div className="flex items-center justify-between pb-3 border-b border-line">
               <div className="flex items-center gap-2">
-                <Server className={`w-5 h-5 ${isAws ? "text-accent" : "text-accent"}`} />
+                <Server className="w-5 h-5 text-accent" />
                 <h3 className="font-bold text-ink text-base">
-                  {isAws ? "Launch EC2 Instance" : "Create Compute Instance"}
+                  {launchButtonLabel}
                 </h3>
               </div>
               <button
@@ -402,7 +466,7 @@ export default function EC2Page() {
             <form onSubmit={handleLaunch} className="space-y-4">
               <div>
                 <label className="block text-xs font-semibold text-ink mb-1.5">
-                  Instance Name (Tag: Name)
+                  {cloudMode === "azure" ? "Virtual Machine Name" : cloudMode === "oci" ? "Display Name" : "Instance Name (Tag: Name)"}
                 </label>
                 <input
                   type="text"
@@ -416,7 +480,7 @@ export default function EC2Page() {
 
               <div>
                 <label className="block text-xs font-semibold text-ink mb-1.5">
-                  {isAws ? "Instance Type" : "Machine Type"}
+                  {cloudMode === "azure" ? "VM Size" : cloudMode === "oci" ? "Shape" : isAws ? "Instance Type" : "Machine Type"}
                 </label>
                 <select
                   value={instanceType}
@@ -446,7 +510,7 @@ export default function EC2Page() {
 
               <div>
                 <label className="block text-xs font-semibold text-ink mb-1.5">
-                  Image ID / AMI
+                  {cloudMode === "azure" ? "Image URN / Publisher" : cloudMode === "oci" ? "Image OCID" : isAws ? "Image ID / AMI" : "Source Image"}
                 </label>
                 <input
                   type="text"
@@ -467,14 +531,10 @@ export default function EC2Page() {
                 <button
                   type="submit"
                   disabled={actionLoading !== null}
-                  className={`px-4 py-2 text-xs font-semibold text-white rounded-control transition-colors flex items-center gap-1.5 ${
-                    isAws
-                      ? "bg-action hover:bg-action"
-                      : "bg-action hover:bg-action"
-                  }`}
+                  className="px-4 py-2 text-xs font-semibold text-white rounded-control bg-action hover:bg-action transition-colors flex items-center gap-1.5"
                 >
                   {actionLoading === "launch" ? <RefreshCw className="w-3.5 h-3.5 animate-spin" /> : <Plus className="w-3.5 h-3.5" />}
-                  Launch Instance
+                  {launchButtonLabel}
                 </button>
               </div>
             </form>

@@ -4,7 +4,7 @@
 [![License: MIT](https://img.shields.io/badge/License-MIT-green.svg)](https://opensource.org/licenses/MIT)
 [![Container Image](https://img.shields.io/badge/ghcr.io-therealsocialproject%2Ffloci--ui-blue?logo=docker)](https://github.com/therealsocialproject/floci-ui/pkgs/container/floci-ui)
 
-> A modern, responsive multi-cloud Web Management Console and Dashboard for the **Floci Cloud Emulator** (supporting both AWS & Google Cloud Console experiences).
+> A modern, responsive multi-cloud Web Management Console and Dashboard for the **Floci Cloud Emulator** (supporting AWS, Google Cloud, Microsoft Azure, and Oracle Cloud Infrastructure).
 
 ---
 
@@ -12,7 +12,14 @@
 
 [Floci](https://github.com/floci-io/floci) is a lightweight, high-performance open-source cloud emulator built on Quarkus Native and GraalVM. It delivers ultra-fast, credential-free local cloud service emulation across AWS, Google Cloud, Azure, and OCI—serving as an efficient drop-in alternative for local development and CI/CD testing.
 
-**Floci Web UI** (`floci-ui`) provides a unified, visual management console for your Floci instances. It offers dual AWS and Google Cloud console themes, comprehensive resource explorers, live management capabilities (create, upload, invoke, test, and delete), and real-time observability across 11 core emulated cloud services.
+**Floci Web UI** (`floci-ui`) provides a unified, visual management console for your Floci instances across all four major cloud ecosystems:
+
+* **AWS (`floci`)**: Port `4566`
+* **Microsoft Azure (`floci-az`)**: Port `4577`
+* **Google Cloud (`floci-gcp`)**: Port `4588`
+* **Oracle Cloud Infrastructure (`floci-oci`)**: Port `4599`
+
+It offers 1-click cloud provider console switching, themed layouts, comprehensive resource explorers, live management capabilities (create, upload, invoke, test, and delete), and real-time observability across 11 core emulated cloud services.
 
 Learn more about Floci at [floci.io](https://floci.io) or explore the [Floci GitHub organization](https://github.com/floci-io).
 
@@ -30,14 +37,17 @@ Learn more about Floci at [floci.io](https://floci.io) or explore the [Floci Git
 
 ## Supported Services & Core Features
 
-### 1. Dual Cloud Provider Experiences (AWS vs. Google Cloud)
+### 1. Quad Cloud Provider Experiences (AWS, Google Cloud, Azure, OCI)
 * **AWS Console Mode**: Styled with AWS Console dark navy (`#232f3e`), signature AWS orange accents (`#ff9900`), region indicator (`us-east-1`), and standard AWS naming (*EC2, S3, IAM, DynamoDB, RDS, API Gateway, SQS, Lambda, CloudWatch, KMS, Secrets Manager*).
 * **GCP Console Mode**: Styled with Google Cloud Blue accents (`#1a73e8`), Project selector (`mock-project`), and GCP naming (*Compute Engine, Cloud Storage, IAM & Admin, Datastore, Cloud SQL, Endpoints, Pub/Sub, Cloud Functions, Cloud Logging, Cloud KMS, Secret Manager*).
-* Toggle between both views seamlessly with 1-click in the header on any environment.
+* **Azure Portal Mode**: Styled with Azure blue accents (`#0078d4`), Subscription & Resource Group indicators, and Azure naming (*Virtual Machines, Blob Storage, Microsoft Entra ID & RBAC, Cosmos DB, Azure SQL, API Management, Service Bus, Azure Functions, Azure Monitor*).
+* **OCI Console Mode**: Styled with Oracle Redwood accents (`#c74634`), Compartment selector (`root-compartment`), and OCI naming (*Compute Instances, Object Storage, IAM & Policies, NoSQL Database, Autonomous DB, API Gateway, Streaming & ONS, OCI Functions, Logging*).
+* Switch between all four views seamlessly with 1-click in the header on any active environment.
 
 ### 2. Multi-Environment & Endpoint Manager
 * **Zero Hardcoding**: Switch between local, dev, staging, or remote Floci endpoints instantly.
-* Add, label, edit, probe health, and delete custom emulator endpoints (e.g. `http://staging-vm:4566`, `http://10.75.75.50:4566`) right inside the UI, persisted in browser storage.
+* Preconfigured defaults for all Floci emulator variants (`tsp-aws:4566`, `tsp-az:4577`, `tsp-gcp:4588`, `tsp-oci:4599`).
+* Add, label, edit, probe health, and delete custom emulator endpoints right inside the UI, persisted in browser storage.
 
 ### 3. Compute Engine & Virtual Machines (`/ec2`)
 * View active, stopped, and pending virtual machines / container instances.

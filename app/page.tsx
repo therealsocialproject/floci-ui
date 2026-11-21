@@ -253,31 +253,59 @@ export default function DashboardPage() {
     ([, status]) => status === "running" || status === "available",
   ).length;
 
+  const cloudHomeTitle =
+    cloudMode === "azure"
+      ? "Azure Portal Home"
+      : cloudMode === "oci"
+        ? "Oracle Cloud Dashboard"
+        : cloudMode === "gcp"
+          ? "Welcome to Google Cloud"
+          : "Console home";
+
+  const cloudBreadcrumbName =
+    cloudMode === "azure"
+      ? "Microsoft Azure"
+      : cloudMode === "oci"
+        ? "Oracle Cloud"
+        : cloudMode === "gcp"
+          ? "Google Cloud"
+          : "AWS";
+
+  const cloudSubtitle =
+    cloudMode === "aws"
+      ? "Your resources and services at a glance."
+      : `Working in ${branding.scopeLabel}: ${branding.scopeValue}.`;
+
+  const resourcesHeading =
+    cloudMode === "aws"
+      ? "Resources"
+      : cloudMode === "azure"
+        ? "Azure Resources"
+        : cloudMode === "oci"
+          ? "Compartment Resources"
+          : "Project resources";
+
   return (
     <div className="dashboard">
       <div className="console-breadcrumb">
-        {isAws ? "AWS" : "Google Cloud"}
+        {cloudBreadcrumbName}
         <span>›</span>
-        {isAws ? "Console home" : "Welcome"}
+        {cloudMode === "aws" ? "Console home" : "Overview"}
       </div>
       <div className="page-title-row">
         <div>
-          <h1>{isAws ? "Console home" : "Welcome to Google Cloud"}</h1>
-          <p>
-            {isAws
-              ? "Your resources and services at a glance."
-              : `You're working in ${branding.scopeValue}.`}
-          </p>
+          <h1>{cloudHomeTitle}</h1>
+          <p>{cloudSubtitle}</p>
         </div>
         <span className="environment-badge">Floci · Local environment</span>
       </div>
       <div className="overview-tabs">
-        <span>{isAws ? "Overview" : "Dashboard"}</span>
+        <span>{cloudMode === "aws" ? "Overview" : "Dashboard"}</span>
       </div>
       <div className="overview-columns">
         <section className="console-panel resource-panel">
           <div className="panel-heading">
-            <h2>{isAws ? "Resources" : "Project resources"}</h2>
+            <h2>{resourcesHeading}</h2>
             <span>{branding.scopeValue}</span>
           </div>
           <div className="resource-grid">

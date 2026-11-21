@@ -3,7 +3,7 @@
 import React, { createContext, useContext, useState, useEffect, ReactNode } from "react";
 import { normalizeEndpointUrl } from "@/lib/endpoint-utils";
 
-export type CloudProvider = "aws" | "gcp";
+export type CloudProvider = "aws" | "gcp" | "azure" | "oci";
 
 export interface CloudEnvironment {
   id: string;
@@ -12,11 +12,52 @@ export interface CloudEnvironment {
   provider: CloudProvider;
 }
 
+export function detectCloudProvider(name?: string, url?: string): CloudProvider {
+  const n = (name || "").toLowerCase();
+  const u = (url || "").toLowerCase();
+  if (
+    u.includes("4577") ||
+    n.includes("azure") ||
+    u.includes("azure") ||
+    n.includes(" az") ||
+    n.startsWith("az-") ||
+    n.startsWith("azure-") ||
+    u.includes(".52")
+  ) {
+    return "azure";
+  }
+  if (
+    u.includes("4599") ||
+    n.includes("oci") ||
+    u.includes("oci") ||
+    n.includes("oracle") ||
+    u.includes("oracle") ||
+    u.includes(".53")
+  ) {
+    return "oci";
+  }
+  if (
+    u.includes("4588") ||
+    n.includes("gcp") ||
+    u.includes("gcp") ||
+    n.includes("google") ||
+    u.includes("159") ||
+    u.includes(".51")
+  ) {
+    return "gcp";
+  }
+  return "aws";
+}
+
 export const DEFAULT_ENVIRONMENTS: CloudEnvironment[] = [
   { id: "tsp-aws", name: "TSP AWS", url: "http://10.75.75.50:4566", provider: "aws" },
   { id: "tsp-gcp", name: "TSP GCP", url: "http://10.75.75.51:4566", provider: "gcp" },
+  { id: "tsp-az", name: "TSP Azure", url: "http://10.75.75.52:4577", provider: "azure" },
+  { id: "tsp-oci", name: "TSP OCI", url: "http://10.75.75.53:4599", provider: "oci" },
   { id: "dev-aws", name: "DEV AWS", url: "http://10.110.110.151:4566", provider: "aws" },
   { id: "dev-gcp", name: "DEV GCP", url: "http://10.110.110.159:4566", provider: "gcp" },
+  { id: "dev-az", name: "DEV Azure", url: "http://10.110.110.152:4577", provider: "azure" },
+  { id: "dev-oci", name: "DEV OCI", url: "http://10.110.110.153:4599", provider: "oci" },
 ];
 
 interface EndpointContextType {
@@ -66,15 +107,23 @@ export function EndpointProvider({ children }: { children: ReactNode }) {
               id: env.id || `env-${Math.random().toString(36).slice(2)}`,
               name: env.name || env.url,
               url: normalizeEndpointUrl(env.url),
-              provider:
-                env.provider ||
-                (env.name?.toLowerCase().includes("gcp") ||
-                env.url?.toLowerCase().includes("gcp") ||
-                env.url?.includes("159") ||
-                env.url?.includes(".51")
-                  ? "gcp"
-                  : "aws"),
+              provider: env.provider || detectCloudProvider(env.name, env.url),
             }));
+
+            // Merge in missing default providers (Azure and OCI) if not already present
+            const existingProviders = new Set(initialEnvs.map((e) => e.provider));
+            if (!existingProviders.has("azure")) {
+              initialEnvs.push(
+                { id: "tsp-az", name: "TSP Azure", url: "http://10.75.75.52:4577", provider: "azure" },
+                { id: "dev-az", name: "DEV Azure", url: "http://10.110.110.152:4577", provider: "azure" },
+              );
+            }
+            if (!existingProviders.has("oci")) {
+              initialEnvs.push(
+                { id: "tsp-oci", name: "TSP OCI", url: "http://10.75.75.53:4599", provider: "oci" },
+                { id: "dev-oci", name: "DEV OCI", url: "http://10.110.110.153:4599", provider: "oci" },
+              );
+            }
           }
         }
       } catch (e) {
@@ -131,7 +180,17 @@ export function EndpointProvider({ children }: { children: ReactNode }) {
       const targetEnv = matchingEnvs.find((e) => e.id === rememberedId) || matchingEnvs[0];
       selectEnvironment(targetEnv.id);
     } else {
-      console.warn(`No configured environment found for provider: ${targetProvider}`);
+      // If no matching environment exists yet, create or switch in-place
+      const defaultPort = targetProvider === "azure" ? "4577" : targetProvider === "oci" ? "4599" : "4566";
+      const newEnv: CloudEnvironment = {
+        id: `env-${targetProvider}-${Date.now()}`,
+        name: `${targetProvider.toUpperCase()} Local`,
+        url: `http://localhost:${defaultPort}`,
+        provider: targetProvider,
+      };
+      const updated = [...environments, newEnv];
+      saveEnvironments(updated);
+      selectEnvironment(newEnv.id);
     }
   };
 
@@ -150,14 +209,7 @@ export function EndpointProvider({ children }: { children: ReactNode }) {
 
   const addEnvironment = (name: string, url: string, provider?: CloudProvider) => {
     const cleanUrl = normalizeEndpointUrl(url);
-    const resolvedProvider: CloudProvider =
-      provider ||
-      (name.toLowerCase().includes("gcp") ||
-      cleanUrl.toLowerCase().includes("gcp") ||
-      cleanUrl.includes("159") ||
-      cleanUrl.includes(".51")
-        ? "gcp"
-        : "aws");
+    const resolvedProvider: CloudProvider = provider || detectCloudProvider(name, cleanUrl);
 
     const newEnv: CloudEnvironment = {
       id: `env-${Date.now()}`,
@@ -217,12 +269,7 @@ export function EndpointProvider({ children }: { children: ReactNode }) {
       id: "custom",
       name: "Custom Host",
       url: endpoint,
-      provider:
-        endpoint.toLowerCase().includes("gcp") ||
-        endpoint.includes("159") ||
-        endpoint.includes(".51")
-          ? "gcp"
-          : "aws",
+      provider: detectCloudProvider("", endpoint),
     };
 
   return (

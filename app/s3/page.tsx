@@ -264,6 +264,33 @@ export default function S3Page() {
     return parseFloat((bytes / Math.pow(k, i)).toFixed(2)) + " " + sizes[i];
   };
 
+  const s3Title =
+    cloudMode === "azure"
+      ? "Azure Blob Storage Containers"
+      : cloudMode === "oci"
+      ? "OCI Object Storage Buckets"
+      : isAws
+      ? "S3 Storage Buckets"
+      : "Cloud Storage Buckets";
+
+  const s3Subtitle =
+    cloudMode === "azure"
+      ? "Create, manage, and browse Azure Blob storage accounts, containers, and blobs"
+      : cloudMode === "oci"
+      ? "Create, manage, and browse OCI Object Storage compartments, buckets, and objects"
+      : isAws
+      ? "Create, manage, and browse AWS S3 buckets and stored objects"
+      : "Create, manage, and browse GCP Cloud Storage buckets and blobs inside Floci";
+
+  const createBucketBtnLabel =
+    cloudMode === "azure"
+      ? "Create Container"
+      : cloudMode === "oci"
+      ? "Create Bucket"
+      : isAws
+      ? "Create Bucket"
+      : "Create Storage Bucket";
+
   return (
     <div className="space-y-6 resource-page">
       {/* Toast Notifications */}
@@ -290,27 +317,21 @@ export default function S3Page() {
       <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-4">
         <div>
           <h2 className="text-2xl font-semibold text-ink flex items-center gap-3">
-            <FolderLock className={`w-6 h-6 ${isAws ? "text-accent" : "text-accent"}`} />
-            {isAws ? "S3 Storage Buckets" : "Cloud Storage Buckets"}
+            <FolderLock className="w-6 h-6 text-accent" />
+            {s3Title}
           </h2>
           <p className="text-sm text-muted mt-1">
-            {isAws
-              ? "Create, manage, and browse AWS S3 buckets and stored objects"
-              : "Create, manage, and browse GCP Cloud Storage buckets and blobs inside Floci"}
+            {s3Subtitle}
           </p>
         </div>
 
         <div className="flex items-center gap-2">
           <button
             onClick={() => setIsCreateBucketOpen(true)}
-            className={`flex items-center gap-2 px-4 py-2 rounded-control text-xs font-semibold text-white transition-all ${
-              isAws
-                ? "bg-action hover:bg-action shadow-amber-600/20"
-                : "bg-action hover:bg-action shadow-blue-600/20"
-            }`}
+            className="flex items-center gap-2 px-4 py-2 rounded-control text-xs font-semibold text-white bg-action hover:bg-action transition-all"
           >
             <Plus className="w-4 h-4" />
-            {isAws ? "Create Bucket" : "Create Storage Bucket"}
+            {createBucketBtnLabel}
           </button>
 
           <button
@@ -330,8 +351,8 @@ export default function S3Page() {
         <div className="bg-surface border border-line rounded-panel p-5 space-y-3">
           <div className="flex items-center justify-between pb-3 border-b border-line">
             <span className="text-xs font-bold text-ink uppercase tracking-wider flex items-center gap-2">
-              <Folder className={`w-4 h-4 ${isAws ? "text-accent" : "text-accent"}`} />
-              {isAws ? "Buckets" : "Storage Buckets"} ({buckets.length})
+              <Folder className="w-4 h-4 text-accent" />
+              {serviceLabels.buckets} ({buckets.length})
             </span>
           </div>
 
@@ -339,12 +360,12 @@ export default function S3Page() {
             <div className="py-8 text-center text-xs text-muted">Loading {serviceLabels.buckets}...</div>
           ) : buckets.length === 0 ? (
             <div className="py-8 text-center text-xs text-muted space-y-2">
-              <p>No buckets created yet.</p>
+              <p>No {serviceLabels.buckets.toLowerCase()} created yet.</p>
               <button
                 onClick={() => setIsCreateBucketOpen(true)}
                 className="text-xs font-semibold text-success hover:underline"
               >
-                + Create your first bucket
+                + Create your first {serviceLabels.buckets.toLowerCase().replace(/s$/, "")}
               </button>
             </div>
           ) : (
@@ -510,9 +531,9 @@ export default function S3Page() {
           <div className="bg-surface border border-line rounded-panel w-full max-w-md p-6 shadow-2xl space-y-5">
             <div className="flex items-center justify-between pb-3 border-b border-line">
               <div className="flex items-center gap-2">
-                <FolderLock className={`w-5 h-5 ${isAws ? "text-accent" : "text-accent"}`} />
+                <FolderLock className="w-5 h-5 text-accent" />
                 <h3 className="font-bold text-ink text-base">
-                  {isAws ? "Create S3 Bucket" : "Create Storage Bucket"}
+                  {createBucketBtnLabel}
                 </h3>
               </div>
               <button
@@ -526,7 +547,7 @@ export default function S3Page() {
             <form onSubmit={handleCreateBucket} className="space-y-4">
               <div>
                 <label className="block text-xs font-semibold text-ink mb-1.5">
-                  Bucket Name
+                  {cloudMode === "azure" ? "Container Name" : "Bucket Name"}
                 </label>
                 <input
                   type="text"
@@ -539,7 +560,9 @@ export default function S3Page() {
                   className="w-full bg-subtle border border-line px-3.5 py-2 rounded-control text-xs text-ink focus:outline-none focus:border-emerald-500 font-mono"
                 />
                 <span className="text-[11px] text-muted mt-1 block">
-                  Bucket names must be globally unique within Floci and use lowercase alphanumeric characters.
+                  {cloudMode === "azure"
+                    ? "Container names must be lowercase alphanumeric characters and hyphens."
+                    : "Bucket names must be globally unique within Floci and use lowercase alphanumeric characters."}
                 </span>
               </div>
 
@@ -554,14 +577,10 @@ export default function S3Page() {
                 <button
                   type="submit"
                   disabled={actionLoading}
-                  className={`px-4 py-2 text-xs font-semibold text-white rounded-control transition-colors flex items-center gap-1.5 ${
-                    isAws
-                      ? "bg-action hover:bg-action"
-                      : "bg-action hover:bg-action"
-                  }`}
+                  className="px-4 py-2 text-xs font-semibold text-white rounded-control bg-action hover:bg-action transition-colors flex items-center gap-1.5"
                 >
                   {actionLoading ? <RefreshCw className="w-3.5 h-3.5 animate-spin" /> : <Plus className="w-3.5 h-3.5" />}
-                  Create Bucket
+                  {createBucketBtnLabel}
                 </button>
               </div>
             </form>
