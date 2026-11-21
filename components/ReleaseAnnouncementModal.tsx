@@ -399,30 +399,30 @@ export function ReleaseAnnouncementModal() {
 
               <div className="space-y-3 text-xs">
                 <div className="p-3 bg-subtle rounded-panel border border-line space-y-1">
-                  <span className="font-bold text-ink">CloudFormation Engine v2.4</span>
+                  <span className="font-bold text-ink">CloudWatch OTLP Metrics &amp; Alarm Controls</span>
                   <p className="text-muted text-[11px]">
-                    Major decentralization and template engine upgrade supporting 163+ resource types: <code>AWS::EC2::PrefixList</code>, <code>AWS::WAFv2::IPSet</code>, Route53 RecordSetGroup, and RDS associated roles.
+                    Added native CloudWatch OTLP metrics ingestion plus <code>EnableAlarmActions</code> / <code>DisableAlarmActions</code> controls for threshold alarms.
                   </p>
                 </div>
 
                 <div className="p-3 bg-subtle rounded-panel border border-line space-y-1">
-                  <span className="font-bold text-ink">CloudWatch Alarms & Monitoring</span>
+                  <span className="font-bold text-ink">CloudFormation v2.5 Provisioning</span>
                   <p className="text-muted text-[11px]">
-                    Recorded alarm history and served <code>DescribeAlarmHistory</code>, composite alarm lifecycle management, and metric state evaluation.
+                    Expanded resource provisioning with <code>AWS::EFS::FileSystem</code>/MountTarget/AccessPoint, <code>AWS::CloudFormation::StackSet</code>, <code>AWS::EC2::KeyPair</code> (with SSM private keys), Cognito IdPs, and EventBridge V2 buses/subscribers.
                   </p>
                 </div>
 
                 <div className="p-3 bg-subtle rounded-panel border border-line space-y-1">
-                  <span className="font-bold text-ink">AWS Backup & Storage Enhancements</span>
+                  <span className="font-bold text-ink">Bedrock, AgentCore &amp; CloudFront KVS</span>
                   <p className="text-muted text-[11px]">
-                    Added <code>CreateLogicallyAirGappedBackupVault</code>, DynamoDB PITR / table backup restore parity, and S3 Vectors resources.
+                    Added Bedrock foundation model &amp; inference profile listing, guardrail resource policies, Bedrock AgentCore harness control plane, and CloudFront KeyValueStore support.
                   </p>
                 </div>
 
                 <div className="p-3 bg-subtle rounded-panel border border-line space-y-1">
-                  <span className="font-bold text-ink">API Gateway v2 & CloudFront</span>
+                  <span className="font-bold text-ink">API Gateway, AppSync &amp; Athena</span>
                   <p className="text-muted text-[11px]">
-                    VPC link integrations routed directly to Cloud Map service instances, signed Lambda function URLs under OAC, and execute-api custom origin handling.
+                    Added API Gateway v2 <code>SQS-SendMessage</code> integrations, REST documentation parts, AppSync HTTP/signed AWS data sources, and Athena Hive DDL &amp; named queries.
                   </p>
                 </div>
               </div>
