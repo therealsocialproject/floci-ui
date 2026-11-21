@@ -1,6 +1,6 @@
 # Floci Web UI (`floci-ui`)
 
-[![Release](https://img.shields.io/badge/version-v1.4.0-blue.svg)](https://github.com/therealsocialproject/floci-ui/releases)
+[![Release](https://img.shields.io/badge/version-v1.6.0-blue.svg)](https://github.com/therealsocialproject/floci-ui/releases)
 [![License: MIT](https://img.shields.io/badge/License-MIT-green.svg)](https://opensource.org/licenses/MIT)
 [![Container Image](https://img.shields.io/badge/ghcr.io-therealsocialproject%2Ffloci--ui-blue?logo=docker)](https://github.com/therealsocialproject/floci-ui/pkgs/container/floci-ui)
 
@@ -19,7 +19,22 @@
 * **Google Cloud (`floci-gcp`)**: Port `4588`
 * **Oracle Cloud Infrastructure (`floci-oci`)**: Port `4599`
 
-It offers 1-click cloud provider console switching, themed layouts, comprehensive resource explorers, live management capabilities (create, upload, invoke, test, and delete), and real-time observability across 11 core emulated cloud services.
+It offers 1-click cloud provider console switching, themed layouts, comprehensive resource explorers, live management capabilities (create, upload, invoke, test, and delete), **Floci Console Contract v1/v2** sidecar compatibility (`GET /api/health`, `AWS_ENDPOINT_URL`, `/_floci/info`, and `io.floci.console.*` image labels), and real-time observability across **23 emulated cloud services** (targeting Floci v2.5.0+).
+
+### Using as Floci's Built-in Web Console Sidecar (`/_floci/ui`)
+`floci-ui` implements the [Floci Console Contract v1/v2](https://floci.io/floci/ui/console-contract/) with self-describing Docker labels, so you can drop it straight into your Floci container with zero extra configuration:
+
+```yaml
+services:
+  floci:
+    image: floci/floci:latest
+    ports:
+      - "4566:4566"
+    volumes:
+      - /var/run/docker.sock:/var/run/docker.sock
+    environment:
+      FLOCI_SERVICES_UI_IMAGE: ghcr.io/therealsocialproject/floci-ui:latest
+```
 
 Learn more about Floci at [floci.io](https://floci.io) or explore the [Floci GitHub organization](https://github.com/floci-io).
 
@@ -118,7 +133,27 @@ Learn more about Floci at [floci.io](https://floci.io) or explore the [Floci Git
 * Browse Customer Managed Keys and AWS Managed Keys, aliases, key states (`Enabled`/`Disabled`), and key specs.
 * **Key Lifecycle Operations**: Create symmetric encryption keys, toggle key enabled/disabled status, and inspect key ARNs.
 
-### 16. Universal Resource Drawer (`ResourceDrawer`)
+### 16. EventBridge (`/eventbridge`) & Step Functions (`/stepfunctions`)
+* **EventBridge**: Manage event buses, routing rules (patterns & schedules), targets, and send custom events via `PutEvents`.
+* **Step Functions**: Create and inspect ASL state machines, start/stop executions, and view execution histories.
+
+### 17. CloudWatch Metrics & Alarms (`/cloudwatch`)
+* View custom and OTLP-ingested metrics, publish metric data points, create threshold alarms, toggle alarm states, and enable/disable alarm actions (Floci v2.5.0).
+
+### 18. Cognito User Pools (`/cognito`)
+* Create and manage User Pools, directory users, and OAuth/OIDC App Clients.
+
+### 19. ECS (`/ecs`) & ECR (`/ecr`) Containers
+* **ECS**: Inspect Docker-backed clusters, services, running tasks, and task definitions; create/delete clusters and stop tasks.
+* **ECR**: Create/delete container repositories, copy repository URIs, and manage pushed image tags/digests.
+
+### 20. Route 53 (`/route53`), SES (`/ses`), Kinesis (`/kinesis`) & CloudFormation (`/cloudformation`)
+* **Route 53**: Manage DNS hosted zones and upsert/delete resource record sets (`A`, `AAAA`, `CNAME`, `TXT`, `MX`).
+* **SES**: Verify email/domain identities, inspect templates, and send test emails.
+* **Kinesis**: Create/delete data streams and push test records with custom partition keys.
+* **CloudFormation**: Deploy and inspect infrastructure stacks, resources, events, and parameters.
+
+### 21. Universal Resource Drawer (`ResourceDrawer`)
 * Consistent slide-out drawer accessible on every resource across all services.
 * Multiple view modes: **JSON Tree**, **Formatted Properties Table**, and **Raw Text** with one-click clipboard copying.
 

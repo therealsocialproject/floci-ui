@@ -25,6 +25,15 @@ interface CloudThemeContextType {
     sns: string;
     ssm: string;
     cloudformation: string;
+    eventbridge: string;
+    stepfunctions: string;
+    cloudwatch: string;
+    cognito: string;
+    ecs: string;
+    ecr: string;
+    route53: string;
+    ses: string;
+    kinesis: string;
     instances: string;
     buckets: string;
     roles: string;
@@ -88,6 +97,15 @@ export function CloudThemeProvider({ children }: { children: ReactNode }) {
           sns: "Event Grid Topics",
           ssm: "App Configuration",
           cloudformation: "ARM Templates & Bicep",
+          eventbridge: "Event Grid & Event Hubs",
+          stepfunctions: "Logic Apps",
+          cloudwatch: "Azure Monitor Metrics",
+          cognito: "Entra External ID",
+          ecs: "Container Apps / ACI",
+          ecr: "Container Registry (ACR)",
+          route53: "Azure DNS Zones",
+          ses: "Communication Services Email",
+          kinesis: "Event Hubs Streams",
           instances: "Virtual Machines",
           buckets: "Storage Containers",
           roles: "App Registrations & Roles",
@@ -110,6 +128,15 @@ export function CloudThemeProvider({ children }: { children: ReactNode }) {
           sns: "Notifications & Topics",
           ssm: "Resource Manager Config",
           cloudformation: "Resource Manager Stacks",
+          eventbridge: "OCI Events Service",
+          stepfunctions: "OCI Workflows",
+          cloudwatch: "OCI Monitoring & Alarms",
+          cognito: "Identity Domains",
+          ecs: "Container Instances",
+          ecr: "Container Registry (OCIR)",
+          route53: "OCI DNS Zones",
+          ses: "Email Delivery",
+          kinesis: "OCI Streaming",
           instances: "Compute Instances",
           buckets: "Storage Buckets",
           roles: "Policies & Dynamic Groups",
@@ -132,6 +159,15 @@ export function CloudThemeProvider({ children }: { children: ReactNode }) {
           sns: "Pub/Sub Topics",
           ssm: "Runtime Config & Parameters",
           cloudformation: "Cloud Deployment Manager",
+          eventbridge: "Eventarc",
+          stepfunctions: "Cloud Workflows",
+          cloudwatch: "Cloud Monitoring",
+          cognito: "Identity Platform",
+          ecs: "Cloud Run / GKE",
+          ecr: "Artifact Registry",
+          route53: "Cloud DNS",
+          ses: "Email Service",
+          kinesis: "Dataflow / Pub/Sub Streams",
           instances: "VM Instances",
           buckets: "Storage Buckets",
           roles: "Service Accounts & Roles",
@@ -155,6 +191,15 @@ export function CloudThemeProvider({ children }: { children: ReactNode }) {
           sns: "Simple Notification Service (SNS)",
           ssm: "Systems Manager Parameter Store",
           cloudformation: "CloudFormation Stacks",
+          eventbridge: "EventBridge",
+          stepfunctions: "Step Functions",
+          cloudwatch: "CloudWatch Metrics & Alarms",
+          cognito: "Cognito User Pools",
+          ecs: "Elastic Container Service (ECS)",
+          ecr: "Elastic Container Registry (ECR)",
+          route53: "Route 53 DNS",
+          ses: "Simple Email Service (SES)",
+          kinesis: "Kinesis Data Streams",
           instances: "EC2 Instances",
           buckets: "S3 Buckets",
           roles: "IAM Roles & Policies",

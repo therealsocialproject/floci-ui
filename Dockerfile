@@ -21,6 +21,17 @@ ENV NODE_ENV=production
 ENV PORT=3000
 ENV HOSTNAME="0.0.0.0"
 
+# Floci Console Contract v1/v2 self-description labels
+LABEL io.floci.console.contract="1"
+LABEL io.floci.console.name="Floci Web UI"
+LABEL io.floci.console.port="3000"
+LABEL io.floci.console.health-path="/api/health"
+LABEL io.floci.console.health-ready-field="status"
+LABEL io.floci.console.health-ready-value="ok"
+LABEL io.floci.console.health-unavailable-value="unavailable"
+LABEL io.floci.console.clouds="aws,gcp,az,oci"
+LABEL io.floci.console.url="https://github.com/therealsocialproject/floci-ui"
+
 RUN addgroup --system --gid 1001 nodejs && \
     adduser --system --uid 1001 nextjs
 

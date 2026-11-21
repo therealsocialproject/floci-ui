@@ -22,8 +22,8 @@ import {
 } from "lucide-react";
 import { useEndpoint } from "./EndpointProvider";
 
-export const CURRENT_UI_VERSION = "1.5.0";
-export const LATEST_FLOCI_BACKEND_VERSION = "2.4.0";
+export const CURRENT_UI_VERSION = "1.6.0";
+export const LATEST_FLOCI_BACKEND_VERSION = "2.5.0";
 
 export function openUiChangelog() {
   if (typeof window !== "undefined") {
@@ -129,7 +129,7 @@ export function ReleaseAnnouncementModal() {
                     Floci Web UI Has Been Upgraded!
                   </h2>
                   <p className="text-xs text-muted">
-                    We've added native consoles for SNS Pub/Sub messaging and Systems Manager (SSM) Parameter Store, plus integrated version tracking.
+                    Added 9 new service consoles, full Floci v2.5.0 support, and native Floci Console Contract v1/v2 sidecar compatibility.
                   </p>
                 </div>
                 <button
@@ -143,20 +143,56 @@ export function ReleaseAnnouncementModal() {
 
               {/* Feature Highlights Grid */}
               <div className="space-y-3.5">
-                {/* CloudFormation Stacks */}
+                {/* Floci v2.5.0 & Console Contract v1/v2 */}
+                <div className="p-4 rounded-panel bg-subtle border border-line flex items-start gap-3.5">
+                  <div className="p-2 rounded-lg bg-emerald-500/10 border border-emerald-500/20 text-emerald-400 shrink-0">
+                    <ShieldCheck className="w-5 h-5" />
+                  </div>
+                  <div className="space-y-1">
+                    <div className="flex items-center gap-2">
+                      <span className="text-xs font-bold text-ink">Floci v2.5.0 &amp; Console Contract v1/v2</span>
+                      <span className="px-1.5 py-0.2 rounded text-[9px] font-semibold bg-emerald-500/10 text-emerald-400 border border-emerald-500/20">
+                        New
+                      </span>
+                    </div>
+                    <p className="text-xs text-muted leading-relaxed">
+                      Drop-in sidecar support via <code>FLOCI_SERVICES_UI_IMAGE</code> with <code>GET /api/health</code>, <code>AWS_ENDPOINT_URL</code>, <code>/_floci/info</code> manifest probing, and <code>io.floci.console.*</code> Docker image labels.
+                    </p>
+                  </div>
+                </div>
+
+                {/* EventBridge, Step Functions & CloudWatch */}
                 <div className="p-4 rounded-panel bg-subtle border border-line flex items-start gap-3.5">
                   <div className="p-2 rounded-lg bg-amber-500/10 border border-amber-500/20 text-amber-400 shrink-0">
                     <Layers className="w-5 h-5" />
                   </div>
                   <div className="space-y-1">
                     <div className="flex items-center gap-2">
-                      <span className="text-xs font-bold text-ink">CloudFormation Infrastructure Stacks</span>
+                      <span className="text-xs font-bold text-ink">EventBridge, Step Functions &amp; CloudWatch Metrics</span>
                       <span className="px-1.5 py-0.2 rounded text-[9px] font-semibold bg-amber-500/10 text-amber-400 border border-amber-500/20">
-                        New Service
+                        New Consoles
                       </span>
                     </div>
                     <p className="text-xs text-muted leading-relaxed">
-                      Deploy and orchestrate cloud resources with YAML/JSON templates powered by Floci v2.4's decentralized engine. Track provisioned resources, live stack events, and parameters.
+                      Manage EventBridge buses, rules, targets, and PutEvents; orchestrate Step Functions ASL state machines and execution history; monitor CloudWatch metrics and toggle alarm actions.
+                    </p>
+                  </div>
+                </div>
+
+                {/* ECS, ECR, Cognito, Route 53, SES & Kinesis */}
+                <div className="p-4 rounded-panel bg-subtle border border-line flex items-start gap-3.5">
+                  <div className="p-2 rounded-lg bg-blue-500/10 border border-blue-500/20 text-blue-400 shrink-0">
+                    <Server className="w-5 h-5" />
+                  </div>
+                  <div className="space-y-1">
+                    <div className="flex items-center gap-2">
+                      <span className="text-xs font-bold text-ink">ECS, ECR, Cognito, Route 53, SES &amp; Kinesis</span>
+                      <span className="px-1.5 py-0.2 rounded text-[9px] font-semibold bg-blue-500/10 text-blue-400 border border-blue-500/20">
+                        New Consoles
+                      </span>
+                    </div>
+                    <p className="text-xs text-muted leading-relaxed">
+                      Full visual management for Docker-backed ECS clusters/tasks, ECR container registries, Cognito user pools &amp; app clients, Route 53 DNS zones/records, SES email identities/sending, and Kinesis data streams.
                     </p>
                   </div>
                 </div>

@@ -30,6 +30,15 @@ import {
   Radio,
   SlidersHorizontal,
   Sparkles,
+  Workflow,
+  GitBranch,
+  Activity,
+  UserCheck,
+  Container,
+  Package,
+  Globe2,
+  Mail,
+  Waves,
 } from "lucide-react";
 import { useEndpoint, CloudProvider, detectCloudProvider } from "./EndpointProvider";
 import { useCloudTheme } from "./CloudThemeContext";
@@ -45,16 +54,25 @@ export function Sidebar() {
   const navItems = [
     { name: serviceLabels.dashboard, href: "/", icon: LayoutDashboard },
     { name: serviceLabels.ec2, href: "/ec2", icon: Server },
+    { name: serviceLabels.ecs, href: "/ecs", icon: Container },
+    { name: serviceLabels.ecr, href: "/ecr", icon: Package },
     { name: serviceLabels.lambda, href: "/lambda", icon: Zap },
     { name: serviceLabels.apigateway, href: "/apigateway", icon: Network },
+    { name: serviceLabels.route53, href: "/route53", icon: Globe2 },
     { name: serviceLabels.s3, href: "/s3", icon: FolderLock },
     { name: serviceLabels.dynamodb, href: "/dynamodb", icon: Database },
     { name: serviceLabels.rds, href: "/rds", icon: Database },
+    { name: serviceLabels.eventbridge, href: "/eventbridge", icon: Workflow },
+    { name: serviceLabels.stepfunctions, href: "/stepfunctions", icon: GitBranch },
     { name: serviceLabels.sns, href: "/sns", icon: Radio },
     { name: serviceLabels.sqs, href: "/sqs", icon: MessageSquare },
+    { name: serviceLabels.kinesis, href: "/kinesis", icon: Waves },
+    { name: serviceLabels.ses, href: "/ses", icon: Mail },
     { name: serviceLabels.ssm, href: "/ssm", icon: SlidersHorizontal },
+    { name: serviceLabels.cloudwatch, href: "/cloudwatch", icon: Activity },
     { name: serviceLabels.logs, href: "/logs", icon: FileText },
     { name: serviceLabels.iam, href: "/iam", icon: Users },
+    { name: serviceLabels.cognito, href: "/cognito", icon: UserCheck },
     { name: serviceLabels.secrets, href: "/secrets", icon: KeyRound },
     { name: serviceLabels.kms, href: "/kms", icon: ShieldCheck },
     { name: serviceLabels.cloudformation, href: "/cloudformation", icon: Boxes },
@@ -125,10 +143,10 @@ export function Sidebar() {
           type="button"
           onClick={openUiChangelog}
           className="px-1.5 py-0.5 rounded text-[10px] font-semibold bg-primary/10 text-primary border border-primary/20 hover:bg-primary/20 transition-colors flex items-center gap-1 cursor-pointer"
-          title="What's New in v1.5.0 (Click to view changelog)"
+          title="What's New in v1.6.0 (Click to view changelog)"
         >
           <Sparkles size={10} />
-          <span>v1.5.0</span>
+          <span>v1.6.0</span>
         </button>
       </div>
     </aside>
@@ -165,16 +183,25 @@ export function Header() {
   const searchLinks = [
     { href: "/", name: serviceLabels.dashboard },
     { href: "/ec2", name: serviceLabels.ec2 },
+    { href: "/ecs", name: serviceLabels.ecs },
+    { href: "/ecr", name: serviceLabels.ecr },
     { href: "/lambda", name: serviceLabels.lambda },
     { href: "/apigateway", name: serviceLabels.apigateway },
+    { href: "/route53", name: serviceLabels.route53 },
     { href: "/s3", name: serviceLabels.s3 },
     { href: "/dynamodb", name: serviceLabels.dynamodb },
     { href: "/rds", name: serviceLabels.rds },
+    { href: "/eventbridge", name: serviceLabels.eventbridge },
+    { href: "/stepfunctions", name: serviceLabels.stepfunctions },
     { href: "/sns", name: serviceLabels.sns },
     { href: "/sqs", name: serviceLabels.sqs },
+    { href: "/kinesis", name: serviceLabels.kinesis },
+    { href: "/ses", name: serviceLabels.ses },
     { href: "/ssm", name: serviceLabels.ssm },
+    { href: "/cloudwatch", name: serviceLabels.cloudwatch },
     { href: "/logs", name: serviceLabels.logs },
     { href: "/iam", name: serviceLabels.iam },
+    { href: "/cognito", name: serviceLabels.cognito },
     { href: "/secrets", name: serviceLabels.secrets },
     { href: "/kms", name: serviceLabels.kms },
     { href: "/cloudformation", name: serviceLabels.cloudformation },
