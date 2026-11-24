@@ -39,6 +39,12 @@ import {
   Globe2,
   Mail,
   Waves,
+  Cloud,
+  Cpu,
+  Scale,
+  FileKey2,
+  Building2,
+  ScrollText,
 } from "lucide-react";
 import { useEndpoint, CloudProvider, detectCloudProvider } from "./EndpointProvider";
 import { useCloudTheme } from "./CloudThemeContext";
@@ -55,13 +61,17 @@ export function Sidebar() {
     { name: serviceLabels.dashboard, href: "/", icon: LayoutDashboard },
     { name: serviceLabels.ec2, href: "/ec2", icon: Server },
     { name: serviceLabels.ecs, href: "/ecs", icon: Container },
+    { name: serviceLabels.eks, href: "/eks", icon: Cpu },
     { name: serviceLabels.ecr, href: "/ecr", icon: Package },
     { name: serviceLabels.lambda, href: "/lambda", icon: Zap },
     { name: serviceLabels.apigateway, href: "/apigateway", icon: Network },
+    { name: serviceLabels.elb, href: "/elb", icon: Scale },
+    { name: serviceLabels.cloudfront, href: "/cloudfront", icon: Cloud },
     { name: serviceLabels.route53, href: "/route53", icon: Globe2 },
     { name: serviceLabels.s3, href: "/s3", icon: FolderLock },
     { name: serviceLabels.dynamodb, href: "/dynamodb", icon: Database },
     { name: serviceLabels.rds, href: "/rds", icon: Database },
+    { name: serviceLabels.elasticache, href: "/elasticache", icon: Zap },
     { name: serviceLabels.eventbridge, href: "/eventbridge", icon: Workflow },
     { name: serviceLabels.stepfunctions, href: "/stepfunctions", icon: GitBranch },
     { name: serviceLabels.sns, href: "/sns", icon: Radio },
@@ -71,10 +81,13 @@ export function Sidebar() {
     { name: serviceLabels.ssm, href: "/ssm", icon: SlidersHorizontal },
     { name: serviceLabels.cloudwatch, href: "/cloudwatch", icon: Activity },
     { name: serviceLabels.logs, href: "/logs", icon: FileText },
+    { name: serviceLabels.cloudtrail, href: "/cloudtrail", icon: ScrollText },
     { name: serviceLabels.iam, href: "/iam", icon: Users },
     { name: serviceLabels.cognito, href: "/cognito", icon: UserCheck },
+    { name: serviceLabels.organizations, href: "/organizations", icon: Building2 },
     { name: serviceLabels.secrets, href: "/secrets", icon: KeyRound },
     { name: serviceLabels.kms, href: "/kms", icon: ShieldCheck },
+    { name: serviceLabels.acm, href: "/acm", icon: FileKey2 },
     { name: serviceLabels.cloudformation, href: "/cloudformation", icon: Boxes },
   ];
 
@@ -143,10 +156,10 @@ export function Sidebar() {
           type="button"
           onClick={openUiChangelog}
           className="px-1.5 py-0.5 rounded text-[10px] font-semibold bg-primary/10 text-primary border border-primary/20 hover:bg-primary/20 transition-colors flex items-center gap-1 cursor-pointer"
-          title="What's New in v1.6.0 (Click to view changelog)"
+          title="What's New in v1.7.0 (Click to view changelog)"
         >
           <Sparkles size={10} />
-          <span>v1.6.0</span>
+          <span>v1.7.0</span>
         </button>
       </div>
     </aside>
@@ -184,13 +197,17 @@ export function Header() {
     { href: "/", name: serviceLabels.dashboard },
     { href: "/ec2", name: serviceLabels.ec2 },
     { href: "/ecs", name: serviceLabels.ecs },
+    { href: "/eks", name: serviceLabels.eks },
     { href: "/ecr", name: serviceLabels.ecr },
     { href: "/lambda", name: serviceLabels.lambda },
     { href: "/apigateway", name: serviceLabels.apigateway },
+    { href: "/elb", name: serviceLabels.elb },
+    { href: "/cloudfront", name: serviceLabels.cloudfront },
     { href: "/route53", name: serviceLabels.route53 },
     { href: "/s3", name: serviceLabels.s3 },
     { href: "/dynamodb", name: serviceLabels.dynamodb },
     { href: "/rds", name: serviceLabels.rds },
+    { href: "/elasticache", name: serviceLabels.elasticache },
     { href: "/eventbridge", name: serviceLabels.eventbridge },
     { href: "/stepfunctions", name: serviceLabels.stepfunctions },
     { href: "/sns", name: serviceLabels.sns },
@@ -200,10 +217,13 @@ export function Header() {
     { href: "/ssm", name: serviceLabels.ssm },
     { href: "/cloudwatch", name: serviceLabels.cloudwatch },
     { href: "/logs", name: serviceLabels.logs },
+    { href: "/cloudtrail", name: serviceLabels.cloudtrail },
     { href: "/iam", name: serviceLabels.iam },
     { href: "/cognito", name: serviceLabels.cognito },
+    { href: "/organizations", name: serviceLabels.organizations },
     { href: "/secrets", name: serviceLabels.secrets },
     { href: "/kms", name: serviceLabels.kms },
+    { href: "/acm", name: serviceLabels.acm },
     { href: "/cloudformation", name: serviceLabels.cloudformation },
   ].filter((item) =>
     item.name.toLowerCase().includes(serviceSearch.toLowerCase()),

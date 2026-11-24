@@ -5,7 +5,7 @@ export const dynamic = "force-dynamic";
 
 const CONSOLE_INFO = {
   name: "floci-ui",
-  version: "1.6.0",
+  version: "1.7.0",
 };
 
 /**

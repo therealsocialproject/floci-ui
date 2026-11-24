@@ -1,6 +1,6 @@
 # Floci Web UI (`floci-ui`)
 
-[![Release](https://img.shields.io/badge/version-v1.6.0-blue.svg)](https://github.com/therealsocialproject/floci-ui/releases)
+[![Release](https://img.shields.io/badge/version-v1.7.0-blue.svg)](https://github.com/therealsocialproject/floci-ui/releases)
 [![License: MIT](https://img.shields.io/badge/License-MIT-green.svg)](https://opensource.org/licenses/MIT)
 [![Container Image](https://img.shields.io/badge/ghcr.io-therealsocialproject%2Ffloci--ui-blue?logo=docker)](https://github.com/therealsocialproject/floci-ui/pkgs/container/floci-ui)
 
@@ -19,7 +19,7 @@
 * **Google Cloud (`floci-gcp`)**: Port `4588`
 * **Oracle Cloud Infrastructure (`floci-oci`)**: Port `4599`
 
-It offers 1-click cloud provider console switching, themed layouts, comprehensive resource explorers, live management capabilities (create, upload, invoke, test, and delete), **Floci Console Contract v1/v2** sidecar compatibility (`GET /api/health`, `AWS_ENDPOINT_URL`, `/_floci/info`, and `io.floci.console.*` image labels), and real-time observability across **23 emulated cloud services** (targeting Floci v2.5.0+).
+It offers 1-click cloud provider console switching, themed layouts, comprehensive resource explorers, live management capabilities (create, upload, invoke, test, and delete), **Floci Console Contract v1/v2** sidecar compatibility (`GET /api/health`, `AWS_ENDPOINT_URL`, `/_floci/info`, and `io.floci.console.*` image labels), and real-time observability across **30 emulated cloud services** (targeting Floci v2.5.0+).
 
 ### Using as Floci's Built-in Web Console Sidecar (`/_floci/ui`)
 `floci-ui` implements the [Floci Console Contract v1/v2](https://floci.io/floci/ui/console-contract/) with self-describing Docker labels, so you can drop it straight into your Floci container with zero extra configuration:
@@ -153,7 +153,18 @@ Learn more about Floci at [floci.io](https://floci.io) or explore the [Floci Git
 * **Kinesis**: Create/delete data streams and push test records with custom partition keys.
 * **CloudFormation**: Deploy and inspect infrastructure stacks, resources, events, and parameters.
 
-### 21. Universal Resource Drawer (`ResourceDrawer`)
+### 21. CloudFront (`/cloudfront`), EKS (`/eks`), ElastiCache (`/elasticache`) & ELB v2 (`/elb`)
+* **CloudFront**: Create/delete CDN distributions, run cache invalidations, and inspect CloudFront Functions & KeyValueStores.
+* **EKS**: Manage k3s-backed Kubernetes clusters, API endpoints, and managed node groups.
+* **ElastiCache**: Create/delete Docker-backed Valkey/Redis cache clusters and replication groups.
+* **ELB v2**: Create/delete Application & Network Load Balancers (ALB/NLB) and Target Groups.
+
+### 22. ACM (`/acm`), Organizations (`/organizations`) & CloudTrail (`/cloudtrail`)
+* **ACM**: Request, inspect, and delete SSL/TLS certificates.
+* **Organizations**: Create organizations, OUs, member accounts, inspect SCPs, and close accounts.
+* **CloudTrail**: Create/delete audit trails and start/stop live S3 audit logging.
+
+### 23. Universal Resource Drawer (`ResourceDrawer`)
 * Consistent slide-out drawer accessible on every resource across all services.
 * Multiple view modes: **JSON Tree**, **Formatted Properties Table**, and **Raw Text** with one-click clipboard copying.
 

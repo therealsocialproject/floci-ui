@@ -22,7 +22,7 @@ import {
 } from "lucide-react";
 import { useEndpoint } from "./EndpointProvider";
 
-export const CURRENT_UI_VERSION = "1.6.0";
+export const CURRENT_UI_VERSION = "1.7.0";
 export const LATEST_FLOCI_BACKEND_VERSION = "2.5.0";
 
 export function openUiChangelog() {
@@ -129,7 +129,7 @@ export function ReleaseAnnouncementModal() {
                     Floci Web UI Has Been Upgraded!
                   </h2>
                   <p className="text-xs text-muted">
-                    Added 9 new service consoles, full Floci v2.5.0 support, and native Floci Console Contract v1/v2 sidecar compatibility.
+                    Expanded to 30 emulated cloud service consoles! Added CloudFront, EKS, ElastiCache, ELB v2, ACM, Organizations, and CloudTrail.
                   </p>
                 </div>
                 <button
@@ -143,6 +143,42 @@ export function ReleaseAnnouncementModal() {
 
               {/* Feature Highlights Grid */}
               <div className="space-y-3.5">
+                {/* CloudFront, EKS, ElastiCache & ELB v2 */}
+                <div className="p-4 rounded-panel bg-subtle border border-line flex items-start gap-3.5">
+                  <div className="p-2 rounded-lg bg-amber-500/10 border border-amber-500/20 text-amber-400 shrink-0">
+                    <Layers className="w-5 h-5" />
+                  </div>
+                  <div className="space-y-1">
+                    <div className="flex items-center gap-2">
+                      <span className="text-xs font-bold text-ink">CloudFront, EKS, ElastiCache &amp; ELB v2</span>
+                      <span className="px-1.5 py-0.2 rounded text-[9px] font-semibold bg-amber-500/10 text-amber-400 border border-amber-500/20">
+                        New in v1.7.0
+                      </span>
+                    </div>
+                    <p className="text-xs text-muted leading-relaxed">
+                      Manage CloudFront distributions, invalidations, Functions &amp; KVS; k3s-backed EKS clusters &amp; managed node groups; Valkey/Redis ElastiCache clusters; and ALB/NLB Load Balancers &amp; Target Groups.
+                    </p>
+                  </div>
+                </div>
+
+                {/* ACM, Organizations & CloudTrail */}
+                <div className="p-4 rounded-panel bg-subtle border border-line flex items-start gap-3.5">
+                  <div className="p-2 rounded-lg bg-blue-500/10 border border-blue-500/20 text-blue-400 shrink-0">
+                    <ShieldCheck className="w-5 h-5" />
+                  </div>
+                  <div className="space-y-1">
+                    <div className="flex items-center gap-2">
+                      <span className="text-xs font-bold text-ink">ACM, Organizations &amp; CloudTrail</span>
+                      <span className="px-1.5 py-0.2 rounded text-[9px] font-semibold bg-blue-500/10 text-blue-400 border border-blue-500/20">
+                        New in v1.7.0
+                      </span>
+                    </div>
+                    <p className="text-xs text-muted leading-relaxed">
+                      Request and inspect ACM SSL/TLS certificates, manage multi-account Organizations (OUs, SCPs, create &amp; close accounts), and configure CloudTrail audit trails with live start/stop logging.
+                    </p>
+                  </div>
+                </div>
+
                 {/* Floci v2.5.0 & Console Contract v1/v2 */}
                 <div className="p-4 rounded-panel bg-subtle border border-line flex items-start gap-3.5">
                   <div className="p-2 rounded-lg bg-emerald-500/10 border border-emerald-500/20 text-emerald-400 shrink-0">
@@ -152,7 +188,7 @@ export function ReleaseAnnouncementModal() {
                     <div className="flex items-center gap-2">
                       <span className="text-xs font-bold text-ink">Floci v2.5.0 &amp; Console Contract v1/v2</span>
                       <span className="px-1.5 py-0.2 rounded text-[9px] font-semibold bg-emerald-500/10 text-emerald-400 border border-emerald-500/20">
-                        New
+                        Included
                       </span>
                     </div>
                     <p className="text-xs text-muted leading-relaxed">

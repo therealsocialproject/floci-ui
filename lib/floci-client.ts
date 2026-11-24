@@ -22,6 +22,13 @@ import { ECRClient } from "@aws-sdk/client-ecr";
 import { Route53Client } from "@aws-sdk/client-route-53";
 import { SESClient } from "@aws-sdk/client-ses";
 import { KinesisClient } from "@aws-sdk/client-kinesis";
+import { CloudFrontClient } from "@aws-sdk/client-cloudfront";
+import { EKSClient } from "@aws-sdk/client-eks";
+import { ElastiCacheClient } from "@aws-sdk/client-elasticache";
+import { ElasticLoadBalancingV2Client } from "@aws-sdk/client-elastic-load-balancing-v2";
+import { ACMClient } from "@aws-sdk/client-acm";
+import { OrganizationsClient } from "@aws-sdk/client-organizations";
+import { CloudTrailClient } from "@aws-sdk/client-cloudtrail";
 
 import { normalizeEndpointUrl } from "./endpoint-utils";
 
@@ -153,6 +160,34 @@ export function getSESClient(endpoint?: string): SESClient {
 
 export function getKinesisClient(endpoint?: string): KinesisClient {
   return new KinesisClient(baseConfig(endpoint));
+}
+
+export function getCloudFrontClient(endpoint?: string): CloudFrontClient {
+  return new CloudFrontClient(baseConfig(endpoint));
+}
+
+export function getEKSClient(endpoint?: string): EKSClient {
+  return new EKSClient(baseConfig(endpoint));
+}
+
+export function getElastiCacheClient(endpoint?: string): ElastiCacheClient {
+  return new ElastiCacheClient(baseConfig(endpoint));
+}
+
+export function getELBv2Client(endpoint?: string): ElasticLoadBalancingV2Client {
+  return new ElasticLoadBalancingV2Client(baseConfig(endpoint));
+}
+
+export function getACMClient(endpoint?: string): ACMClient {
+  return new ACMClient(baseConfig(endpoint));
+}
+
+export function getOrganizationsClient(endpoint?: string): OrganizationsClient {
+  return new OrganizationsClient(baseConfig(endpoint));
+}
+
+export function getCloudTrailClient(endpoint?: string): CloudTrailClient {
+  return new CloudTrailClient(baseConfig(endpoint));
 }
 
 export interface FlociHealthResponse {

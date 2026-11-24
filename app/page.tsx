@@ -29,6 +29,12 @@ import {
   Globe2,
   Mail,
   Waves,
+  Cloud,
+  Cpu,
+  Scale,
+  FileKey2,
+  Building2,
+  ScrollText,
 } from "lucide-react";
 import { useEndpoint } from "@/components/EndpointProvider";
 import { useCloudTheme } from "@/components/CloudThemeContext";
@@ -64,6 +70,13 @@ export default function DashboardPage() {
     route53: 0,
     ses: 0,
     kinesis: 0,
+    cloudfront: 0,
+    eks: 0,
+    elasticache: 0,
+    elb: 0,
+    acm: 0,
+    organizations: 0,
+    cloudtrail: 0,
   });
   const [isLoadingCounts, setIsLoadingCounts] = useState(true);
 
@@ -102,6 +115,13 @@ export default function DashboardPage() {
           r53Res,
           sesRes,
           kinRes,
+          cfRes,
+          eksRes,
+          ecRes,
+          elbRes,
+          acmRes,
+          orgRes,
+          ctRes,
         ] = await Promise.allSettled([
           fetch(`/api/floci/ec2?endpoint=${encodeURIComponent(endpoint)}`).then((r) => r.json()),
           fetch(`/api/floci/s3?endpoint=${encodeURIComponent(endpoint)}`).then((r) => r.json()),
@@ -126,6 +146,13 @@ export default function DashboardPage() {
           fetch(`/api/floci/route53?endpoint=${encodeURIComponent(endpoint)}`).then((r) => r.json()),
           fetch(`/api/floci/ses?endpoint=${encodeURIComponent(endpoint)}`).then((r) => r.json()),
           fetch(`/api/floci/kinesis?endpoint=${encodeURIComponent(endpoint)}`).then((r) => r.json()),
+          fetch(`/api/floci/cloudfront?endpoint=${encodeURIComponent(endpoint)}`).then((r) => r.json()),
+          fetch(`/api/floci/eks?endpoint=${encodeURIComponent(endpoint)}`).then((r) => r.json()),
+          fetch(`/api/floci/elasticache?endpoint=${encodeURIComponent(endpoint)}`).then((r) => r.json()),
+          fetch(`/api/floci/elb?endpoint=${encodeURIComponent(endpoint)}`).then((r) => r.json()),
+          fetch(`/api/floci/acm?endpoint=${encodeURIComponent(endpoint)}`).then((r) => r.json()),
+          fetch(`/api/floci/organizations?endpoint=${encodeURIComponent(endpoint)}`).then((r) => r.json()),
+          fetch(`/api/floci/cloudtrail?endpoint=${encodeURIComponent(endpoint)}`).then((r) => r.json()),
         ]);
 
         const rolesCount =
@@ -169,6 +196,13 @@ export default function DashboardPage() {
           route53: r53Res.status === "fulfilled" && r53Res.value?.count !== undefined ? r53Res.value.count : 0,
           ses: sesRes.status === "fulfilled" && sesRes.value?.count !== undefined ? sesRes.value.count : 0,
           kinesis: kinRes.status === "fulfilled" && kinRes.value?.count !== undefined ? kinRes.value.count : 0,
+          cloudfront: cfRes.status === "fulfilled" && cfRes.value?.count !== undefined ? cfRes.value.count : 0,
+          eks: eksRes.status === "fulfilled" && eksRes.value?.count !== undefined ? eksRes.value.count : 0,
+          elasticache: ecRes.status === "fulfilled" && ecRes.value?.count !== undefined ? ecRes.value.count : 0,
+          elb: elbRes.status === "fulfilled" && elbRes.value?.count !== undefined ? elbRes.value.count : 0,
+          acm: acmRes.status === "fulfilled" && acmRes.value?.count !== undefined ? acmRes.value.count : 0,
+          organizations: orgRes.status === "fulfilled" && orgRes.value?.count !== undefined ? orgRes.value.count : 0,
+          cloudtrail: ctRes.status === "fulfilled" && ctRes.value?.count !== undefined ? ctRes.value.count : 0,
         });
       } catch (e) {
         console.error("Failed to load counts", e);
@@ -374,6 +408,62 @@ export default function DashboardPage() {
       icon: Boxes,
       category: "Infrastructure",
     },
+    {
+      href: "/cloudfront",
+      name: serviceLabels.cloudfront,
+      label: "Distributions",
+      count: counts.cloudfront,
+      icon: Cloud,
+      category: "Networking",
+    },
+    {
+      href: "/eks",
+      name: serviceLabels.eks,
+      label: "K8s Clusters",
+      count: counts.eks,
+      icon: Cpu,
+      category: "Containers",
+    },
+    {
+      href: "/elasticache",
+      name: serviceLabels.elasticache,
+      label: "Cache Clusters",
+      count: counts.elasticache,
+      icon: Zap,
+      category: "Database",
+    },
+    {
+      href: "/elb",
+      name: serviceLabels.elb,
+      label: "Load Balancers",
+      count: counts.elb,
+      icon: Scale,
+      category: "Networking",
+    },
+    {
+      href: "/acm",
+      name: serviceLabels.acm,
+      label: "Certificates",
+      count: counts.acm,
+      icon: FileKey2,
+      category: "Security",
+    },
+    {
+      href: "/organizations",
+      name: serviceLabels.organizations,
+      label: "Accounts",
+      count: counts.organizations,
+      icon: Building2,
+      category: "Governance",
+    },
+    {
+      href: "/cloudtrail",
+      name: serviceLabels.cloudtrail,
+      label: "Audit Trails",
+      count: counts.cloudtrail,
+      icon: ScrollText,
+      category: "Governance",
+    },
   ];
   const routes: Record<string, string> = {
     ec2: "/ec2",
@@ -404,6 +494,14 @@ export default function DashboardPage() {
     route53: "/route53",
     ses: "/ses",
     kinesis: "/kinesis",
+    cloudfront: "/cloudfront",
+    eks: "/eks",
+    elasticache: "/elasticache",
+    elbv2: "/elb",
+    elb: "/elb",
+    acm: "/acm",
+    organizations: "/organizations",
+    cloudtrail: "/cloudtrail",
   };
   const runningCount = serviceEntries.filter(
     ([, status]) => status === "running" || status === "available",

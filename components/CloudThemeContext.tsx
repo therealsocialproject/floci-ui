@@ -34,6 +34,13 @@ interface CloudThemeContextType {
     route53: string;
     ses: string;
     kinesis: string;
+    cloudfront: string;
+    eks: string;
+    elasticache: string;
+    elb: string;
+    acm: string;
+    organizations: string;
+    cloudtrail: string;
     instances: string;
     buckets: string;
     roles: string;
@@ -106,6 +113,13 @@ export function CloudThemeProvider({ children }: { children: ReactNode }) {
           route53: "Azure DNS Zones",
           ses: "Communication Services Email",
           kinesis: "Event Hubs Streams",
+          cloudfront: "Azure Front Door / CDN",
+          eks: "Azure Kubernetes Service (AKS)",
+          elasticache: "Azure Cache for Redis",
+          elb: "Azure Load Balancer",
+          acm: "App Service Certificates",
+          organizations: "Management Groups",
+          cloudtrail: "Activity Log & Audit",
           instances: "Virtual Machines",
           buckets: "Storage Containers",
           roles: "App Registrations & Roles",
@@ -137,6 +151,13 @@ export function CloudThemeProvider({ children }: { children: ReactNode }) {
           route53: "OCI DNS Zones",
           ses: "Email Delivery",
           kinesis: "OCI Streaming",
+          cloudfront: "OCI Edge & CDN",
+          eks: "Container Engine (OKE)",
+          elasticache: "OCI Cache (Redis)",
+          elb: "OCI Load Balancers",
+          acm: "Certificates Service",
+          organizations: "Tenancy & Compartments",
+          cloudtrail: "OCI Audit",
           instances: "Compute Instances",
           buckets: "Storage Buckets",
           roles: "Policies & Dynamic Groups",
@@ -168,6 +189,13 @@ export function CloudThemeProvider({ children }: { children: ReactNode }) {
           route53: "Cloud DNS",
           ses: "Email Service",
           kinesis: "Dataflow / Pub/Sub Streams",
+          cloudfront: "Cloud CDN",
+          eks: "Google Kubernetes Engine (GKE)",
+          elasticache: "Memorystore (Redis)",
+          elb: "Cloud Load Balancing",
+          acm: "Certificate Manager",
+          organizations: "Resource Manager & Orgs",
+          cloudtrail: "Cloud Audit Logs",
           instances: "VM Instances",
           buckets: "Storage Buckets",
           roles: "Service Accounts & Roles",
@@ -200,6 +228,13 @@ export function CloudThemeProvider({ children }: { children: ReactNode }) {
           route53: "Route 53 DNS",
           ses: "Simple Email Service (SES)",
           kinesis: "Kinesis Data Streams",
+          cloudfront: "CloudFront CDN",
+          eks: "Elastic Kubernetes Service (EKS)",
+          elasticache: "ElastiCache (Redis/Valkey)",
+          elb: "Load Balancers (ELB v2)",
+          acm: "Certificate Manager (ACM)",
+          organizations: "AWS Organizations",
+          cloudtrail: "CloudTrail Audit",
           instances: "EC2 Instances",
           buckets: "S3 Buckets",
           roles: "IAM Roles & Policies",
