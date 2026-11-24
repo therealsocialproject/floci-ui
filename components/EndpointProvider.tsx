@@ -22,7 +22,8 @@ export function detectCloudProvider(name?: string, url?: string): CloudProvider 
     n.includes(" az") ||
     n.startsWith("az-") ||
     n.startsWith("azure-") ||
-    u.includes("10.75.75.53")
+    u.includes("10.75.75.53") ||
+    u.includes("10.110.110.153")
   ) {
     return "azure";
   }
@@ -32,7 +33,8 @@ export function detectCloudProvider(name?: string, url?: string): CloudProvider 
     u.includes("oci") ||
     n.includes("oracle") ||
     u.includes("oracle") ||
-    u.includes("10.75.75.52")
+    u.includes("10.75.75.52") ||
+    u.includes("10.110.110.152")
   ) {
     return "oci";
   }
@@ -56,6 +58,8 @@ export const DEFAULT_ENVIRONMENTS: CloudEnvironment[] = [
   { id: "tsp-az", name: "TSP Azure", url: "http://10.75.75.53:4566", provider: "azure" },
   { id: "dev-aws", name: "DEV AWS", url: "http://10.110.110.151:4566", provider: "aws" },
   { id: "dev-gcp", name: "DEV GCP", url: "http://10.110.110.159:4566", provider: "gcp" },
+  { id: "dev-oci", name: "DEV OCI", url: "http://10.110.110.152:4566", provider: "oci" },
+  { id: "dev-az", name: "DEV Azure", url: "http://10.110.110.153:4566", provider: "azure" },
 ];
 
 interface EndpointContextType {
@@ -111,6 +115,12 @@ export function EndpointProvider({ children }: { children: ReactNode }) {
               } else if (env.id === "tsp-az" || url === "http://10.75.75.52:4577") {
                 url = "http://10.75.75.53:4566";
                 provider = "azure";
+              } else if (env.id === "dev-oci" || url === "http://10.110.110.153:4599") {
+                url = "http://10.110.110.152:4566";
+                provider = "oci";
+              } else if (env.id === "dev-az" || url === "http://10.110.110.152:4577") {
+                url = "http://10.110.110.153:4566";
+                provider = "azure";
               }
               return {
                 id: env.id || `env-${Math.random().toString(36).slice(2)}`,
@@ -120,23 +130,12 @@ export function EndpointProvider({ children }: { children: ReactNode }) {
               };
             });
 
-            // Merge in missing default providers (Azure and OCI) if not already present
-            const existingProviders = new Set(initialEnvs.map((e) => e.provider));
-            if (!existingProviders.has("oci")) {
-              initialEnvs.push({
-                id: "tsp-oci",
-                name: "TSP OCI",
-                url: "http://10.75.75.52:4566",
-                provider: "oci",
-              });
-            }
-            if (!existingProviders.has("azure")) {
-              initialEnvs.push({
-                id: "tsp-az",
-                name: "TSP Azure",
-                url: "http://10.75.75.53:4566",
-                provider: "azure",
-              });
+            // Merge in any missing default environments by id
+            const existingIds = new Set(initialEnvs.map((e) => e.id));
+            for (const def of DEFAULT_ENVIRONMENTS) {
+              if (!existingIds.has(def.id)) {
+                initialEnvs.push(def);
+              }
             }
           }
         }
